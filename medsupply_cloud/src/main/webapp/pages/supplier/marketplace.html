@@ -39,12 +39,12 @@
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col ml-72">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
         <!-- Page Header -->
@@ -59,7 +59,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-textSecondary text-sm">Appels ouverts</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-open">0</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-open">--</p>
               </div>
               <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="gavel" class="w-6 h-6 text-green-600"></i>
@@ -70,7 +70,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-textSecondary text-sm">Mes offres</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-my-offers">0</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-my-offers">--</p>
               </div>
               <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i>
@@ -81,7 +81,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-textSecondary text-sm">Marchés attribués</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-awarded">0</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-awarded">--</p>
               </div>
               <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="trophy" class="w-6 h-6 text-purple-600"></i>
@@ -90,22 +90,15 @@
           </div>
         </div>
 
-        <!-- Filter Bar -->
-        <div class="bg-surface rounded-xl shadow-sm border border-border p-4 mb-6">
-          <div class="flex flex-wrap items-center gap-4">
-            <select id="filter-open-only" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
-              <option value="true">Ouverts uniquement</option>
-              <option value="false">Tous les appels d'offres</option>
-            </select>
-            <button onclick="applyFilters()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
-              Filtrer
-            </button>
-          </div>
-        </div>
-
         <!-- Available Tenders -->
         <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6">
-          <h3 class="font-semibold text-textPrimary mb-4">Appels d'offres disponibles</h3>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-textPrimary">Appels d'offres disponibles</h3>
+            <button onclick="loadMarketplace()" class="inline-flex items-center gap-2 text-sm text-textSecondary hover:text-accent transition-colors">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              Actualiser
+            </button>
+          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tenders-grid">
             <div class="col-span-full text-center py-12 text-textSecondary">Chargement...</div>
           </div>
@@ -120,7 +113,7 @@
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Appel d'offres</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Mon prix</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Statut</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Statut de l'appel</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Date soumission</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Actions</th>
                 </tr>
@@ -158,102 +151,161 @@
 
     let countdownIntervals = {};
 
+    function clearCountdowns() {
+      Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
+      countdownIntervals = {};
+    }
+
     async function loadMarketplace() {
+      clearCountdowns();
+      const grid = document.getElementById('tenders-grid');
+      const tbody = document.getElementById('offers-table-body');
+      grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">Chargement...</div>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-textSecondary">Chargement...</td></tr>`;
+
       try {
-        const openOnly = document.getElementById('filter-open-only').value;
-
-        const response = await apiFetch(`/tenders/open`);
-        const data = response?.data || {};
-
-        // Update stats
-        document.getElementById("stat-open").textContent = data.stats?.open || 0;
-        document.getElementById("stat-my-offers").textContent = data.stats?.myOffers || 0;
-        document.getElementById("stat-awarded").textContent = data.stats?.awarded || 0;
-
-        // Clear existing countdown intervals
-        Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
-        countdownIntervals = {};
-
-        // Update tenders grid
-        const grid = document.getElementById('tenders-grid');
-        const tenders = data.tenders || [];
-        if (tenders.length === 0) {
-          grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">Aucun appel d'offres disponible</div>`;
+        // ---- Open tenders ----
+        const tendersRes = await apiFetch('/tenders/open');
+        if (!tendersRes || !tendersRes.ok) {
+          showToast(tendersRes?.data?.message || "Erreur lors du chargement des appels d'offres", "error");
+          grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">Impossible de charger les appels d'offres</div>`;
         } else {
-          grid.innerHTML = tenders.map(tender => {
-            const countdownId = `countdown-${tender.tenderId}`;
-            return `
-              <div class="bg-gray-50 rounded-xl border border-border p-6">
-                <div class="mb-4">
-                  <h3 class="font-semibold text-textPrimary text-lg mb-2">${tender.title}</h3>
-                  <div class="flex items-center gap-2 mb-2">
-                    <i data-lucide="building" class="w-4 h-4 text-textSecondary"></i>
-                    <span class="text-sm text-textSecondary">${tender.clientName}</span>
-                    ${renderClientTypeBadge(tender.clientType)}
-                  </div>
-                </div>
-                <div class="space-y-2 mb-4">
-                  <div class="flex items-center gap-2">
-                    <i data-lucide="wallet" class="w-4 h-4 text-accent"></i>
-                    <span class="text-sm text-textSecondary">Budget max: ${formatCurrency(tender.maxBudget)}</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <i data-lucide="clock" class="w-4 h-4 ${getDeadlineUrgencyClass(tender.deadline)}"></i>
-                    <span class="text-sm ${getDeadlineUrgencyClass(tender.deadline)}" id="${countdownId}">--</span>
-                  </div>
-                </div>
-                <button onclick="viewTender('${tender.tenderId}')" class="w-full bg-accent hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
-                  Voir & Soumettre
-                </button>
-              </div>
-            `;
-          }).join('');
-
-          // Start countdown timers
-          data.tenders.forEach(tender => {
-            startCountdown(tender.tenderId, tender.deadline);
-          });
+          const tenders = tendersRes.data.tenders || [];
+          document.getElementById('stat-open').textContent = tenders.length;
+          renderTenders(tenders);
         }
 
-        // Update offers table
-        const tbody = document.getElementById('offers-table-body');
-        if (data.myOffers.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-textSecondary">Aucune offre soumise</td></tr>`;
+        // ---- My bids ----
+        const bidsRes = await apiFetch('/tenders/my-bids');
+        if (!bidsRes || !bidsRes.ok) {
+          showToast(bidsRes?.data?.message || "Erreur lors du chargement de vos offres", "error");
+          document.getElementById('stat-my-offers').textContent = '0';
+          document.getElementById('stat-awarded').textContent = '0';
+          tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-textSecondary">Impossible de charger vos offres</td></tr>`;
         } else {
-          tbody.innerHTML = data.myOffers.map(offer => `
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-textPrimary font-medium">${offer.tenderTitle}</td>
-              <td class="px-6 py-4 text-textPrimary font-bold">${formatCurrency(offer.proposedPrice)}</td>
-              <td class="px-6 py-4">
-                ${renderOfferStatusBadge(offer.status)}
-              </td>
-              <td class="px-6 py-4 text-textSecondary">${formatDate(offer.submissionDate)}</td>
-              <td class="px-6 py-4">
-                <button onclick="viewTender('${offer.tenderId}')" class="p-2 hover:bg-gray-100 rounded transition-colors" title="Voir">
-                  <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
-                </button>
-              </td>
-            </tr>
-          `).join('');
+          const bids = bidsRes.data.bids || [];
+          await renderMyOffers(bids);
         }
-
-        lucide.createIcons();
       } catch (error) {
         console.error("Failed to load marketplace:", error);
+        showToast("Erreur lors du chargement de la marketplace", "error");
       }
+
+      lucide.createIcons();
+    }
+
+    function renderTenders(tenders) {
+      const grid = document.getElementById('tenders-grid');
+      if (!tenders.length) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">
+          <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3 text-gray-300"></i>
+          <p>Aucun appel d'offres disponible pour le moment</p>
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = tenders.map(tender => {
+        const countdownId = `countdown-${tender.tenderId}`;
+        const desc = tender.description
+          ? `<p class="text-sm text-textSecondary line-clamp-2 mb-3">${escapeHtml(tender.description)}</p>`
+          : '';
+        return `
+          <div class="bg-gray-50 rounded-xl border border-border p-6 flex flex-col">
+            <div class="mb-3">
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <h3 class="font-semibold text-textPrimary text-lg">${escapeHtml(tender.title)}</h3>
+                ${renderBadge(tender.status)}
+              </div>
+              <p class="text-xs text-textSecondary font-mono">Client #${tender.clientId ? tender.clientId.slice(0, 8) : '—'}</p>
+            </div>
+            ${desc}
+            <div class="space-y-2 mb-4 mt-auto">
+              <div class="flex items-center gap-2">
+                <i data-lucide="wallet" class="w-4 h-4 text-accent"></i>
+                <span class="text-sm text-textSecondary">Budget max: <span class="font-medium text-textPrimary">${formatCurrency(tender.budgetMax)}</span></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="clock" class="w-4 h-4 ${getDeadlineUrgencyClass(tender.deadline)}"></i>
+                <span class="text-sm ${getDeadlineUrgencyClass(tender.deadline)}" id="${countdownId}">--</span>
+              </div>
+            </div>
+            <button onclick="viewTender('${tender.tenderId}')" class="w-full bg-accent hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
+              Voir &amp; Soumettre
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      tenders.forEach(tender => startCountdown(tender.tenderId, tender.deadline));
+    }
+
+    // Build "Mes offres soumises" from the supplier's own bids (GET /tenders/my-bids).
+    // Resolve each distinct tender (title + status) via GET /tenders/{id} so we can show
+    // the tender name and best-effort "Marchés attribués" (tender status === AWARDED).
+    async function renderMyOffers(bids) {
+      const tbody = document.getElementById('offers-table-body');
+
+      if (!bids.length) {
+        document.getElementById('stat-my-offers').textContent = '0';
+        document.getElementById('stat-awarded').textContent = '0';
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-textSecondary">
+          <i data-lucide="file-text" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i>
+          <p>Vous n'avez soumis aucune offre</p>
+        </td></tr>`;
+        return;
+      }
+
+      // Resolve distinct tenders once.
+      const tenderIds = [...new Set(bids.map(b => b.tenderId))];
+      const tenderMap = {};
+      await Promise.all(tenderIds.map(async (id) => {
+        const r = await apiFetch('/tenders/' + id);
+        if (r && r.ok && r.data && r.data.tender) {
+          tenderMap[id] = r.data.tender;
+        }
+      }));
+
+      let awardedCount = 0;
+      tenderIds.forEach(id => {
+        if (tenderMap[id] && tenderMap[id].status === 'AWARDED') awardedCount++;
+      });
+
+      document.getElementById('stat-my-offers').textContent = bids.length;
+      document.getElementById('stat-awarded').textContent = awardedCount;
+
+      // Most recent bids first.
+      const sorted = [...bids].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      tbody.innerHTML = sorted.map(bid => {
+        const tender = tenderMap[bid.tenderId];
+        const title = tender ? escapeHtml(tender.title) : `Appel #${bid.tenderId.slice(0, 8)}`;
+        const statusCell = tender ? renderBadge(tender.status) : '<span class="text-textSecondary text-sm">—</span>';
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 text-textPrimary font-medium">${title}</td>
+            <td class="px-6 py-4 text-textPrimary font-bold">${formatCurrency(bid.price)}</td>
+            <td class="px-6 py-4">${statusCell}</td>
+            <td class="px-6 py-4 text-textSecondary">${formatDate(bid.createdAt)}</td>
+            <td class="px-6 py-4">
+              <button onclick="viewTender('${bid.tenderId}')" class="p-2 hover:bg-gray-100 rounded transition-colors" title="Voir l'appel d'offres">
+                <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function startCountdown(tenderId, deadline) {
       const elementId = `countdown-${tenderId}`;
       const element = document.getElementById(elementId);
-      
       if (!element) return;
 
       const updateCountdown = () => {
         const now = new Date();
         const deadlineDate = new Date(deadline);
         const diffMs = deadlineDate - now;
-        
+
         if (diffMs <= 0) {
           element.textContent = 'Expiré';
           element.className = 'text-sm text-red-600 font-medium';
@@ -286,48 +338,19 @@
       const now = new Date();
       const deadlineDate = new Date(deadline);
       const diffHours = (deadlineDate - now) / (1000 * 60 * 60);
-      
       if (diffHours < 24) return 'text-red-600 font-medium';
       if (diffHours < 168) return 'text-amber-600 font-medium';
       return 'text-textSecondary';
     }
 
-    function renderClientTypeBadge(type) {
-      const colors = {
-        HOSPITAL: "bg-blue-100 text-blue-800",
-        LABORATORY: "bg-purple-100 text-purple-800",
-        CLINIC: "bg-teal-100 text-teal-800",
-        DOCTOR: "bg-green-100 text-green-800",
-        MEDICAL_OFFICE: "bg-orange-100 text-orange-800",
-        RESELLER: "bg-slate-100 text-slate-800"
-      };
-      const labels = {
-        HOSPITAL: "Hôpital",
-        LABORATORY: "Laboratoire",
-        CLINIC: "Clinique",
-        DOCTOR: "Médecin",
-        MEDICAL_OFFICE: "Cabinet",
-        RESELLER: "Revendeur"
-      };
-      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[type] || 'bg-gray-100 text-gray-800'}">${labels[type] || type}</span>`;
-    }
-
-    function renderOfferStatusBadge(status) {
-      const colors = {
-        PENDING: "bg-yellow-100 text-yellow-800",
-        ACCEPTED: "bg-green-100 text-green-800",
-        REJECTED: "bg-red-100 text-red-800"
-      };
-      const labels = {
-        PENDING: "En attente",
-        ACCEPTED: "Accepté",
-        REJECTED: "Rejeté"
-      };
-      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
-    }
-
-    function applyFilters() {
-      loadMarketplace();
+    function escapeHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function viewTender(tenderId) {
@@ -338,9 +361,7 @@
     loadMarketplace();
 
     // Cleanup intervals on page unload
-    window.addEventListener('beforeunload', () => {
-      Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
-    });
+    window.addEventListener('beforeunload', clearCountdowns);
   </script>
 </body>
 </html>

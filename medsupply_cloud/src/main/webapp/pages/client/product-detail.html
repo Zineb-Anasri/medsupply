@@ -39,12 +39,12 @@
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col ">
+    <div class="flex-1 flex flex-col min-w-0">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
         <!-- Breadcrumb -->
@@ -58,20 +58,9 @@
           <!-- Left: Product Image -->
           <div class="w-full lg:w-1/2">
             <div class="bg-surface rounded-xl shadow-sm border border-border p-6 sticky top-6">
-              <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
-                ${product.imageUrl 
-                  ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover">`
-                  : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
-                      <i data-lucide="package" class="w-24 h-24 text-primary"></i>
-                    </div>`
-                }
-              </div>
-              <div class="flex gap-2">
-                <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 border-accent">
-                  <img src="${product.imageUrl}" alt="" class="w-full h-full object-cover">
-                </div>
-                <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden cursor-pointer border-2 border-transparent hover:border-gray-300">
-                  <img src="${product.imageUrl}" alt="" class="w-full h-full object-cover">
+              <div id="image-container" class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
+                  <i data-lucide="package" class="w-24 h-24 text-primary"></i>
                 </div>
               </div>
             </div>
@@ -80,15 +69,12 @@
           <!-- Right: Product Info -->
           <div class="w-full lg:w-1/2">
             <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
-              <!-- Category Badge -->
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mb-4" id="product-category">--</span>
-
               <!-- Product Name -->
               <h1 class="text-3xl font-bold text-textPrimary mb-2" id="product-name">Chargement...</h1>
 
-              <!-- Brand & Reference -->
+              <!-- Reference -->
               <p class="text-textSecondary mb-4">
-                <span id="product-brand">--</span> · <span class="font-mono" id="product-reference">--</span>
+                Référence : <span class="font-mono" id="product-reference">--</span>
               </p>
 
               <!-- Price -->
@@ -97,18 +83,13 @@
                 <p class="text-sm text-textSecondary">Prix unitaire</p>
               </div>
 
-              <!-- Stock Status -->
-              <div class="mb-6" id="stock-status">
-                <!-- Stock badge will be rendered here -->
-              </div>
-
               <!-- Warranty -->
-              <div class="flex items-center gap-2 mb-6 text-textSecondary">
+              <div id="warranty-row" class="flex items-center gap-2 mb-6 text-textSecondary hidden">
                 <i data-lucide="shield-check" class="w-5 h-5"></i>
-                <span>Garantie <span id="product-warranty">--</span> mois</span>
+                <span>Garantie <span id="product-warranty">--</span></span>
               </div>
 
-              <!-- Quantity Input & Add to Quote Button -->
+              <!-- Quantity Input & Request Quote Button -->
               <div class="flex items-center gap-4 mb-6">
                 <div class="flex items-center border border-border rounded-lg">
                   <button onclick="decreaseQuantity()" class="px-4 py-2 hover:bg-gray-50 transition-colors">
@@ -120,7 +101,7 @@
                     <i data-lucide="plus" class="w-4 h-4"></i>
                   </button>
                 </div>
-                <button onclick="openQuoteModal()" class="flex-1 bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors">
+                <button onclick="openQuoteModal()" class="flex-1 bg-accent hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors">
                   Demander un devis
                 </button>
               </div>
@@ -134,19 +115,7 @@
                       <td class="py-3 text-textSecondary">Référence</td>
                       <td class="py-3 text-textPrimary font-mono" id="spec-reference">--</td>
                     </tr>
-                    <tr>
-                      <td class="py-3 text-textSecondary">Marque</td>
-                      <td class="py-3 text-textPrimary" id="spec-brand">--</td>
-                    </tr>
-                    <tr>
-                      <td class="py-3 text-textSecondary">Catégorie</td>
-                      <td class="py-3 text-textPrimary" id="spec-category">--</td>
-                    </tr>
-                    <tr>
-                      <td class="py-3 text-textSecondary">Fournisseur</td>
-                      <td class="py-3 text-textPrimary" id="spec-supplier">--</td>
-                    </tr>
-                    <tr>
+                    <tr id="spec-warranty-row">
                       <td class="py-3 text-textSecondary">Garantie</td>
                       <td class="py-3 text-textPrimary" id="spec-warranty">--</td>
                     </tr>
@@ -158,13 +127,13 @@
             <!-- Description -->
             <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mt-6">
               <h3 class="font-semibold text-textPrimary mb-4">Description</h3>
-              <p class="text-textSecondary leading-relaxed" id="product-description">--</p>
+              <p class="text-textSecondary leading-relaxed" id="product-description">Chargement...</p>
             </div>
           </div>
         </div>
 
         <!-- Related Products -->
-        <div class="mt-8">
+        <div class="mt-8 hidden" id="related-section">
           <h2 class="text-xl font-bold text-textPrimary mb-4">Produits similaires</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="related-products">
             <!-- Related products will be loaded dynamically -->
@@ -175,26 +144,21 @@
   </div>
 
   <!-- Quote Modal -->
-  <div id="quote-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div id="quote-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50">
     <div class="bg-surface rounded-xl shadow-lg border border-border p-6 w-full max-w-md">
       <h3 class="text-lg font-bold text-textPrimary mb-4">Demander un devis</h3>
-      <div class="mb-4">
+      <p class="text-sm text-textSecondary mb-4" id="modal-product-name">--</p>
+      <div class="mb-6">
         <label class="block text-sm font-medium text-textPrimary mb-2">Quantité</label>
-        <input type="number" id="modal-quantity" min="1"
+        <input type="number" id="modal-quantity" min="1" value="1"
           class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
-      </div>
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-textPrimary mb-2">Message (optionnel)</label>
-        <textarea id="modal-message" rows="3"
-          class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"
-          placeholder="Ajoutez un message à votre demande..."></textarea>
       </div>
       <div class="flex justify-end gap-2">
         <button onclick="closeQuoteModal()" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
           Annuler
         </button>
-        <button onclick="submitQuote()" class="bg-primary hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
-          Envoyer
+        <button id="modal-submit-btn" onclick="submitQuote()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
+          Envoyer la demande
         </button>
       </div>
     </div>
@@ -204,157 +168,172 @@
   <script src="../../js/auth.js"></script>
   <script>
     requireAuth(["CLIENT"]);
-    const currentUser = getCurrentUser();
   </script>
   <script src="../../js/router.js"></script>
   <script src="../../js/components/sidebar.js"></script>
   <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
+  <script src="../../js/components/toast.js"></script>
+  <script src="../../js/components/modal.js"></script>
   <script src="../../js/utils/format.js"></script>
   <script>
     initPage("CLIENT");
+    renderSidebar(getCurrentRole().toLowerCase());
+    renderHeader();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
+    const productId = new URLSearchParams(window.location.search).get('id');
+    let currentProduct = null;
 
-    async function loadProduct() {
-      try {
-        const response = await apiFetch(`/client/catalog/${productId}`);
-        const product = response.data;
-
-        // Update breadcrumb
-        document.getElementById('breadcrumb-name').textContent = product.name;
-
-        // Update product image
-        const imageContainer = document.querySelector('.aspect-square');
-        if (product.imageUrl) {
-          imageContainer.innerHTML = `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover">`;
-        } else {
-          imageContainer.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10"><i data-lucide="package" class="w-24 h-24 text-primary"></i></div>`;
-        }
-
-        // Update product info
-        document.getElementById('product-category').textContent = product.category;
-        document.getElementById('product-name').textContent = product.name;
-        document.getElementById('product-brand').textContent = product.brand;
-        document.getElementById('product-reference').textContent = product.reference;
-        document.getElementById('product-price').textContent = formatCurrency(product.unitPrice);
-        document.getElementById('product-warranty').textContent = product.warrantyMonths;
-
-        // Update stock status
-        const stockStatus = document.getElementById('stock-status');
-        if (product.quantity === 0) {
-          stockStatus.innerHTML = `<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800"><i data-lucide="x-circle" class="w-4 h-4 mr-1"></i>Rupture de stock</span>`;
-        } else if (product.quantity <= product.minQuantity) {
-          stockStatus.innerHTML = `<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1"></i>Stock limité (${product.quantity} unités)</span>`;
-        } else {
-          stockStatus.innerHTML = `<span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"><i data-lucide="check-circle" class="w-4 h-4 mr-1"></i>En stock (${product.quantity} unités)</span>`;
-        }
-
-        // Update specs table
-        document.getElementById('spec-reference').textContent = product.reference;
-        document.getElementById('spec-brand').textContent = product.brand;
-        document.getElementById('spec-category').textContent = product.category;
-        document.getElementById('spec-supplier').textContent = product.supplier;
-        document.getElementById('spec-warranty').textContent = `${product.warrantyMonths} mois`;
-
-        // Update description
-        document.getElementById('product-description').textContent = product.description || 'Aucune description disponible.';
-
-        // Load related products
-        loadRelatedProducts(product.category, product.productId);
-
-        lucide.createIcons();
-      } catch (error) {
-        console.error("Failed to load product:", error);
-      }
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    async function loadRelatedProducts(category, currentProductId) {
-      try {
-        const response = await apiFetch(`/client/catalog/related?category=${category}&exclude=${currentProductId}`);
-        const products = response.data || [];
-        const container = document.getElementById('related-products');
-
-        if (products.length === 0) {
-          container.innerHTML = `<p class="text-textSecondary col-span-full">Aucun produit similaire</p>`;
-        } else {
-          container.innerHTML = products.slice(0, 4).map(product => `
-            <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onclick="viewProduct('${product.productId}')">
-              <div class="aspect-[4/3] bg-gray-100 relative">
-                ${product.imageUrl 
-                  ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover">`
-                  : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
-                      <i data-lucide="package" class="w-8 h-8 text-primary"></i>
-                    </div>`
-                }
-              </div>
-              <div class="p-3">
-                <h4 class="font-medium text-textPrimary text-sm mb-1">${product.name}</h4>
-                <p class="text-accent font-bold">${formatCurrency(product.unitPrice)}</p>
-              </div>
-            </div>
-          `).join('');
-        }
-
-        lucide.createIcons();
-      } catch (error) {
-        console.error("Failed to load related products:", error);
+    async function loadProduct() {
+      const r = await apiFetch('/products/' + productId);
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || 'Produit introuvable', 'error');
+        window.location.href = 'catalog.html';
+        return;
       }
+      const product = r.data.product;
+      if (!product) {
+        showToast('Produit introuvable', 'error');
+        window.location.href = 'catalog.html';
+        return;
+      }
+      currentProduct = product;
+
+      // Breadcrumb + name
+      document.getElementById('breadcrumb-name').textContent = product.name || ('#' + String(product.id).slice(0, 8));
+      document.getElementById('product-name').textContent = product.name || ('#' + String(product.id).slice(0, 8));
+      document.getElementById('modal-product-name').textContent = product.name || '';
+
+      // Image
+      const imageContainer = document.getElementById('image-container');
+      if (product.imageUrl) {
+        imageContainer.innerHTML =
+          '<img src="' + escapeHtml(product.imageUrl) + '" alt="' + escapeHtml(product.name || '') + '" class="w-full h-full object-cover">';
+      } else {
+        imageContainer.innerHTML =
+          '<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10"><i data-lucide="package" class="w-24 h-24 text-primary"></i></div>';
+      }
+
+      // Reference + price
+      document.getElementById('product-reference').textContent = product.reference || '--';
+      document.getElementById('spec-reference').textContent = product.reference || '--';
+      document.getElementById('product-price').textContent =
+        (product.unitPrice != null) ? formatCurrency(product.unitPrice) : '--';
+
+      // Warranty (hide if null)
+      if (product.warrantyMonths != null) {
+        document.getElementById('product-warranty').textContent = product.warrantyMonths + ' mois';
+        document.getElementById('spec-warranty').textContent = product.warrantyMonths + ' mois';
+        document.getElementById('warranty-row').classList.remove('hidden');
+      } else {
+        document.getElementById('warranty-row').classList.add('hidden');
+        document.getElementById('spec-warranty-row').classList.add('hidden');
+      }
+
+      // Description
+      document.getElementById('product-description').textContent =
+        product.description || 'Aucune description disponible.';
+
+      lucide.createIcons();
+
+      // Related products
+      loadRelatedProducts(product);
+    }
+
+    async function loadRelatedProducts(product) {
+      if (!product.categoryId) {
+        document.getElementById('related-section').classList.add('hidden');
+        return;
+      }
+      const r = await apiFetch('/products?categoryId=' + encodeURIComponent(product.categoryId));
+      if (!r || !r.ok) return;
+      const related = (r.data.products || [])
+        .filter(p => p.id !== product.id)
+        .slice(0, 4);
+
+      const section = document.getElementById('related-section');
+      const container = document.getElementById('related-products');
+      if (related.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      section.classList.remove('hidden');
+      container.innerHTML = related.map(p => `
+        <a href="product-detail.html?id=${encodeURIComponent(p.id)}"
+           class="block bg-surface rounded-xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow">
+          <div class="aspect-[4/3] bg-gray-100 relative">
+            ${p.imageUrl
+              ? `<img src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name || '')}" class="w-full h-full object-cover">`
+              : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10"><i data-lucide="package" class="w-8 h-8 text-primary"></i></div>`}
+          </div>
+          <div class="p-3">
+            <h4 class="font-medium text-textPrimary text-sm mb-1 truncate">${escapeHtml(p.name || ('#' + String(p.id).slice(0, 8)))}</h4>
+            <p class="text-accent font-bold">${p.unitPrice != null ? formatCurrency(p.unitPrice) : '--'}</p>
+          </div>
+        </a>
+      `).join('');
+      lucide.createIcons();
     }
 
     function decreaseQuantity() {
       const input = document.getElementById('quantity');
-      if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
-      }
+      const val = parseInt(input.value, 10) || 1;
+      if (val > 1) input.value = val - 1;
     }
 
     function increaseQuantity() {
       const input = document.getElementById('quantity');
-      input.value = parseInt(input.value) + 1;
+      const val = parseInt(input.value, 10) || 1;
+      input.value = val + 1;
     }
 
     function openQuoteModal() {
-      const quantity = document.getElementById('quantity').value;
+      const quantity = parseInt(document.getElementById('quantity').value, 10) || 1;
       document.getElementById('modal-quantity').value = quantity;
-      document.getElementById('quote-modal').classList.remove('hidden');
+      openModal('quote-modal');
     }
 
     function closeQuoteModal() {
-      document.getElementById('quote-modal').classList.add('hidden');
-      document.getElementById('modal-message').value = '';
+      closeModal('quote-modal');
     }
 
     async function submitQuote() {
-      const quantity = document.getElementById('modal-quantity').value;
-      const message = document.getElementById('modal-message').value;
-
-      try {
-        await apiFetch('/client/quotes', {
-          method: 'POST',
-          body: JSON.stringify({
-            productId: productId,
-            quantity: parseInt(quantity),
-            message: message
-          })
-        });
-        closeQuoteModal();
-        alert('Demande de devis envoyée avec succès !');
-      } catch (error) {
-        console.error("Failed to submit quote:", error);
-        alert('Erreur lors de l\'envoi de la demande de devis');
+      const qty = parseInt(document.getElementById('modal-quantity').value, 10);
+      if (!qty || qty < 1) {
+        showToast('Veuillez saisir une quantité valide', 'warning');
+        return;
       }
+      const btn = document.getElementById('modal-submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Envoi...';
+
+      const r = await apiFetch('/quotes', {
+        method: 'POST',
+        body: JSON.stringify({ items: [{ productId: productId, quantity: qty }] })
+      });
+
+      btn.disabled = false;
+      btn.textContent = 'Envoyer la demande';
+
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Erreur lors de la création du devis", 'error');
+        return;
+      }
+      closeQuoteModal();
+      showToast('Demande de devis créée', 'success');
+      setTimeout(() => { window.location.href = 'quotes.html'; }, 900);
     }
 
-    function viewProduct(productId) {
-      window.location.href = `product-detail.html?id=${productId}`;
-    }
-
-    // Load product on page load
     if (productId) {
       loadProduct();
     } else {
-      window.location.href = '/medsupply-cloud/pages/catalog.html';
+      window.location.href = 'catalog.html';
     }
   </script>
 </body>

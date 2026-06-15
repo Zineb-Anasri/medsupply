@@ -1,292 +1,197 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tableau de Bord Admin - MedSupply Cloud</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#0A2647",
-            secondary: "#144272",
-            accent: "#2C74B3",
-            success: "#16A34A",
-            warning: "#D97706",
-            danger: "#DC2626",
-            background: "#F8FAFC",
-            surface: "#FFFFFF",
-            border: "#E2E8F0",
-            textPrimary: "#0F172A",
-            textSecondary: "#64748B",
-          }
-        }
-      }
-    }
+    tailwind.config = { theme: { extend: { colors: {
+      primary: "#0A2647", secondary: "#144272", accent: "#2C74B3",
+      success: "#16A34A", warning: "#D97706", danger: "#DC2626",
+      background: "#F8FAFC", surface: "#FFFFFF", border: "#E2E8F0",
+      textPrimary: "#0F172A", textSecondary: "#64748B" } } } };
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .stat-card { transition: all 0.3s ease; }
+    .stat-card { transition: all 0.2s ease; }
     .stat-card:hover { transform: translateY(-2px); }
   </style>
 </head>
 <body class="bg-background">
   <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-border shadow-sm flex flex-col">
-      <div class="p-6 border-b border-border">
-        <h1 class="text-2xl font-bold text-primary">MedSupply</h1>
-        <p class="text-xs text-textSecondary mt-1">Admin Dashboard</p>
-      </div>
-      
-      <nav class="flex-1 p-4 space-y-2">
-        <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-accent bg-opacity-10 text-accent font-medium">
-          <i data-lucide="activity" class="w-5 h-5"></i>
-          <span>Tableau de Bord</span>
-        </a>
-        <a href="/medsupply-cloud/pages/admin/orders.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium transition">
-          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-          <span>Commandes</span>
-        </a>
-        <a href="/medsupply-cloud/pages/admin/products.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium transition">
-          <i data-lucide="package" class="w-5 h-5"></i>
-          <span>Produits</span>
-        </a>
-        <a href="/medsupply-cloud/pages/admin/clients.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium transition">
-          <i data-lucide="users" class="w-5 h-5"></i>
-          <span>Clients</span>
-        </a>
-        <a href="/medsupply-cloud/pages/admin/deliveries.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium transition">
-          <i data-lucide="truck" class="w-5 h-5"></i>
-          <span>Livraisons</span>
-        </a>
-        <a href="/medsupply-cloud/pages/admin/stocks.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium transition">
-          <i data-lucide="box" class="w-5 h-5"></i>
-          <span>Stocks</span>
-        </a>
-      </nav>
-
-      <div class="border-t border-border p-4">
-        <div class="flex items-center gap-3 mb-4">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop" alt="User" class="w-10 h-10 rounded-full">
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-bold truncate">Dr. Mohamed</p>
-            <p class="text-xs text-textSecondary truncate">Admin</p>
-          </div>
-        </div>
-        <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger hover:bg-opacity-10 rounded-lg transition flex items-center gap-2">
-          <i data-lucide="log-out" class="w-4 h-4"></i>
-          <span>Déconnexion</span>
-        </button>
-      </div>
-    </aside>
-    <!-- Main Content -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
     <div class="flex-1 flex flex-col overflow-hidden">
-      <!-- Header -->
-      <header class="bg-white border-b border-border shadow-sm px-8 py-4 flex justify-between items-center">
-        <div>
-          <h2 class="text-2xl font-bold text-textPrimary">Tableau de Bord</h2>
-          <p class="text-sm text-textSecondary">Bienvenue dans votre espace administrateur</p>
+      <header id="header"></header>
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-textPrimary">Tableau de Bord</h1>
+          <p class="text-textSecondary">Vue d'ensemble de la plateforme</p>
         </div>
-        <div class="flex items-center gap-4">
-          <button class="p-2 hover:bg-background rounded-lg transition">
-            <i data-lucide="bell" class="w-6 h-6 text-textSecondary"></i>
-          </button>
-          <button class="p-2 hover:bg-background rounded-lg transition">
-            <i data-lucide="settings" class="w-6 h-6 text-textSecondary"></i>
-          </button>
-        </div>
-      </header>
 
-      <!-- Content -->
-      <main class="flex-1 overflow-y-auto p-8">
         <!-- KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <!-- Revenue Card -->
-          <div class="stat-card bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <p class="text-textSecondary text-sm font-medium">Chiffre d'Affaires</p>
-                <p class="text-3xl font-bold text-primary mt-2" id="stat-revenue">0€</p>
-              </div>
-              <div class="p-3 bg-accent bg-opacity-10 rounded-lg">
-                <i data-lucide="trending-up" class="w-6 h-6 text-accent"></i>
-              </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div class="stat-card bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-start mb-3">
+              <p class="text-textSecondary text-sm font-medium">Chiffre d'Affaires</p>
+              <div class="p-2.5 bg-accent/10 rounded-lg"><i data-lucide="trending-up" class="w-5 h-5 text-accent"></i></div>
             </div>
-            <div class="flex items-center gap-2 text-success text-sm">
-              <i data-lucide="arrow-up" class="w-4 h-4"></i>
-              <span id="stat-growth">0%</span>
-              <span class="text-textSecondary">ce mois</span>
+            <p class="text-3xl font-bold text-primary" id="stat-revenue">—</p>
+          </div>
+          <div class="stat-card bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-start mb-3">
+              <p class="text-textSecondary text-sm font-medium">Commandes</p>
+              <div class="p-2.5 bg-secondary/10 rounded-lg"><i data-lucide="shopping-bag" class="w-5 h-5 text-secondary"></i></div>
+            </div>
+            <p class="text-3xl font-bold text-secondary" id="stat-orders">—</p>
+          </div>
+          <div class="stat-card bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-start mb-3">
+              <p class="text-textSecondary text-sm font-medium">Clients</p>
+              <div class="p-2.5 bg-warning/10 rounded-lg"><i data-lucide="users" class="w-5 h-5 text-warning"></i></div>
+            </div>
+            <p class="text-3xl font-bold text-warning" id="stat-clients">—</p>
+          </div>
+          <div class="stat-card bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-start mb-3">
+              <p class="text-textSecondary text-sm font-medium">Produits</p>
+              <div class="p-2.5 bg-success/10 rounded-lg"><i data-lucide="package" class="w-5 h-5 text-success"></i></div>
+            </div>
+            <p class="text-3xl font-bold text-success" id="stat-products">—</p>
+          </div>
+        </div>
+
+        <!-- Logistics row -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-5 flex items-center gap-3">
+            <div class="p-2.5 bg-amber-100 rounded-lg"><i data-lucide="truck" class="w-5 h-5 text-amber-700"></i></div>
+            <div><p class="text-xs text-textSecondary">En livraison</p><p class="text-xl font-bold text-textPrimary" id="stat-in-delivery">—</p></div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-5 flex items-center gap-3">
+            <div class="p-2.5 bg-green-100 rounded-lg"><i data-lucide="check-circle" class="w-5 h-5 text-success"></i></div>
+            <div><p class="text-xs text-textSecondary">Livrées</p><p class="text-xl font-bold text-textPrimary" id="stat-delivered">—</p></div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-5 flex items-center gap-3">
+            <div class="p-2.5 bg-red-100 rounded-lg"><i data-lucide="alert-triangle" class="w-5 h-5 text-danger"></i></div>
+            <div><p class="text-xs text-textSecondary">En retard</p><p class="text-xl font-bold text-textPrimary" id="stat-delayed">—</p></div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-5 flex items-center gap-3">
+            <div class="p-2.5 bg-blue-100 rounded-lg"><i data-lucide="map-pin" class="w-5 h-5 text-accent"></i></div>
+            <div><p class="text-xs text-textSecondary">Actives</p><p class="text-xl font-bold text-textPrimary" id="stat-active-del">—</p></div>
+          </div>
+        </div>
+
+        <!-- Orders by status + Clients by type -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div class="lg:col-span-2 bg-surface rounded-xl shadow-sm border border-border p-6">
+            <h3 class="text-lg font-bold text-textPrimary mb-4">Commandes par statut</h3>
+            <div id="orders-by-status" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <p class="text-textSecondary text-sm">Chargement...</p>
             </div>
           </div>
-
-          <!-- Orders Card -->
-          <div class="stat-card bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <p class="text-textSecondary text-sm font-medium">Commandes</p>
-                <p class="text-3xl font-bold text-secondary mt-2" id="stat-orders">0</p>
-              </div>
-              <div class="p-3 bg-secondary bg-opacity-10 rounded-lg">
-                <i data-lucide="shopping-bag" class="w-6 h-6 text-secondary"></i>
-              </div>
-            </div>
-            <div class="text-sm text-textSecondary">
-              <span id="stat-orders-month">0</span> ce mois
-            </div>
-          </div>
-
-          <!-- Customers Card -->
-          <div class="stat-card bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <p class="text-textSecondary text-sm font-medium">Clients</p>
-                <p class="text-3xl font-bold text-warning mt-2" id="stat-customers">0</p>
-              </div>
-              <div class="p-3 bg-warning bg-opacity-10 rounded-lg">
-                <i data-lucide="users" class="w-6 h-6 text-warning"></i>
-              </div>
-            </div>
-            <div class="text-sm text-textSecondary">
-              Clients actifs
-            </div>
-          </div>
-
-          <!-- Conversion Card -->
-          <div class="stat-card bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <p class="text-textSecondary text-sm font-medium">Conversion</p>
-                <p class="text-3xl font-bold text-success mt-2" id="stat-conversion">0%</p>
-              </div>
-              <div class="p-3 bg-success bg-opacity-10 rounded-lg">
-                <i data-lucide="target" class="w-6 h-6 text-success"></i>
-              </div>
-            </div>
-            <div class="text-sm text-textSecondary">
-              Taux de conversion
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <h3 class="text-lg font-bold text-textPrimary mb-4">Clients par type</h3>
+            <div id="clients-by-type" class="space-y-3">
+              <p class="text-textSecondary text-sm">Chargement...</p>
             </div>
           </div>
         </div>
 
-        <!-- Charts Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <!-- Sales Chart -->
-          <div class="lg:col-span-2 bg-white rounded-lg shadow p-6 border border-border">
-            <h3 class="text-lg font-bold mb-6">Ventes Mensuelles (€)</h3>
-            <canvas id="salesChart" style="max-height: 300px;"></canvas>
-          </div>
-
-          <!-- Regional Distribution -->
-          <div class="bg-white rounded-lg shadow p-6 border border-border">
-            <h3 class="text-lg font-bold mb-6">Distribution Régionale</h3>
-            <div id="regional-dist" class="space-y-3">
-              <!-- Will be populated by JS -->
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <!-- Recent Orders -->
-          <div class="bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-lg font-bold">Commandes Récentes</h3>
+        <!-- Recent Orders + Activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-textPrimary">Commandes Récentes</h3>
               <a href="/medsupply-cloud/pages/admin/orders.html" class="text-accent hover:text-secondary font-medium text-sm">Voir tout</a>
             </div>
-            <div class="space-y-4" id="recent-orders">
-              <!-- Will be populated by JS -->
-            </div>
+            <div class="space-y-3" id="recent-orders"><p class="text-textSecondary text-sm">Chargement...</p></div>
           </div>
-
-          <!-- Activity Feed -->
-          <div class="bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-lg font-bold">Activité Récente</h3>
-              <button class="text-textSecondary hover:text-textPrimary text-sm">Rafraîchir</button>
-            </div>
-            <div class="space-y-4" id="activity-feed">
-              <!-- Will be populated by JS -->
-            </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <h3 class="text-lg font-bold text-textPrimary mb-4">Activité Récente</h3>
+            <div class="space-y-4" id="activity-feed"><p class="text-textSecondary text-sm">Chargement...</p></div>
           </div>
         </div>
 
-        <!-- Top Products & Low Stock -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Top Products -->
-          <div class="bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-lg font-bold">Produits les Plus Vendus</h3>
+        <!-- Top Products + Low Stock -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-textPrimary">Produits les Plus Vendus</h3>
               <a href="/medsupply-cloud/pages/admin/products.html" class="text-accent hover:text-secondary font-medium text-sm">Voir tout</a>
             </div>
-            <div class="space-y-3" id="top-products">
-              <!-- Will be populated by JS -->
-            </div>
+            <div class="space-y-3" id="top-products"><p class="text-textSecondary text-sm">Chargement...</p></div>
           </div>
-
-          <!-- Low Stock Alerts -->
-          <div class="bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-lg font-bold">Alertes Stock Faible</h3>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-textPrimary">Alertes Stock Faible</h3>
               <a href="/medsupply-cloud/pages/admin/stocks.html" class="text-accent hover:text-secondary font-medium text-sm">Gérer</a>
             </div>
-            <div class="space-y-3" id="low-stock-alerts">
-              <!-- Will be populated by JS -->
-            </div>
+            <div class="space-y-3" id="low-stock-alerts"><p class="text-textSecondary text-sm">Chargement...</p></div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-          <div class="xl:col-span-2 bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-lg font-bold">Clients Récents</h3>
+        <!-- Active clients table + Payment receipts -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+          <div class="xl:col-span-2 bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-textPrimary">Clients les plus actifs</h3>
               <a href="/medsupply-cloud/pages/admin/clients.html" class="text-accent hover:text-secondary font-medium text-sm">Voir tout</a>
             </div>
             <div class="overflow-x-auto">
-              <table class="min-w-full text-left text-sm text-textSecondary">
-                <thead class="bg-background">
+              <table class="min-w-full text-left text-sm">
+                <thead class="bg-gray-50 border-b border-border">
                   <tr>
-                    <th class="px-4 py-3">Client</th>
-                    <th class="px-4 py-3">Entreprise</th>
-                    <th class="px-4 py-3">Commandes</th>
-                    <th class="px-4 py-3">Dépenses</th>
+                    <th class="px-4 py-3 text-xs font-semibold text-textSecondary uppercase">Entreprise</th>
+                    <th class="px-4 py-3 text-xs font-semibold text-textSecondary uppercase">Type</th>
+                    <th class="px-4 py-3 text-xs font-semibold text-textSecondary uppercase text-right">Commandes</th>
                   </tr>
                 </thead>
-                <tbody id="customers-table"></tbody>
+                <tbody id="active-clients" class="divide-y divide-border">
+                  <tr><td colspan="3" class="px-4 py-8 text-center text-textSecondary">Chargement...</td></tr>
+                </tbody>
               </table>
             </div>
           </div>
-
-          <div class="bg-white rounded-lg shadow p-6 border border-border">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-lg font-bold">Reçus de Paiement</h3>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-textPrimary">Reçus de Paiement</h3>
               <a href="/medsupply-cloud/pages/admin/payments.html" class="text-accent hover:text-secondary font-medium text-sm">Voir tout</a>
             </div>
-            <div class="space-y-4" id="payments-overview"></div>
+            <div class="space-y-3" id="payments-overview"><p class="text-textSecondary text-sm">Chargement...</p></div>
           </div>
+        </div>
 
-          <div class="bg-white rounded-lg shadow p-6 border border-border xl:col-span-3">
-            <div class="flex justify-between items-center mb-6">
-              <h3 class="text-lg font-bold">Suivi des Livraisons</h3>
-              <a href="/medsupply-cloud/pages/admin/deliveries.html" class="text-accent hover:text-secondary font-medium text-sm">Voir tout</a>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div class="space-y-4" id="delivery-tracking"></div>
-              <div class="rounded-2xl bg-slate-100 p-4" id="delivery-map">
-                <p class="text-sm font-semibold mb-4">Carte de livraison</p>
-                <div class="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-accent/10 to-blue-100 border border-border">
-                  <div class="absolute left-6 top-10 text-xs bg-white/80 rounded-full px-3 py-2 shadow-sm">Paris</div>
-                  <div class="absolute right-6 top-20 text-xs bg-white/80 rounded-full px-3 py-2 shadow-sm">Marseille</div>
-                  <div class="absolute left-24 bottom-16 text-xs bg-white/80 rounded-full px-3 py-2 shadow-sm">Lyon</div>
-                  <div class="absolute right-24 bottom-10 text-xs bg-white/80 rounded-full px-3 py-2 shadow-sm">Toulouse</div>
-                </div>
+        <!-- Finance + Deliveries -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <h3 class="text-lg font-bold text-textPrimary mb-4">Finance</h3>
+            <div class="grid grid-cols-3 gap-3 mb-5">
+              <div class="text-center p-3 bg-background rounded-lg">
+                <p class="text-xs text-textSecondary mb-1">Reçus</p>
+                <p class="text-sm font-bold text-success" id="fin-received">—</p>
+              </div>
+              <div class="text-center p-3 bg-background rounded-lg">
+                <p class="text-xs text-textSecondary mb-1">En attente</p>
+                <p class="text-sm font-bold text-warning" id="fin-outstanding">—</p>
+              </div>
+              <div class="text-center p-3 bg-background rounded-lg">
+                <p class="text-xs text-textSecondary mb-1">En retard</p>
+                <p class="text-sm font-bold text-danger" id="fin-overdue">—</p>
               </div>
             </div>
+            <p class="text-sm font-semibold text-textPrimary mb-2">Clients les plus endettés</p>
+            <div class="space-y-2" id="highest-debt"><p class="text-textSecondary text-sm">Chargement...</p></div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-textPrimary">Suivi des Livraisons</h3>
+              <a href="/medsupply-cloud/pages/admin/deliveries.html" class="text-accent hover:text-secondary font-medium text-sm">Voir tout</a>
+            </div>
+            <div class="space-y-3" id="delivery-tracking"><p class="text-textSecondary text-sm">Chargement...</p></div>
           </div>
         </div>
       </main>
@@ -296,257 +201,238 @@
   <!-- Scripts -->
   <script src="../../js/api.js"></script>
   <script src="../../js/auth.js"></script>
+  <script>requireAuth(["ADMIN"]);</script>
   <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
   <script src="../../js/components/toast.js"></script>
-  <script src="../../js/mock-data.js"></script>
+  <script src="../../js/utils/format.js"></script>
   <script>
-    // Simple Canvas Chart for Sales
-    function drawSalesChart() {
-      const canvas = document.getElementById('salesChart');
-      if (!canvas) return;
-      
-      const ctx = canvas.getContext('2d');
-      const data = MOCK_MONTHLY_SALES;
-      
-      canvas.width = canvas.offsetWidth;
-      canvas.height = 300;
-      
-      const padding = 40;
-      const width = canvas.width - padding * 2;
-      const height = canvas.height - padding * 2;
-      
-      const maxRevenue = Math.max(...data.map(d => d.revenue));
-      const barWidth = width / data.length;
-      
-      // Draw background
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw grid lines
-      ctx.strokeStyle = '#E2E8F0';
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= 5; i++) {
-        const y = padding + (height / 5) * i;
-        ctx.beginPath();
-        ctx.moveTo(padding, y);
-        ctx.lineTo(canvas.width - padding, y);
-        ctx.stroke();
-      }
-      
-      // Draw bars and labels
-      data.forEach((item, index) => {
-        const x = padding + index * barWidth + barWidth * 0.1;
-        const barHeight = (item.revenue / maxRevenue) * height;
-        const y = padding + height - barHeight;
-        
-        // Bar
-        ctx.fillStyle = '#2C74B3';
-        ctx.fillRect(x, y, barWidth * 0.8, barHeight);
-        
-        // Label
-        ctx.fillStyle = '#64748B';
-        ctx.font = '12px Inter';
-        ctx.textAlign = 'center';
-        ctx.fillText(item.month, x + barWidth * 0.4, canvas.height - 10);
-      });
-      
-      // Draw axes
-      ctx.strokeStyle = '#0F172A';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(padding, padding);
-      ctx.lineTo(padding, canvas.height - padding);
-      ctx.lineTo(canvas.width - padding, canvas.height - padding);
-      ctx.stroke();
+    initPage("ADMIN");
+    renderSidebar(getCurrentRole().toLowerCase());
+    renderHeader();
+
+    const emptyMsg = (text) =>
+      `<p class="text-textSecondary text-sm text-center py-6">${text}</p>`;
+
+    function shortId(id) {
+      return id ? String(id).slice(0, 8) : "—";
     }
 
-    function loadDashboard() {
-      // Update KPI cards
-      document.getElementById('stat-revenue').textContent = MOCK_SALES_STATS.totalRevenue.toLocaleString('fr-FR') + '€';
-      document.getElementById('stat-growth').textContent = MOCK_SALES_STATS.monthlyGrowth + '%';
-      document.getElementById('stat-orders').textContent = MOCK_SALES_STATS.totalOrders;
-      document.getElementById('stat-customers').textContent = MOCK_SALES_STATS.totalCustomers;
-      document.getElementById('stat-conversion').textContent = MOCK_SALES_STATS.conversionRate + '%';
-      document.getElementById('stat-orders-month').textContent = MOCK_MONTHLY_SALES[MOCK_MONTHLY_SALES.length - 1].orders;
+    async function loadDashboard() {
+      const r = await apiFetch("/admin/dashboard/overview");
+      if (!r || !r.ok || !r.data?.success) {
+        showToast(r?.data?.message || "Erreur de chargement du tableau de bord", "error");
+        return;
+      }
+      const d = r.data.data || {};
+      const sales = d.sales || {};
+      const finance = d.finance || {};
+      const clients = d.clients || {};
+      const products = d.products || {};
+      const logistics = d.logistics || {};
+      const activity = d.activity || {};
 
-      // Load Regional Distribution
-      const regionalDiv = document.getElementById('regional-dist');
-      regionalDiv.innerHTML = MOCK_REGIONS.map(region => `
-        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
-          <div class="flex-1">
-            <p class="font-medium text-sm">${region.region}</p>
-            <div class="flex gap-4 mt-1 text-xs text-textSecondary">
-              <span>${region.orders} commandes</span>
-              <span>${region.customers} clients</span>
-            </div>
-          </div>
-          <div class="text-right">
-            <p class="font-bold text-accent">${region.revenue.toLocaleString('fr-FR')}€</p>
-          </div>
-        </div>
-      `).join('');
+      // KPI cards
+      document.getElementById("stat-revenue").textContent = formatCurrency(sales.totalRevenue || 0);
+      document.getElementById("stat-orders").textContent = sales.totalOrders ?? 0;
+      document.getElementById("stat-clients").textContent = clients.totalClients ?? 0;
+      document.getElementById("stat-products").textContent = products.totalProducts ?? 0;
 
-      // Load Recent Orders
-      const ordersDiv = document.getElementById('recent-orders');
-      ordersDiv.innerHTML = MOCK_ADMIN_ORDERS.slice(0, 5).map(order => {
-        const statusColors = {
-          'Livré': 'success',
-          'En livraison': 'warning',
-          'Confirmé': 'accent',
-          'Annulé': 'danger'
-        };
-        const color = statusColors[order.status] || 'accent';
-        
-        return `
-          <div class="flex items-center justify-between p-4 bg-background rounded-lg hover:shadow-md transition">
-            <div class="flex-1">
-              <p class="font-bold text-sm">${order.id}</p>
-              <p class="text-xs text-textSecondary mt-1">${order.customerName}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-sm font-bold">${order.total.toLocaleString('fr-FR')}€</p>
-              <span class="inline-block mt-1 px-2 py-1 text-xs rounded-full font-medium
-                ${color === 'success' ? 'bg-success bg-opacity-10 text-success' : ''}
-                ${color === 'warning' ? 'bg-warning bg-opacity-10 text-warning' : ''}
-                ${color === 'accent' ? 'bg-accent bg-opacity-10 text-accent' : ''}
-              ">
-                ${order.status}
-              </span>
-            </div>
-          </div>
-        `;
-      }).join('');
+      // Logistics row
+      document.getElementById("stat-in-delivery").textContent = logistics.ordersInDelivery ?? 0;
+      document.getElementById("stat-delivered").textContent = logistics.deliveredOrders ?? 0;
+      document.getElementById("stat-delayed").textContent = logistics.delayedDeliveries ?? 0;
+      document.getElementById("stat-active-del").textContent = logistics.activeDeliveries ?? 0;
 
-      // Load Activity Feed
-      const activityDiv = document.getElementById('activity-feed');
-      activityDiv.innerHTML = MOCK_ACTIVITY.map(activity => `
-        <div class="flex gap-4 pb-4 border-b border-border last:border-b-0">
-          <div class="p-2 bg-background rounded-lg flex-shrink-0">
-            <i data-lucide="${activity.icon}" class="w-5 h-5 text-textSecondary"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm text-textPrimary">${activity.message}</p>
-            <p class="text-xs text-textSecondary mt-1">${activity.time}</p>
-          </div>
-        </div>
-      `).join('');
-
-      // Load Top Products
-      const productsDiv = document.getElementById('top-products');
-      productsDiv.innerHTML = MOCK_TOP_PRODUCTS.map(product => `
-        <div class="flex items-center justify-between p-4 bg-background rounded-lg">
-          <div class="flex-1">
-            <p class="font-medium text-sm">${product.name}</p>
-            <div class="flex gap-2 mt-1">
-              <span class="text-xs px-2 py-1 rounded-full bg-success bg-opacity-10 text-success">Stock: ${product.stock}</span>
-            </div>
-          </div>
-          <div class="text-right">
-            <p class="font-bold text-success">${product.revenue.toLocaleString('fr-FR')}€</p>
-          </div>
-        </div>
-      `).join('');
-
-      // Load Low Stock Alerts
-      const alertsDiv = document.getElementById('low-stock-alerts');
-      alertsDiv.innerHTML = MOCK_LOW_STOCK.map(alert => {
-        const statusColor = alert.status === 'Critical' ? 'danger' : alert.status === 'Warning' ? 'warning' : 'success';
-        return `
-          <div class="flex items-center justify-between p-4 bg-background rounded-lg border-l-4
-            ${statusColor === 'danger' ? 'border-danger' : statusColor === 'warning' ? 'border-warning' : 'border-success'}
-          ">
-            <div class="flex-1">
-              <p class="font-medium text-sm">${alert.name}</p>
-              <p class="text-xs text-textSecondary mt-1">Stock: ${alert.stock} / Réappro: ${alert.reorderLevel}</p>
-            </div>
-            <div>
-              <span class="px-2 py-1 text-xs rounded-full font-medium
-                ${statusColor === 'danger' ? 'bg-danger bg-opacity-10 text-danger' : ''}
-                ${statusColor === 'warning' ? 'bg-warning bg-opacity-10 text-warning' : ''}
-                ${statusColor === 'success' ? 'bg-success bg-opacity-10 text-success' : ''}
-              ">
-                ${alert.status}
-              </span>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      loadCustomerTable();
-      loadPaymentOverview();
-      loadDeliveryTracking();
+      // Orders by status
+      renderOrdersByStatus(sales.ordersByStatus || {});
+      // Clients by type
+      renderClientsByType(clients.clientsByType || {});
+      // Recent orders
+      renderRecentOrders(activity.latestOrders || []);
+      // Activity feed
+      renderActivity(activity.latestNotifications || []);
+      // Top products
+      renderTopProducts(products.mostSoldProducts || []);
+      // Low stock
+      renderLowStock(products.lowStockProducts || []);
+      // Active clients table
+      renderActiveClients(clients.mostActiveClients || []);
+      // Payment receipts
+      renderPayments(activity.latestPayments || []);
+      // Finance
+      renderFinance(finance);
 
       lucide.createIcons();
-      drawSalesChart();
     }
 
-    function loadCustomerTable() {
-      const customersBody = document.getElementById('customers-table');
-      customersBody.innerHTML = MOCK_CUSTOMERS.slice(0, 5).map(customer => `
-        <tr class="border-b border-border">
-          <td class="px-4 py-4">
-            <p class="font-medium text-sm">${customer.firstName} ${customer.lastName}</p>
-            <p class="text-xs text-textSecondary">${customer.email}</p>
-          </td>
-          <td class="px-4 py-4 text-sm text-textSecondary">${customer.company}</td>
-          <td class="px-4 py-4 text-sm">${customer.totalOrders}</td>
-          <td class="px-4 py-4 text-sm font-semibold text-primary">${customer.totalSpent.toLocaleString('fr-FR')}€</td>
+    function renderOrdersByStatus(map) {
+      const el = document.getElementById("orders-by-status");
+      const entries = Object.entries(map);
+      if (!entries.length) { el.innerHTML = emptyMsg("Aucune commande"); return; }
+      el.innerHTML = entries.map(([status, count]) => `
+        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+          ${renderBadge(status)}
+          <span class="text-lg font-bold text-textPrimary">${count}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderClientsByType(map) {
+      const el = document.getElementById("clients-by-type");
+      const entries = Object.entries(map);
+      if (!entries.length) { el.innerHTML = emptyMsg("Aucun client"); return; }
+      el.innerHTML = entries.map(([type, count]) => `
+        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+          ${renderClientTypeBadge(type)}
+          <span class="text-lg font-bold text-textPrimary">${count}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderRecentOrders(orders) {
+      const el = document.getElementById("recent-orders");
+      const list = orders.slice(0, 5);
+      if (!list.length) { el.innerHTML = emptyMsg("Aucune commande récente"); return; }
+      el.innerHTML = list.map((o) => `
+        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+          <div class="min-w-0">
+            <p class="font-semibold text-sm text-textPrimary truncate">${o.companyName || ("#" + shortId(o.orderId))}</p>
+            <p class="text-xs text-textSecondary">${o.createdAt ? formatDate(o.createdAt) : "—"}</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-sm font-bold text-textPrimary">${formatCurrency(o.totalAmount || 0)}</p>
+            <div class="mt-1">${renderBadge(o.status)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderActivity(notifications) {
+      const el = document.getElementById("activity-feed");
+      const list = notifications.slice(0, 10);
+      if (!list.length) { el.innerHTML = emptyMsg("Aucune activité récente"); return; }
+      el.innerHTML = list.map((n) => `
+        <div class="flex gap-3 pb-3 border-b border-border last:border-b-0">
+          <div class="p-2 bg-background rounded-lg flex-shrink-0">
+            <i data-lucide="bell" class="w-4 h-4 text-textSecondary"></i>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm text-textPrimary">${n.title || n.type || "Notification"}</p>
+            <p class="text-xs text-textSecondary mt-0.5">${n.createdAt ? formatRelativeTime(n.createdAt) : ""}</p>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderTopProducts(products) {
+      const el = document.getElementById("top-products");
+      if (!products.length) { el.innerHTML = emptyMsg("Aucun produit"); return; }
+      el.innerHTML = products.map((p) => `
+        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+          <div class="min-w-0">
+            <p class="font-medium text-sm text-textPrimary truncate">${p.name || "—"}</p>
+            <p class="text-xs text-textSecondary">${p.category || "—"}</p>
+          </div>
+          <span class="text-sm font-bold text-accent flex-shrink-0">${p.totalSold ?? 0} vendus</span>
+        </div>
+      `).join("");
+    }
+
+    function renderLowStock(products) {
+      const el = document.getElementById("low-stock-alerts");
+      if (!products.length) { el.innerHTML = emptyMsg("Aucune alerte de stock"); return; }
+      el.innerHTML = products.map((p) => `
+        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+          <div class="min-w-0">
+            <p class="font-medium text-sm text-textPrimary truncate">${p.name || "—"}</p>
+            <p class="text-xs text-textSecondary">${p.category || "—"} · Stock: ${p.stock ?? 0} / Min: ${p.minStock ?? 0}</p>
+          </div>
+          <div class="flex-shrink-0">${renderStockBadge(p.stock ?? 0, p.minStock ?? 0)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderActiveClients(clients) {
+      const el = document.getElementById("active-clients");
+      if (!clients.length) {
+        el.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-textSecondary">Aucun client actif</td></tr>`;
+        return;
+      }
+      el.innerHTML = clients.map((c) => `
+        <tr>
+          <td class="px-4 py-3 text-sm font-medium text-textPrimary">${c.companyName || ("#" + shortId(c.clientId))}</td>
+          <td class="px-4 py-3">${renderClientTypeBadge(c.clientType)}</td>
+          <td class="px-4 py-3 text-sm font-semibold text-textPrimary text-right">${c.orderCount ?? 0}</td>
         </tr>
-      `).join('');
+      `).join("");
     }
 
-    function loadPaymentOverview() {
-      const paymentsOverview = document.getElementById('payments-overview');
-      paymentsOverview.innerHTML = MOCK_PAYMENTS.slice(0, 5).map(payment => `
-        <div class="p-4 bg-background rounded-xl border border-border hover:shadow-sm transition">
-          <div class="flex justify-between items-center gap-4 mb-2">
-            <div>
-              <p class="font-semibold text-sm">${payment.paymentId}</p>
-              <p class="text-xs text-textSecondary">Commande ${payment.orderId}</p>
+    function renderPayments(payments) {
+      const el = document.getElementById("payments-overview");
+      const list = payments.slice(0, 5);
+      if (!list.length) { el.innerHTML = emptyMsg("Aucun paiement"); return; }
+      el.innerHTML = list.map((p) => `
+        <div class="p-3 bg-background rounded-lg">
+          <div class="flex justify-between items-center gap-3 mb-1">
+            <div class="min-w-0">
+              <p class="font-semibold text-sm text-textPrimary truncate">${p.companyName || ("#" + shortId(p.paymentId))}</p>
+              <p class="text-xs text-textSecondary">Cmd #${shortId(p.orderId)}</p>
             </div>
-            <span class="text-sm font-bold text-textPrimary">${payment.amount.toLocaleString('fr-FR')}€</span>
+            <span class="text-sm font-bold text-textPrimary flex-shrink-0">${formatCurrency(p.amount || 0)}</span>
           </div>
-          <div class="flex justify-between items-center text-xs text-textSecondary">
-            <span>${payment.method}</span>
-            <span class="capitalize">${payment.status}</span>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-textSecondary">Payé: ${formatCurrency(p.paidAmount || 0)}</span>
+            ${renderBadge(p.status)}
           </div>
         </div>
-      `).join('');
+      `).join("");
     }
 
-    function loadDeliveryTracking() {
-      const deliveryTracking = document.getElementById('delivery-tracking');
-      deliveryTracking.innerHTML = MOCK_DELIVERIES.slice(0, 4).map(delivery => `
-        <div class="p-4 bg-background rounded-xl border border-border hover:shadow-sm transition">
-          <div class="flex justify-between items-center mb-3">
-            <div>
-              <p class="font-semibold text-sm">${delivery.deliveryId}</p>
-              <p class="text-xs text-textSecondary">${delivery.customerName}</p>
-            </div>
-            <span class="px-2 py-1 rounded-full text-xs font-medium bg-accent bg-opacity-10 text-accent">
-              ${delivery.status}
-            </span>
+    function renderFinance(finance) {
+      document.getElementById("fin-received").textContent = formatCurrency(finance.totalPaymentsReceived || 0);
+      document.getElementById("fin-outstanding").textContent = formatCurrency(finance.outstandingReceivables || 0);
+      document.getElementById("fin-overdue").textContent = formatCurrency(finance.overduePayments || 0);
+
+      const el = document.getElementById("highest-debt");
+      const debts = finance.clientsWithHighestDebt || [];
+      if (!debts.length) { el.innerHTML = emptyMsg("Aucune dette"); return; }
+      el.innerHTML = debts.map((c) => `
+        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="text-sm font-medium text-textPrimary truncate">${c.companyName || ("#" + shortId(c.clientId))}</span>
+            ${c.clientType ? renderClientTypeBadge(c.clientType) : ""}
           </div>
-          <div class="text-xs text-textSecondary mb-3">ETA: ${delivery.eta}</div>
-          <div class="space-y-2">
-            ${delivery.route.map(stop => `
-              <div class="flex items-center gap-3">
-                <span class="text-xs w-2 h-2 rounded-full bg-secondary mt-1"></span>
-                <div>
-                  <p class="text-sm font-medium">${stop.label}</p>
-                  <p class="text-xs text-textSecondary">${stop.time}</p>
-                </div>
-              </div>
-            `).join('')}
-          </div>
+          <span class="text-sm font-bold text-danger flex-shrink-0">${formatCurrency(c.debt || 0)}</span>
         </div>
-      `).join('');
+      `).join("");
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!requireAuth(["ADMIN"])) return;
-      loadDashboard();
-    });
+    async function loadDeliveries() {
+      const el = document.getElementById("delivery-tracking");
+      const r = await apiFetch("/deliveries/active");
+      if (!r || !r.ok) {
+        el.innerHTML = emptyMsg(r?.data?.message || "Erreur de chargement des livraisons");
+        return;
+      }
+      const list = (r.data.deliveries || []).slice(0, 5);
+      if (!list.length) { el.innerHTML = emptyMsg("Aucune livraison active"); return; }
+      el.innerHTML = list.map((dv) => `
+        <div class="flex items-center justify-between p-3 bg-background rounded-lg">
+          <div class="min-w-0">
+            <p class="font-semibold text-sm text-textPrimary">Livraison #${shortId(dv.deliveryId)}</p>
+            <p class="text-xs text-textSecondary">Commande #${shortId(dv.orderId)}</p>
+          </div>
+          <div class="flex-shrink-0">${renderBadge(dv.status)}</div>
+        </div>
+      `).join("");
+      lucide.createIcons();
+    }
+
+    loadDashboard();
+    loadDeliveries();
   </script>
 </body>
 </html>

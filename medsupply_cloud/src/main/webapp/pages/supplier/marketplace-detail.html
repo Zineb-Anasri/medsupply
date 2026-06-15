@@ -39,17 +39,17 @@
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col ml-72">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-sm mb-6">
-          <a href="/medsupply-cloud/pages/supplier/marketplace.html" class="text-textSecondary hover:text-accent">Marketplace</a>
+          <a href="../supplier/marketplace.html" class="text-textSecondary hover:text-accent">Marketplace</a>
           <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
           <span class="text-textPrimary font-medium" id="breadcrumb-title">Chargement...</span>
         </nav>
@@ -58,15 +58,14 @@
         <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6">
           <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div class="flex-1">
-              <h1 class="text-2xl font-bold text-textPrimary mb-2" id="tender-title">--</h1>
+              <h1 class="text-2xl font-bold text-textPrimary mb-2" id="tender-title">Chargement...</h1>
               <div class="flex items-center gap-2 mb-2">
                 <i data-lucide="building" class="w-4 h-4 text-textSecondary"></i>
                 <span class="text-sm text-textSecondary" id="client-name">--</span>
-                <span id="client-type-badge" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">--</span>
               </div>
             </div>
             <div class="flex items-center gap-3">
-              <span id="tender-status" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium">--</span>
+              <span id="tender-status"></span>
             </div>
           </div>
 
@@ -77,7 +76,7 @@
             </div>
             <div class="flex items-center gap-2">
               <i data-lucide="clock" class="w-4 h-4 text-textSecondary"></i>
-              <span class="text-sm text-textSecondary" id="deadline-countdown">--</span>
+              <span class="text-sm" id="deadline-countdown">--</span>
             </div>
             <div class="flex items-center gap-2">
               <i data-lucide="file-text" class="w-4 h-4 text-textSecondary"></i>
@@ -97,8 +96,8 @@
                 <thead class="bg-gray-50 border-b border-border">
                   <tr>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Produit</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Quantité</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Spécifications</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Référence</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-textSecondary uppercase">Quantité</th>
                   </tr>
                 </thead>
                 <tbody id="products-table-body" class="divide-y divide-border">
@@ -109,14 +108,16 @@
           </div>
         </div>
 
-        <!-- Submit Offer Form / My Offer -->
+        <!-- Submit Offer / My Offer -->
         <div class="bg-surface rounded-xl shadow-sm border border-border p-6" id="offer-section">
           <h3 class="font-semibold text-textPrimary mb-4" id="offer-section-title">Soumettre une offre</h3>
+
+          <!-- My existing bid (if any) -->
+          <div id="my-offer-container" class="hidden mb-6"></div>
+
+          <!-- Submit / re-bid form -->
           <div id="offer-form-container">
-            <!-- Form will be shown here if not yet submitted -->
-          </div>
-          <div id="my-offer-container" class="hidden">
-            <!-- My offer card will be shown here if already submitted -->
+            <p class="text-textSecondary">Chargement...</p>
           </div>
         </div>
       </main>
@@ -127,184 +128,270 @@
   <script src="../../js/auth.js"></script>
   <script>
     requireAuth(["SUPPLIER"]);
-    const currentUser = getCurrentUser();
   </script>
   <script src="../../js/router.js"></script>
   <script src="../../js/components/sidebar.js"></script>
   <script src="../../js/components/header.js"></script>
   <script src="../../js/components/badge.js"></script>
+  <script src="../../js/components/toast.js"></script>
   <script src="../../js/utils/format.js"></script>
   <script>
     initPage("SUPPLIER");
+    const role = getCurrentRole();
+    if (role) {
+      renderSidebar(role.toLowerCase());
+    }
+    renderHeader();
 
     const urlParams = new URLSearchParams(window.location.search);
     const tenderId = urlParams.get('id');
+
     let countdownInterval = null;
+    let currentTender = null;
+    let currentBestBid = null;
+    let myBid = null;
 
-    async function loadTender() {
-      try {
-        const response = await apiFetch(`/supplier/marketplace/${tenderId}`);
-        const tender = response.data;
-
-        // Update breadcrumb
-        document.getElementById('breadcrumb-title').textContent = tender.title;
-
-        // Update tender details
-        document.getElementById('tender-title').textContent = tender.title;
-        document.getElementById('client-name').textContent = tender.clientName;
-        document.getElementById('client-type-badge').textContent = getClientTypeLabel(tender.clientType);
-        document.getElementById('client-type-badge').className = `inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getClientTypeColor(tender.clientType)}`;
-        document.getElementById('tender-budget').textContent = tender.maxBudget ? formatCurrency(tender.maxBudget) : 'Non spécifié';
-        document.getElementById('offer-count').textContent = tender.offerCount;
-        document.getElementById('tender-description').textContent = tender.description;
-        
-        // Update status
-        document.getElementById('tender-status').textContent = getStatusLabel(tender.status);
-        document.getElementById('tender-status').className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(tender.status)}`;
-
-        // Start countdown
-        startCountdown(tender.deadline);
-
-        // Update products table
-        const productsBody = document.getElementById('products-table-body');
-        if (tender.products && tender.products.length > 0) {
-          productsBody.innerHTML = tender.products.map(product => `
-            <tr>
-              <td class="px-4 py-3 text-textPrimary font-medium">${product.productName}</td>
-              <td class="px-4 py-3 text-textPrimary">${product.quantity}</td>
-              <td class="px-4 py-3 text-textSecondary">${product.specifications || '--'}</td>
-            </tr>
-          `).join('');
-        } else {
-          productsBody.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-textSecondary">Aucun produit spécifié</td></tr>`;
-        }
-
-        // Update offer section
-        if (tender.myOffer) {
-          showMyOffer(tender.myOffer);
-        } else {
-          showOfferForm(tender.status);
-        }
-
-        lucide.createIcons();
-      } catch (error) {
-        console.error("Failed to load tender:", error);
-      }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    function showOfferForm(status) {
-      const container = document.getElementById('offer-form-container');
-      const myOfferContainer = document.getElementById('my-offer-container');
-      const sectionTitle = document.getElementById('offer-section-title');
+    async function loadTender() {
+      // 1) Tender details
+      const r = await apiFetch('/tenders/' + tenderId);
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Impossible de charger l'appel d'offres", "error");
+        document.getElementById('tender-title').textContent = "Appel d'offres introuvable";
+        document.getElementById('breadcrumb-title').textContent = "Introuvable";
+        document.getElementById('products-table-body').innerHTML =
+          `<tr><td colspan="3" class="px-4 py-8 text-center text-textSecondary">Aucune donnée</td></tr>`;
+        document.getElementById('offer-form-container').innerHTML =
+          `<p class="text-textSecondary">Indisponible.</p>`;
+        return;
+      }
+      const tender = r.data.tender || {};
+      currentTender = tender;
 
-      sectionTitle.textContent = 'Soumettre une offre';
-      container.classList.remove('hidden');
-      myOfferContainer.classList.add('hidden');
+      const title = tender.title || ('Appel d\'offres #' + (tender.tenderId || tenderId).slice(0, 8));
+      document.getElementById('breadcrumb-title').textContent = title;
+      document.getElementById('tender-title').textContent = title;
+      document.getElementById('client-name').textContent =
+        'Client #' + (tender.clientId ? tender.clientId.slice(0, 8) : '—');
+      document.getElementById('tender-budget').textContent =
+        (tender.budgetMax != null) ? formatCurrency(tender.budgetMax) : 'Non spécifié';
+      document.getElementById('tender-description').textContent = tender.description || 'Aucune description.';
+      document.getElementById('tender-status').innerHTML = renderBadge(tender.status);
 
-      if (status !== 'OPEN') {
-        container.innerHTML = `<p class="text-textSecondary">Cet appel d'offres n'est plus ouvert aux soumissions.</p>`;
+      startCountdown(tender.deadline);
+
+      // 2) Bids (for offer count + my bid + winner detection)
+      const rBids = await apiFetch('/tenders/' + tenderId + '/bids');
+      const bids = (rBids && rBids.ok && Array.isArray(rBids.data.bids)) ? rBids.data.bids : [];
+      document.getElementById('offer-count').textContent = bids.length;
+
+      const me = getCurrentUser();
+      const myUserId = me ? me.userId : null;
+      myBid = bids.find(b => b.supplierId === myUserId) || null;
+
+      // 3) Best bid (the price to beat)
+      const rBest = await apiFetch('/tenders/' + tenderId + '/best-bid');
+      currentBestBid = (rBest && rBest.ok) ? (rBest.data.bestBid || null) : null;
+
+      // 4) Items + product names
+      await loadItems();
+
+      // 5) Render my bid card + form
+      renderMyBid(tender, myUserId);
+      renderOfferForm(tender);
+
+      lucide.createIcons();
+    }
+
+    async function loadItems() {
+      const body = document.getElementById('products-table-body');
+      const rItems = await apiFetch('/tenders/' + tenderId + '/items');
+      const items = (rItems && rItems.ok && Array.isArray(rItems.data.items)) ? rItems.data.items : [];
+
+      if (items.length === 0) {
+        body.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-textSecondary">Aucun produit spécifié</td></tr>`;
         return;
       }
 
+      // Resolve product names once via GET /products.
+      let productsById = {};
+      const rProducts = await apiFetch('/products');
+      if (rProducts && rProducts.ok && Array.isArray(rProducts.data.products)) {
+        rProducts.data.products.forEach(p => { productsById[p.id] = p; });
+      }
+
+      body.innerHTML = items.map(item => {
+        const prod = productsById[item.productId];
+        const name = prod ? prod.name : ('Produit #' + (item.productId ? item.productId.slice(0, 8) : '—'));
+        const ref = prod && prod.reference ? prod.reference : '—';
+        return `
+          <tr>
+            <td class="px-4 py-3 text-textPrimary font-medium">${escapeHtml(name)}</td>
+            <td class="px-4 py-3 text-textSecondary font-mono text-sm">${escapeHtml(ref)}</td>
+            <td class="px-4 py-3 text-textPrimary text-right">${escapeHtml(item.quantity)}</td>
+          </tr>`;
+      }).join('');
+    }
+
+    function renderMyBid(tender, myUserId) {
+      const container = document.getElementById('my-offer-container');
+      if (!myBid) {
+        container.classList.add('hidden');
+        container.innerHTML = '';
+        return;
+      }
+
+      container.classList.remove('hidden');
+
+      // Winner note: AWARDED tender + this supplier holds the lowest (best) bid.
+      const isWinner = tender.status === 'AWARDED'
+        && currentBestBid && currentBestBid.supplierId === myUserId;
+
+      const winnerNote = isWinner ? `
+        <div class="mt-4 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-2">
+          <i data-lucide="trophy" class="w-5 h-5 text-green-700"></i>
+          <p class="text-green-800 font-medium">Félicitations ! Vous avez remporté cet appel d'offres.</p>
+        </div>` : '';
+
       container.innerHTML = `
-        <div class="space-y-4">
+        <div class="bg-gray-50 rounded-lg border border-border p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <i data-lucide="hand-coins" class="w-5 h-5 text-accent"></i>
+            <h4 class="font-semibold text-textPrimary">Votre offre actuelle</h4>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm text-textSecondary">Prix proposé</p>
+              <p class="text-xl font-bold text-accent">${formatCurrency(myBid.price)}</p>
+            </div>
+            <div>
+              <p class="text-sm text-textSecondary">Date de soumission</p>
+              <p class="text-textPrimary">${myBid.createdAt ? formatDate(myBid.createdAt) : '—'}</p>
+            </div>
+          </div>
+          ${winnerNote}
+        </div>`;
+    }
+
+    function renderOfferForm(tender) {
+      const container = document.getElementById('offer-form-container');
+      const sectionTitle = document.getElementById('offer-section-title');
+
+      if (tender.status !== 'OPEN') {
+        sectionTitle.textContent = 'Soumission';
+        container.innerHTML = `
+          <div class="flex items-center gap-2 text-textSecondary">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span>Cet appel d'offres n'est plus ouvert aux soumissions.</span>
+          </div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      sectionTitle.textContent = myBid ? 'Améliorer votre offre' : 'Soumettre une offre';
+
+      const bestTxt = currentBestBid
+        ? formatCurrency(currentBestBid.price)
+        : 'aucune';
+      const capTxt = (tender.budgetMax != null) ? formatCurrency(tender.budgetMax) : 'non spécifié';
+
+      const rules = myBid
+        ? `Votre nouvelle offre doit être <strong>inférieure</strong> à votre offre actuelle, à la meilleure offre et au budget max.`
+        : `Votre offre doit être <strong>inférieure</strong> à la meilleure offre actuelle et au budget max.`;
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+          <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
+            <p class="text-xs text-textSecondary mb-1">Meilleure offre actuelle</p>
+            <p class="text-lg font-bold text-accent">${bestTxt}</p>
+          </div>
+          <div class="bg-amber-50 border border-amber-100 rounded-lg p-4">
+            <p class="text-xs text-textSecondary mb-1">Budget maximum</p>
+            <p class="text-lg font-bold text-warning">${capTxt}</p>
+          </div>
+        </div>
+
+        <p class="text-sm text-textSecondary mb-4">${rules}</p>
+
+        <div class="space-y-4 max-w-md">
           <div>
-            <label class="block text-sm font-medium text-textPrimary mb-2">Prix total proposé (MAD) *</label>
+            <label class="block text-sm font-medium text-textPrimary mb-2" for="offer-price">Prix total proposé (MAD) *</label>
             <input type="number" id="offer-price" min="0" step="0.01"
               class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
               placeholder="Entrez votre prix proposé">
           </div>
-          <div>
-            <label class="block text-sm font-medium text-textPrimary mb-2">Description / justification *</label>
-            <textarea id="offer-description" rows="4"
-              class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"
-              placeholder="Décrivez votre offre, les délais de livraison, les conditions, etc."></textarea>
-          </div>
-          <button onclick="submitOffer()" class="bg-accent hover:bg-secondary text-white font-medium px-6 py-3 rounded-lg transition-colors">
-            Soumettre l'offre
+          <button id="submit-offer-btn" onclick="submitOffer()"
+            class="bg-accent hover:bg-secondary text-white font-medium px-6 py-3 rounded-lg transition-colors">
+            ${myBid ? 'Mettre à jour mon offre' : "Soumettre l'offre"}
           </button>
-        </div>
-      `;
-    }
-
-    function showMyOffer(offer) {
-      const container = document.getElementById('offer-form-container');
-      const myOfferContainer = document.getElementById('my-offer-container');
-      const sectionTitle = document.getElementById('offer-section-title');
-
-      sectionTitle.textContent = 'Mon offre';
-      container.classList.add('hidden');
-      myOfferContainer.classList.remove('hidden');
-
-      myOfferContainer.innerHTML = `
-        <div class="bg-gray-50 rounded-lg border border-border p-6">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div>
-              <p class="text-sm text-textSecondary">Prix proposé</p>
-              <p class="text-xl font-bold text-accent">${formatCurrency(offer.proposedPrice)}</p>
-            </div>
-            <div>
-              <p class="text-sm text-textSecondary">Date de soumission</p>
-              <p class="text-textPrimary">${formatDate(offer.submissionDate)}</p>
-            </div>
-            <div>
-              <p class="text-sm text-textSecondary">Statut</p>
-              ${renderOfferStatusBadge(offer.status)}
-            </div>
-          </div>
-          <div class="mb-4">
-            <p class="text-sm text-textSecondary mb-2">Description</p>
-            <p class="text-textPrimary">${offer.description || '--'}</p>
-          </div>
-          ${offer.status === 'ACCEPTED' ? `
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p class="text-green-800 font-medium">🎉 Félicitations ! Votre offre a été acceptée.</p>
-            </div>
-          ` : ''}
-        </div>
-      `;
+        </div>`;
+      lucide.createIcons();
     }
 
     async function submitOffer() {
-      const price = document.getElementById('offer-price').value;
-      const description = document.getElementById('offer-description').value;
+      const input = document.getElementById('offer-price');
+      const raw = input ? input.value : '';
+      const price = parseFloat(raw);
 
-      if (!price || !description) {
-        alert('Veuillez remplir tous les champs obligatoires');
+      if (!raw || isNaN(price) || price <= 0) {
+        showToast('Veuillez entrer un prix valide (> 0).', 'warning');
+        return;
+      }
+      if (currentTender && currentTender.budgetMax != null && price >= currentTender.budgetMax) {
+        showToast('Le prix doit être inférieur au budget maximum (' + formatCurrency(currentTender.budgetMax) + ').', 'warning');
+        return;
+      }
+      if (currentBestBid && price >= currentBestBid.price) {
+        showToast('Le prix doit être inférieur à la meilleure offre actuelle (' + formatCurrency(currentBestBid.price) + ').', 'warning');
+        return;
+      }
+      if (myBid && price >= myBid.price) {
+        showToast('Votre nouvelle offre doit être inférieure à votre offre actuelle (' + formatCurrency(myBid.price) + ').', 'warning');
         return;
       }
 
-      try {
-        await apiFetch(`/supplier/marketplace/${tenderId}/offers`, {
-          method: 'POST',
-          body: JSON.stringify({
-            proposedPrice: parseFloat(price),
-            description
-          })
-        });
-        loadTender();
-      } catch (error) {
-        console.error("Failed to submit offer:", error);
-        alert('Erreur lors de la soumission de l\'offre');
+      const btn = document.getElementById('submit-offer-btn');
+      if (btn) { btn.disabled = true; btn.classList.add('opacity-60'); btn.textContent = 'Envoi...'; }
+
+      const r = await apiFetch('/tenders/' + tenderId + '/bids', {
+        method: 'POST',
+        body: JSON.stringify({ price: price })
+      });
+
+      if (!r || !r.ok || !r.data || !r.data.success) {
+        showToast(r?.data?.message || "Erreur lors de la soumission de l'offre", 'error');
+        if (btn) { btn.disabled = false; btn.classList.remove('opacity-60'); btn.textContent = myBid ? 'Mettre à jour mon offre' : "Soumettre l'offre"; }
+        return;
       }
+
+      showToast('Offre soumise avec succès', 'success');
+      loadTender();
     }
 
     function startCountdown(deadline) {
       const element = document.getElementById('deadline-countdown');
-      
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      if (!deadline) {
+        element.textContent = 'Échéance non définie';
+        element.className = 'text-sm text-textSecondary';
+        return;
       }
 
       const updateCountdown = () => {
         const now = new Date();
         const deadlineDate = new Date(deadline);
         const diffMs = deadlineDate - now;
-        
+
         if (diffMs <= 0) {
-          element.textContent = 'Expiré';
-          element.className = 'text-sm text-red-600 font-medium';
-          clearInterval(countdownInterval);
+          element.textContent = 'Échéance dépassée';
+          element.className = 'text-sm text-danger font-medium';
+          if (countdownInterval) clearInterval(countdownInterval);
           return;
         }
 
@@ -312,104 +399,33 @@
         const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
-        let text = '';
-        if (diffDays > 0) {
-          text = `Ferme dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
-        } else if (diffHours > 0) {
-          text = `Ferme dans ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
-        } else {
-          text = `Ferme dans ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
-        }
+        let text;
+        if (diffDays > 0) text = `Ferme dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+        else if (diffHours > 0) text = `Ferme dans ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+        else text = `Ferme dans ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
 
         element.textContent = text;
-        element.className = `text-sm ${getDeadlineUrgencyClass(deadline)}`;
+        const diffHoursTotal = diffMs / (1000 * 60 * 60);
+        if (diffHoursTotal < 24) element.className = 'text-sm text-danger font-medium';
+        else if (diffHoursTotal < 168) element.className = 'text-sm text-warning font-medium';
+        else element.className = 'text-sm text-textSecondary';
       };
 
       updateCountdown();
       countdownInterval = setInterval(updateCountdown, 60000);
     }
 
-    function getDeadlineUrgencyClass(deadline) {
-      const now = new Date();
-      const deadlineDate = new Date(deadline);
-      const diffHours = (deadlineDate - now) / (1000 * 60 * 60);
-      
-      if (diffHours < 24) return 'text-red-600 font-medium';
-      if (diffHours < 168) return 'text-amber-600 font-medium';
-      return 'text-textSecondary';
-    }
+    window.addEventListener('beforeunload', () => {
+      if (countdownInterval) clearInterval(countdownInterval);
+    });
 
-    function getStatusLabel(status) {
-      const labels = {
-        OPEN: "Ouvert",
-        CLOSED: "Fermé",
-        AWARDED: "Attribué",
-        CANCELLED: "Annulé"
-      };
-      return labels[status] || status;
-    }
-
-    function getStatusColor(status) {
-      const colors = {
-        OPEN: "bg-green-100 text-green-800",
-        CLOSED: "bg-gray-100 text-gray-800",
-        AWARDED: "bg-blue-100 text-blue-800",
-        CANCELLED: "bg-red-100 text-red-800"
-      };
-      return colors[status] || 'bg-gray-100 text-gray-800';
-    }
-
-    function getClientTypeLabel(type) {
-      const labels = {
-        HOSPITAL: "Hôpital",
-        LABORATORY: "Laboratoire",
-        CLINIC: "Clinique",
-        DOCTOR: "Médecin",
-        MEDICAL_OFFICE: "Cabinet",
-        RESELLER: "Revendeur"
-      };
-      return labels[type] || type;
-    }
-
-    function getClientTypeColor(type) {
-      const colors = {
-        HOSPITAL: "bg-blue-100 text-blue-800",
-        LABORATORY: "bg-purple-100 text-purple-800",
-        CLINIC: "bg-teal-100 text-teal-800",
-        DOCTOR: "bg-green-100 text-green-800",
-        MEDICAL_OFFICE: "bg-orange-100 text-orange-800",
-        RESELLER: "bg-slate-100 text-slate-800"
-      };
-      return colors[type] || 'bg-gray-100 text-gray-800';
-    }
-
-    function renderOfferStatusBadge(status) {
-      const colors = {
-        PENDING: "bg-yellow-100 text-yellow-800",
-        ACCEPTED: "bg-green-100 text-green-800",
-        REJECTED: "bg-red-100 text-red-800"
-      };
-      const labels = {
-        PENDING: "En attente",
-        ACCEPTED: "Accepté",
-        REJECTED: "Rejeté"
-      };
-      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
-    }
-
-    // Load tender on page load
+    // Boot
     if (tenderId) {
       loadTender();
     } else {
-      window.location.href = '/medsupply-cloud/pages/marketplace.html';
+      showToast('Appel d\'offres introuvable', 'error');
+      window.location.href = '../supplier/marketplace.html';
     }
-
-    // Cleanup interval on page unload
-    window.addEventListener('beforeunload', () => {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
-    });
   </script>
 </body>
 </html>

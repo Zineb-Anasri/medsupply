@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mes Contrats Maintenance - MedSupply Cloud</title>
+  <title>Maintenance &amp; SAV - MedSupply Cloud</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -39,18 +39,18 @@
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col ">
+    <div class="flex-1 flex flex-col overflow-hidden">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
         <!-- Page Header -->
         <div class="mb-6">
-          <h1 class="text-2xl font-bold text-textPrimary">Mes Contrats Maintenance</h1>
-          <p class="text-textSecondary">Gérez vos contrats de maintenance</p>
+          <h1 class="text-2xl font-bold text-textPrimary">Maintenance &amp; SAV</h1>
+          <p class="text-textSecondary">Vos contrats de maintenance et vos demandes de service après-vente</p>
         </div>
 
         <!-- Stats Cards -->
@@ -59,7 +59,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-textSecondary text-sm">Contrats actifs</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-active">0</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-active">—</p>
               </div>
               <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="shield-check" class="w-6 h-6 text-green-600"></i>
@@ -70,7 +70,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-textSecondary text-sm">Expirant dans 30 jours</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-expiring">0</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-expiring">—</p>
               </div>
               <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="clock" class="w-6 h-6 text-amber-600"></i>
@@ -80,8 +80,8 @@
           <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-textSecondary text-sm">Total interventions</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-interventions">0</p>
+                <p class="text-textSecondary text-sm">Demandes SAV</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-requests">—</p>
               </div>
               <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="wrench" class="w-6 h-6 text-blue-600"></i>
@@ -90,25 +90,91 @@
           </div>
         </div>
 
-        <!-- Contract Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="contracts-grid">
+        <!-- Contracts -->
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold text-textPrimary">Mes contrats de maintenance</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" id="contracts-grid">
           <div class="col-span-full text-center py-12 text-textSecondary">Chargement...</div>
+        </div>
+
+        <!-- Requests -->
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold text-textPrimary">Mes demandes SAV</h2>
+        </div>
+        <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-background text-textSecondary">
+                <tr>
+                  <th class="text-left font-medium px-5 py-3">Référence</th>
+                  <th class="text-left font-medium px-5 py-3">Description</th>
+                  <th class="text-left font-medium px-5 py-3">Priorité</th>
+                  <th class="text-left font-medium px-5 py-3">Statut</th>
+                  <th class="text-left font-medium px-5 py-3">Date</th>
+                  <th class="text-right font-medium px-5 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody id="requests-body" class="divide-y divide-border">
+                <tr><td colspan="6" class="text-center py-10 text-textSecondary">Chargement...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>
   </div>
 
-  <!-- Interventions History Modal -->
-  <div id="interventions-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-surface rounded-xl shadow-lg border border-border p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-textPrimary">Historique des interventions</h3>
-        <button onclick="hideInterventionsModal()" class="p-2 hover:bg-gray-100 rounded">
-          <i data-lucide="x" class="w-5 h-5 text-gray-600"></i>
+  <!-- New SAV Request Modal -->
+  <div id="request-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50 p-4">
+    <div class="bg-surface rounded-xl shadow-lg border border-border w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between p-6 border-b border-border">
+        <h3 class="text-lg font-bold text-textPrimary">Nouvelle demande SAV</h3>
+        <button onclick="closeModal('request-modal')" class="p-2 hover:bg-gray-100 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5 text-textSecondary"></i>
         </button>
       </div>
-      <div class="space-y-4" id="interventions-timeline">
-        <!-- Interventions will be loaded dynamically -->
+      <div class="p-6 space-y-4">
+        <div class="bg-background rounded-lg p-4 border border-border">
+          <p class="text-xs text-textSecondary mb-1">Équipement concerné</p>
+          <p class="font-medium text-textPrimary" id="req-product-name">—</p>
+          <p class="text-xs text-textSecondary font-mono" id="req-contract-ref">—</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-1">Priorité</label>
+          <select id="req-priority" class="w-full px-3 py-2 border border-border rounded-lg outline-none focus:ring-2 focus:ring-accent">
+            <option value="LOW">Basse</option>
+            <option value="MEDIUM" selected>Moyenne</option>
+            <option value="HIGH">Haute</option>
+            <option value="URGENT">Urgente</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-1">Description du problème</label>
+          <textarea id="req-description" rows="4" placeholder="Décrivez le dysfonctionnement constaté..."
+                    class="w-full px-3 py-2 border border-border rounded-lg outline-none focus:ring-2 focus:ring-accent resize-none"></textarea>
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-3 p-6 border-t border-border">
+        <button onclick="closeModal('request-modal')" class="px-4 py-2 rounded-lg border border-border text-textPrimary hover:bg-gray-50 font-medium">Annuler</button>
+        <button id="req-submit-btn" onclick="submitRequest()" class="px-4 py-2 rounded-lg bg-accent hover:bg-secondary text-white font-medium flex items-center gap-2">
+          <i data-lucide="send" class="w-4 h-4"></i> Envoyer la demande
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Request Detail Modal -->
+  <div id="detail-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden z-50 p-4">
+    <div class="bg-surface rounded-xl shadow-lg border border-border w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between p-6 border-b border-border">
+        <h3 class="text-lg font-bold text-textPrimary">Détail de la demande</h3>
+        <button onclick="closeModal('detail-modal')" class="p-2 hover:bg-gray-100 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5 text-textSecondary"></i>
+        </button>
+      </div>
+      <div class="p-6" id="detail-body">
+        <p class="text-textSecondary text-center py-8">Chargement...</p>
       </div>
     </div>
   </div>
@@ -123,6 +189,7 @@
   <script src="../../js/components/header.js"></script>
   <script src="../../js/components/badge.js"></script>
   <script src="../../js/components/toast.js"></script>
+  <script src="../../js/components/modal.js"></script>
   <script src="../../js/utils/format.js"></script>
   <script>
     initPage("CLIENT");
@@ -132,128 +199,256 @@
     }
     renderHeader();
 
+    let contracts = [];
+    const productCache = {}; // productId -> product
+    let activeRequestContract = null; // contract selected for a new SAV request
+
+    function dayCount(from, to) {
+      return Math.ceil((new Date(to).getTime() - new Date(from).getTime()) / 86400000);
+    }
+
+    async function fetchProduct(productId) {
+      if (!productId) return null;
+      if (productCache[productId] !== undefined) return productCache[productId];
+      const r = await apiFetch('/products/' + productId);
+      const product = (r && r.ok && r.data && r.data.product) ? r.data.product : null;
+      productCache[productId] = product;
+      return product;
+    }
+
     async function loadContracts() {
-      try {
-        const response = await apiFetch('/maintenance/contracts');
-        const data = response?.data || {};
-
-        // Update stats
-        document.getElementById("stat-active").textContent = data.stats?.active || 0;
-        document.getElementById("stat-expiring").textContent = data.stats?.expiring || 0;
-        document.getElementById("stat-interventions").textContent = data.stats?.interventions || 0;
-
-        // Update contract cards grid
-        const grid = document.getElementById('contracts-grid');
-        const contracts = data.contracts || [];
-        if (contracts.length === 0) {
-          grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">Aucun contrat de maintenance</div>`;
-        } else {
-          grid.innerHTML = contracts.map(contract => {
-            const daysRemaining = contract.daysRemaining || 0;
-            const totalDays = contract.totalDays || 365;
-            const progressPercent = Math.max(0, Math.min(100, (daysRemaining / totalDays) * 100));
-            const progressColor = daysRemaining < 30 ? 'bg-red-500' : daysRemaining < 90 ? 'bg-amber-500' : 'bg-green-500';
-
-            return `
-              <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
-                <div class="aspect-[4/3] bg-gray-100 relative">
-                  ${contract.productImageUrl 
-                    ? `<img src="${contract.productImageUrl}" alt="${contract.productName}" class="w-full h-full object-cover">`
-                    : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
-                        <i data-lucide="package" class="w-12 h-12 text-primary"></i>
-                      </div>`
-                  }
-                  <span class="absolute top-3 right-3 ${getStatusColor(contract.status)} px-3 py-1 rounded-full text-xs font-medium text-white">
-                    ${getStatusLabel(contract.status)}
-                  </span>
-                </div>
-                <div class="p-4">
-                  <h3 class="font-semibold text-textPrimary mb-1">${contract.productName}</h3>
-                  <p class="text-sm text-textSecondary font-mono mb-2">${contract.productReference}</p>
-                  <p class="text-sm text-textSecondary mb-3">
-                    Du ${formatDate(contract.startDate)} au ${formatDate(contract.endDate)}
-                  </p>
-                  <div class="mb-3">
-                    <div class="flex justify-between text-xs mb-1">
-                      <span class="text-textSecondary">${daysRemaining} jours restants</span>
-                      <span class="text-textSecondary">${progressPercent.toFixed(0)}%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                      <div class="${progressColor} h-2 rounded-full" style="width: ${progressPercent}%"></div>
-                    </div>
-                  </div>
-                  <button onclick="showInterventionsModal('${contract.contractId}')" class="w-full bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium py-2 rounded-lg transition-colors">
-                    Historique interventions
-                  </button>
-                </div>
-              </div>
-            `;
-          }).join('');
-        }
-
-        lucide.createIcons();
-      } catch (error) {
-        console.error("Failed to load contracts:", error);
+      const grid = document.getElementById('contracts-grid');
+      const r = await apiFetch('/maintenance/contracts');
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Erreur de chargement des contrats", "error");
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-danger">Erreur de chargement</div>`;
+        return;
       }
+      contracts = r.data.contracts || [];
+
+      // Fetch product info for each contract (cached by productId).
+      await Promise.all(contracts.map(c => fetchProduct(c.productId)));
+
+      // Stats computed client-side.
+      const now = Date.now();
+      const active = contracts.filter(c => c.status === 'ACTIVE');
+      const expiring = active.filter(c => {
+        const days = Math.ceil((new Date(c.endDate).getTime() - now) / 86400000);
+        return days >= 0 && days <= 30;
+      });
+      document.getElementById('stat-active').textContent = active.length;
+      document.getElementById('stat-expiring').textContent = expiring.length;
+
+      renderContracts();
     }
 
-    async function showInterventionsModal(contractId) {
-      try {
-        const response = await apiFetch(`/client/maintenance/${contractId}/interventions`);
-        const interventions = response.data || [];
+    function renderContracts() {
+      const grid = document.getElementById('contracts-grid');
+      if (contracts.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">
+          <i data-lucide="shield-off" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i>
+          <p>Aucun contrat de maintenance</p>
+        </div>`;
+        lucide.createIcons();
+        return;
+      }
 
-        const container = document.getElementById('interventions-timeline');
-        
-        if (interventions.length === 0) {
-          container.innerHTML = `<p class="text-textSecondary text-sm text-center py-8">Aucune intervention enregistrée</p>`;
-        } else {
-          container.innerHTML = interventions.slice().reverse().map((intervention, index) => `
-            <div class="flex gap-3">
-              <div class="flex flex-col items-center">
-                <div class="w-3 h-3 rounded-full ${index === 0 ? 'bg-accent' : 'bg-gray-300'}"></div>
-                ${index < interventions.length - 1 ? '<div class="w-0.5 h-8 bg-gray-200"></div>' : ''}
-              </div>
-              <div class="flex-1 pb-4">
-                <p class="text-sm font-medium text-textPrimary">${formatDate(intervention.date)}</p>
-                <p class="text-xs text-textSecondary">Technicien: ${intervention.technician}</p>
-                <p class="text-sm text-textPrimary mt-1">${intervention.description}</p>
-                ${intervention.result ? `<p class="text-sm text-textSecondary mt-1">Résultat: ${intervention.result}</p>` : ''}
-              </div>
+      grid.innerHTML = contracts.map(c => {
+        const product = productCache[c.productId];
+        const name = product?.name || ('Équipement #' + (c.productId || '').slice(0, 8));
+        const reference = product?.reference || (c.contractReference || '');
+        const imageUrl = product?.imageUrl;
+
+        const daysRemaining = dayCount(Date.now(), c.endDate);
+        const totalDays = Math.max(1, dayCount(c.startDate, c.endDate));
+        const progressPercent = Math.max(0, Math.min(100, (daysRemaining / totalDays) * 100));
+        const progressColor = daysRemaining < 30 ? 'bg-red-500' : daysRemaining < 90 ? 'bg-amber-500' : 'bg-green-500';
+        const remainingLabel = daysRemaining > 0 ? (daysRemaining + ' jours restants') : 'Échu';
+        const isActive = c.status === 'ACTIVE';
+
+        return `
+          <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden flex flex-col">
+            <div class="aspect-[4/3] bg-gray-100 relative">
+              ${imageUrl
+                ? `<img src="${imageUrl}" alt="${name}" class="w-full h-full object-cover">`
+                : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
+                    <i data-lucide="package" class="w-12 h-12 text-primary"></i>
+                  </div>`}
+              <span class="absolute top-3 right-3">${renderBadge(c.status)}</span>
             </div>
-          `).join('');
-        }
+            <div class="p-4 flex flex-col flex-1">
+              <h3 class="font-semibold text-textPrimary mb-1">${name}</h3>
+              <p class="text-sm text-textSecondary font-mono mb-2">${reference}</p>
+              <p class="text-sm text-textSecondary mb-3">
+                Du ${formatDate(c.startDate)} au ${formatDate(c.endDate)}
+              </p>
+              <div class="mb-4 mt-auto">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-textSecondary">${remainingLabel}</span>
+                  <span class="text-textSecondary">${progressPercent.toFixed(0)}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="${progressColor} h-2 rounded-full" style="width: ${progressPercent}%"></div>
+                </div>
+              </div>
+              <button onclick="openRequestModal('${c.contractId}')" ${isActive ? '' : 'disabled'}
+                class="w-full ${isActive ? 'bg-accent hover:bg-secondary text-white' : 'bg-gray-100 text-textSecondary cursor-not-allowed'} font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <i data-lucide="wrench" class="w-4 h-4"></i> Demander un SAV
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
 
-        document.getElementById('interventions-modal').classList.remove('hidden');
-        lucide.createIcons();
-      } catch (error) {
-        console.error("Failed to load interventions:", error);
+      lucide.createIcons();
+    }
+
+    async function loadRequests() {
+      const tbody = document.getElementById('requests-body');
+      const r = await apiFetch('/maintenance/requests');
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Erreur de chargement des demandes", "error");
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-danger">Erreur de chargement</td></tr>`;
+        return;
       }
+      const requests = r.data.requests || [];
+      document.getElementById('stat-requests').textContent = requests.length;
+
+      if (requests.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-textSecondary">
+          Aucune demande SAV. Sélectionnez un contrat actif pour en créer une.
+        </td></tr>`;
+        return;
+      }
+
+      // Sort by most recent.
+      requests.sort((a, b) => new Date(b.requestDate || b.createdAt).getTime() - new Date(a.requestDate || a.createdAt).getTime());
+
+      tbody.innerHTML = requests.map(req => {
+        const product = productCache[req.productId];
+        const productName = product?.name || ('Équipement #' + (req.productId || '').slice(0, 8));
+        return `
+          <tr class="hover:bg-background">
+            <td class="px-5 py-3 font-mono text-textPrimary">#${(req.requestId || '').slice(0, 8)}</td>
+            <td class="px-5 py-3 text-textPrimary max-w-xs">
+              <p class="truncate">${req.description || '—'}</p>
+              <p class="text-xs text-textSecondary truncate">${productName}</p>
+            </td>
+            <td class="px-5 py-3">${renderBadge(req.priority)}</td>
+            <td class="px-5 py-3">${renderBadge(req.status)}</td>
+            <td class="px-5 py-3 text-textSecondary">${formatDate(req.requestDate || req.createdAt)}</td>
+            <td class="px-5 py-3 text-right">
+              <button onclick="openDetail('${req.requestId}')" class="text-accent hover:text-secondary font-medium inline-flex items-center gap-1">
+                <i data-lucide="eye" class="w-4 h-4"></i> Voir
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
     }
 
-    function hideInterventionsModal() {
-      document.getElementById('interventions-modal').classList.add('hidden');
+    function openRequestModal(contractId) {
+      const contract = contracts.find(c => c.contractId === contractId);
+      if (!contract) return;
+      activeRequestContract = contract;
+      const product = productCache[contract.productId];
+      document.getElementById('req-product-name').textContent =
+        product?.name || ('Équipement #' + (contract.productId || '').slice(0, 8));
+      document.getElementById('req-contract-ref').textContent =
+        contract.contractReference || ('Contrat #' + contract.contractId.slice(0, 8));
+      document.getElementById('req-priority').value = 'MEDIUM';
+      document.getElementById('req-description').value = '';
+      openModal('request-modal');
+      lucide.createIcons();
     }
 
-    function getStatusLabel(status) {
-      const labels = {
-        ACTIVE: "Actif",
-        EXPIRED: "Expiré",
-        SUSPENDED: "Suspendu"
-      };
-      return labels[status] || status;
+    async function submitRequest() {
+      if (!activeRequestContract) return;
+      const description = document.getElementById('req-description').value.trim();
+      const priority = document.getElementById('req-priority').value;
+      if (!description) {
+        showToast("Veuillez décrire le problème", "warning");
+        return;
+      }
+      const btn = document.getElementById('req-submit-btn');
+      btn.disabled = true;
+      const r = await apiFetch('/maintenance/requests', {
+        method: 'POST',
+        body: JSON.stringify({
+          contractId: activeRequestContract.contractId,
+          productId: activeRequestContract.productId,
+          description,
+          priority
+        })
+      });
+      btn.disabled = false;
+      if (!r || !r.ok || !r.data.success) {
+        showToast(r?.data?.message || "Échec de l'envoi de la demande", "error");
+        return;
+      }
+      showToast("Demande SAV créée", "success");
+      closeModal('request-modal');
+      loadRequests();
     }
 
-    function getStatusColor(status) {
-      const colors = {
-        ACTIVE: "bg-green-600",
-        EXPIRED: "bg-red-600",
-        SUSPENDED: "bg-orange-600"
-      };
-      return colors[status] || 'bg-gray-600';
+    async function openDetail(requestId) {
+      const body = document.getElementById('detail-body');
+      body.innerHTML = `<p class="text-textSecondary text-center py-8">Chargement...</p>`;
+      openModal('detail-modal');
+      const r = await apiFetch('/maintenance/requests/' + requestId);
+      if (!r || !r.ok || !r.data.request) {
+        body.innerHTML = `<p class="text-danger text-center py-8">${r?.data?.message || "Erreur de chargement"}</p>`;
+        return;
+      }
+      const req = r.data.request;
+      const product = productCache[req.productId];
+      const productName = product?.name || ('Équipement #' + (req.productId || '').slice(0, 8));
+      const productRef = product?.reference || '';
+
+      body.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-textSecondary">#${(req.requestId || '').slice(0, 8)}</span>
+            <div class="flex items-center gap-2">
+              ${renderBadge(req.priority)}
+              ${renderBadge(req.status)}
+            </div>
+          </div>
+          <div class="bg-background rounded-lg p-4 border border-border">
+            <p class="text-xs text-textSecondary mb-1">Équipement</p>
+            <p class="font-medium text-textPrimary">${productName}</p>
+            ${productRef ? `<p class="text-xs text-textSecondary font-mono">${productRef}</p>` : ''}
+          </div>
+          <div>
+            <p class="text-xs text-textSecondary mb-1">Description</p>
+            <p class="text-textPrimary whitespace-pre-line">${req.description || '—'}</p>
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="text-xs text-textSecondary mb-1">Date de la demande</p>
+              <p class="text-textPrimary">${formatDate(req.requestDate || req.createdAt)}</p>
+            </div>
+            <div>
+              <p class="text-xs text-textSecondary mb-1">Dernière mise à jour</p>
+              <p class="text-textPrimary">${req.updatedAt ? formatRelativeTime(req.updatedAt) : '—'}</p>
+            </div>
+          </div>
+          <p class="text-xs text-textSecondary border-t border-border pt-3">
+            Le suivi des interventions techniques est géré par votre administrateur. Le statut ci-dessus reflète l'avancement de votre demande.
+          </p>
+        </div>
+      `;
+      lucide.createIcons();
     }
 
-    // Load contracts on page load
-    loadContracts();
+    async function init() {
+      await loadContracts();
+      await loadRequests();
+    }
+
+    init();
   </script>
 </body>
 </html>

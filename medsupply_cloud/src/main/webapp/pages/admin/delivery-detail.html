@@ -35,10 +35,8 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
-    #map { height: 600px; width: 100%; border-radius: 0.5rem; }
-    .pulse-marker {
-      animation: pulse 2s infinite;
-    }
+    #map { height: 600px; width: 100%; border-radius: 0.5rem; background: #e2e8f0; }
+    .pulse-marker { animation: pulse 2s infinite; }
     @keyframes pulse {
       0% { transform: scale(1); opacity: 1; }
       50% { transform: scale(1.2); opacity: 0.7; }
@@ -50,12 +48,12 @@
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col ml-72">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
         <!-- Breadcrumb -->
@@ -73,25 +71,33 @@
             <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
               <h3 class="font-semibold text-textPrimary mb-4">Informations Livraison</h3>
               <div class="space-y-3">
-                <div class="flex justify-between">
+                <div class="flex justify-between gap-4">
                   <span class="text-textSecondary">N° Livraison</span>
                   <span class="font-mono text-textPrimary font-medium" id="delivery-ref">--</span>
                 </div>
-                <div class="flex justify-between">
+                <div class="flex justify-between gap-4">
                   <span class="text-textSecondary">N° Commande</span>
-                  <span class="font-mono text-textPrimary" id="order-ref">--</span>
+                  <a id="order-ref" href="#" class="font-mono text-accent hover:underline">--</a>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-textSecondary">Client</span>
-                  <span class="text-textPrimary font-medium" id="client-name">--</span>
+                <div class="flex justify-between gap-4">
+                  <span class="text-textSecondary">Client / Contact</span>
+                  <span class="text-textPrimary font-medium text-right" id="client-name">--</span>
                 </div>
-                <div class="flex justify-between">
-                  <span class="text-textSecondary">Livreur</span>
-                  <span class="text-textPrimary" id="driver-name">--</span>
+                <div class="flex justify-between gap-4">
+                  <span class="text-textSecondary">Téléphone</span>
+                  <span class="text-textPrimary text-right" id="contact-phone">--</span>
                 </div>
-                <div class="flex justify-between">
+                <div class="flex justify-between gap-4">
+                  <span class="text-textSecondary">Adresse</span>
+                  <span class="text-textPrimary text-right" id="delivery-address">--</span>
+                </div>
+                <div class="flex justify-between gap-4">
+                  <span class="text-textSecondary">Livraison estimée</span>
+                  <span class="text-textPrimary text-right" id="estimated-date">--</span>
+                </div>
+                <div class="flex justify-between gap-4 items-center">
                   <span class="text-textSecondary">Statut</span>
-                  <span id="delivery-status" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium">--</span>
+                  <span id="delivery-status">--</span>
                 </div>
               </div>
             </div>
@@ -99,17 +105,51 @@
             <!-- Status Stepper -->
             <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
               <h3 class="font-semibold text-textPrimary mb-4">Statut Livraison</h3>
-              <div class="space-y-4" id="status-stepper">
+              <div class="space-y-1" id="status-stepper">
                 <!-- Status steps will be loaded dynamically -->
               </div>
-              <button onclick="advanceStatus()" id="btn-advance" class="w-full mt-4 bg-accent hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
+              <button onclick="advanceStatus()" id="btn-advance" class="w-full mt-4 bg-accent hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors hidden">
                 Avancer le statut
               </button>
+              <p id="advance-hint" class="text-xs text-textSecondary text-center mt-3 hidden"></p>
             </div>
 
-            <!-- Position Update Form -->
-            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
-              <h3 class="font-semibold text-textPrimary mb-4">Mettre à jour la position</h3>
+            <!-- Edit Details Form (PENDING / PREPARING only) -->
+            <div id="details-card" class="bg-surface rounded-xl shadow-sm border border-border p-6 hidden">
+              <h3 class="font-semibold text-textPrimary mb-4">Éditer les détails</h3>
+              <form id="details-form" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2">Adresse de livraison</label>
+                  <input type="text" id="d-address"
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="Adresse complète">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2">Téléphone de contact</label>
+                  <input type="tel" id="d-phone"
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="06 00 00 00 00">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2">Personne de contact</label>
+                  <input type="text" id="d-person"
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="Nom du contact">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2">Date de livraison estimée</label>
+                  <input type="datetime-local" id="d-eta"
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+                </div>
+                <button type="submit" class="w-full bg-accent hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
+                  Enregistrer les détails
+                </button>
+              </form>
+            </div>
+
+            <!-- Position Update Form (IN_TRANSIT only) -->
+            <div id="gps-card" class="bg-surface rounded-xl shadow-sm border border-border p-6 hidden">
+              <h3 class="font-semibold text-textPrimary mb-4">Mettre à jour la position GPS</h3>
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-textPrimary mb-2">Latitude</label>
@@ -123,39 +163,34 @@
                     class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
                     placeholder="-7.5898">
                 </div>
-                <button onclick="getCurrentPosition()" class="w-full bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <button type="button" onclick="getCurrentPosition()" class="w-full bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2">
                   <i data-lucide="crosshair" class="w-4 h-4"></i>
-                  <span>Utiliser position actuelle</span>
+                  <span>Utiliser ma position actuelle</span>
                 </button>
-                <div>
-                  <label class="block text-sm font-medium text-textPrimary mb-2">Notes</label>
-                  <textarea id="position-notes" rows="2"
-                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"
-                    placeholder="Ajoutez des notes sur la position..."></textarea>
-                </div>
-                <button onclick="updatePosition()" class="w-full bg-primary hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
-                  Mettre à jour
+                <button type="button" onclick="updatePosition()" class="w-full bg-primary hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
+                  Mettre à jour la position
                 </button>
-              </div>
-            </div>
-
-            <!-- History Timeline -->
-            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
-              <h3 class="font-semibold text-textPrimary mb-4">Historique des positions</h3>
-              <div class="space-y-4 max-h-64 overflow-y-auto" id="history-timeline">
-                <!-- History will be loaded dynamically -->
               </div>
             </div>
           </div>
 
           <!-- Right Panel (60%) -->
-          <div class="lg:col-span-3">
+          <div class="lg:col-span-3 space-y-6">
             <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
               <div class="flex items-center justify-between mb-4">
-                <h3 class="font-semibold text-textPrimary">Carte GPS en temps réel</h3>
+                <h3 class="font-semibold text-textPrimary">Position GPS</h3>
                 <span class="text-sm text-textSecondary" id="last-updated">Dernière mise à jour: --</span>
               </div>
               <div id="map"></div>
+              <p id="no-position" class="text-sm text-textSecondary text-center mt-4 hidden">
+                Aucune position GPS enregistrée pour cette livraison.
+              </p>
+            </div>
+
+            <!-- Current location card -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <h3 class="font-semibold text-textPrimary mb-4">Dernière position connue</h3>
+              <div id="current-location" class="text-sm text-textSecondary">--</div>
             </div>
           </div>
         </div>
@@ -165,293 +200,295 @@
 
   <script src="../../js/api.js"></script>
   <script src="../../js/auth.js"></script>
-  <script>
-    requireAuth(["ADMIN"]);
-    const currentUser = getCurrentUser();
-  </script>
+  <script>requireAuth(["ADMIN"]);</script>
   <script src="../../js/router.js"></script>
   <script src="../../js/components/sidebar.js"></script>
   <script src="../../js/components/header.js"></script>
   <script src="../../js/components/badge.js"></script>
+  <script src="../../js/components/toast.js"></script>
   <script src="../../js/utils/format.js"></script>
   <script>
     initPage("ADMIN");
+    renderSidebar(getCurrentRole().toLowerCase());
+    renderHeader();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const deliveryId = urlParams.get('id');
+    const deliveryId = new URLSearchParams(location.search).get("id");
     let map = null;
     let truckMarker = null;
-    let clientMarker = null;
-    let routeLine = null;
+    let currentDelivery = null;
 
+    // Delivery status flow (delivery domain): PENDING -> PREPARING -> IN_TRANSIT -> DELIVERED -> RECEIVED
     const statusSteps = [
-      { key: 'PREPARING', label: 'Préparation', icon: 'package' },
-      { key: 'SHIPPED', label: 'Expédiée', icon: 'truck' },
-      { key: 'IN_TRANSIT', label: 'En transit', icon: 'map-pin' },
-      { key: 'DELIVERED', label: 'Livrée', icon: 'check-circle' }
+      { key: "PENDING",    label: "En attente",      icon: "clock" },
+      { key: "PREPARING",  label: "En préparation",  icon: "package" },
+      { key: "IN_TRANSIT", label: "En transit",      icon: "truck" },
+      { key: "DELIVERED",  label: "Livrée",          icon: "check-circle" },
+      { key: "RECEIVED",   label: "Réceptionnée",    icon: "package-check" }
     ];
 
     async function loadDelivery() {
-      try {
-        const response = await apiFetch(`/admin/deliveries/${deliveryId}`);
-        const delivery = response.data;
+      const r = await apiFetch(`/deliveries/${deliveryId}`);
+      if (!r || !r.ok) { showToast(r?.data?.message || "Livraison introuvable", "error"); return; }
+      const d = r.data.delivery;
+      currentDelivery = d;
 
-        // Update breadcrumb
-        document.getElementById('breadcrumb-ref').textContent = delivery.deliveryRef;
+      const ref = (d.deliveryId || "").slice(0, 8);
+      document.getElementById("breadcrumb-ref").textContent = "#" + ref;
+      document.getElementById("delivery-ref").textContent = "#" + ref;
 
-        // Update delivery info
-        document.getElementById('delivery-ref').textContent = delivery.deliveryRef;
-        document.getElementById('order-ref').textContent = delivery.orderRef;
-        document.getElementById('client-name').textContent = delivery.clientName;
-        document.getElementById('driver-name').textContent = delivery.driverName || '--';
-        document.getElementById('delivery-status').textContent = getDeliveryStatusLabel(delivery.status);
-        document.getElementById('delivery-status').className = `inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getDeliveryStatusColor(delivery.status)}`;
-
-        // Update position form
-        if (delivery.currentPosition) {
-          document.getElementById('latitude').value = delivery.currentPosition.lat;
-          document.getElementById('longitude').value = delivery.currentPosition.lng;
-        }
-
-        // Update last updated
-        if (delivery.lastUpdated) {
-          const timeAgo = getTimeAgo(delivery.lastUpdated);
-          document.getElementById('last-updated').textContent = `Dernière mise à jour: ${timeAgo}`;
-        }
-
-        // Update status stepper
-        updateStatusStepper(delivery.status);
-
-        // Update advance button
-        updateAdvanceButton(delivery.status);
-
-        // Update history timeline
-        updateHistoryTimeline(delivery.positionHistory);
-
-        // Initialize map
-        initMap(delivery);
-
-        lucide.createIcons();
-      } catch (error) {
-        console.error("Failed to load delivery:", error);
-      }
-    }
-
-    function updateStatusStepper(currentStatus) {
-      const container = document.getElementById('status-stepper');
-      const currentIndex = statusSteps.findIndex(step => step.key === currentStatus);
-
-      container.innerHTML = statusSteps.map((step, index) => {
-        const isCompleted = index < currentIndex;
-        const isCurrent = index === currentIndex;
-        const isPending = index > currentIndex;
-
-        return `
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center ${isCompleted ? 'bg-success text-white' : isCurrent ? 'bg-accent text-white' : 'bg-gray-200 text-gray-500'}">
-              <i data-lucide="${step.icon}" class="w-4 h-4"></i>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm font-medium ${isCompleted || isCurrent ? 'text-textPrimary' : 'text-textSecondary'}">${step.label}</p>
-            </div>
-          </div>
-          ${index < statusSteps.length - 1 ? `<div class="ml-4 h-6 w-0.5 ${isCompleted ? 'bg-success' : 'bg-gray-200'}"></div>` : ''}
-        `;
-      }).join('');
-    }
-
-    function updateAdvanceButton(status) {
-      const btn = document.getElementById('btn-advance');
-      if (status === 'DELIVERED' || status === 'FAILED') {
-        btn.classList.add('hidden');
+      const orderEl = document.getElementById("order-ref");
+      if (d.orderId) {
+        orderEl.textContent = "#" + d.orderId.slice(0, 8);
+        orderEl.href = "order-detail.html?id=" + encodeURIComponent(d.orderId);
       } else {
-        btn.classList.remove('hidden');
-      }
-    }
-
-    function updateHistoryTimeline(history) {
-      const container = document.getElementById('history-timeline');
-      
-      if (!history || history.length === 0) {
-        container.innerHTML = `<p class="text-textSecondary text-sm">Aucun historique disponible</p>`;
-        return;
+        orderEl.textContent = "--";
+        orderEl.removeAttribute("href");
       }
 
-      container.innerHTML = history.slice().reverse().map((entry, index) => `
-        <div class="flex gap-3">
-          <div class="flex flex-col items-center">
-            <div class="w-3 h-3 rounded-full ${index === 0 ? 'bg-accent' : 'bg-gray-300'}"></div>
-            ${index < history.length - 1 ? '<div class="w-0.5 h-8 bg-gray-200"></div>' : ''}
-          </div>
-          <div class="flex-1 pb-4">
-            <p class="text-sm font-medium text-textPrimary">${entry.lat.toFixed(4)}, ${entry.lng.toFixed(4)}</p>
-            <p class="text-xs text-textSecondary">${formatDateTime(entry.timestamp)}</p>
-            ${entry.notes ? `<p class="text-xs text-textSecondary mt-1">${entry.notes}</p>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
+      document.getElementById("client-name").textContent =
+        d.contactPerson || (d.clientId ? "#" + d.clientId.slice(0, 8) : "--");
+      document.getElementById("contact-phone").textContent = d.contactPhone || "--";
+      document.getElementById("delivery-address").textContent = d.deliveryAddress || "--";
+      document.getElementById("estimated-date").textContent =
+        d.estimatedDeliveryDate ? formatDate(d.estimatedDeliveryDate) : "--";
+      document.getElementById("delivery-status").innerHTML = renderBadge(d.status);
 
-    function initMap(delivery) {
-      if (map) {
-        return;
-      }
+      // Last location update
+      document.getElementById("last-updated").textContent =
+        "Dernière mise à jour: " + (d.lastLocationUpdate ? formatRelativeTime(d.lastLocationUpdate) : "--");
 
-      map = L.map('map').setView([33.5731, -7.5898], 10); // Casablanca default
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-
-      // Truck marker with animated pulse
-      if (delivery.currentPosition) {
-        const truckIcon = L.divIcon({
-          html: `<div class="bg-accent text-white w-10 h-10 rounded-full flex items-center justify-center pulse-marker shadow-lg">
-            <i data-lucide="truck" class="w-5 h-5"></i>
-          </div>`,
-          className: 'custom-marker',
-          iconSize: [40, 40],
-          iconAnchor: [20, 20]
-        });
-
-        truckMarker = L.marker([delivery.currentPosition.lat, delivery.currentPosition.lng], { icon: truckIcon })
-          .addTo(map)
-          .bindPopup('Position actuelle du camion');
-
-        // Client address marker
-        if (delivery.clientAddress && delivery.clientAddress.lat && delivery.clientAddress.lng) {
-          const clientIcon = L.divIcon({
-            html: `<div class="bg-success text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
-              <i data-lucide="map-pin" class="w-5 h-5"></i>
-            </div>`,
-            className: 'custom-marker',
-            iconSize: [40, 40],
-            iconAnchor: [20, 20]
-          });
-
-          clientMarker = L.marker([delivery.clientAddress.lat, delivery.clientAddress.lng], { icon: clientIcon })
-            .addTo(map)
-            .bindPopup('Destination');
-
-          // Route line
-          routeLine = L.polyline([
-            [delivery.currentPosition.lat, delivery.currentPosition.lng],
-            [delivery.clientAddress.lat, delivery.clientAddress.lng]
-          ], {
-            color: '#2C74B3',
-            weight: 4,
-            opacity: 0.7,
-            dashArray: '10, 10'
-          }).addTo(map);
-
-          // Fit bounds to show both markers
-          const bounds = L.latLngBounds([
-            [delivery.currentPosition.lat, delivery.currentPosition.lng],
-            [delivery.clientAddress.lat, delivery.clientAddress.lng]
-          ]);
-          map.fitBounds(bounds, { padding: [50, 50] });
-        } else {
-          map.setView([delivery.currentPosition.lat, delivery.currentPosition.lng], 12);
-        }
-      }
+      updateStatusStepper(d.status);
+      updateActions(d);
+      updateCurrentLocation(d);
+      initMap(d);
 
       lucide.createIcons();
     }
 
-    function getCurrentPosition() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            document.getElementById('latitude').value = position.coords.latitude;
-            document.getElementById('longitude').value = position.coords.longitude;
-          },
-          (error) => {
-            alert('Impossible d\'obtenir votre position actuelle');
-            console.error('Geolocation error:', error);
-          }
-        );
+    function updateStatusStepper(currentStatus) {
+      const container = document.getElementById("status-stepper");
+      const currentIndex = statusSteps.findIndex((s) => s.key === currentStatus);
+
+      container.innerHTML = statusSteps.map((step, index) => {
+        const isCompleted = index < currentIndex;
+        const isCurrent = index === currentIndex;
+        return `
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isCompleted ? "bg-success text-white" : isCurrent ? "bg-accent text-white" : "bg-gray-200 text-gray-500"}">
+              <i data-lucide="${step.icon}" class="w-4 h-4"></i>
+            </div>
+            <p class="text-sm font-medium ${isCompleted || isCurrent ? "text-textPrimary" : "text-textSecondary"}">${step.label}</p>
+          </div>
+          ${index < statusSteps.length - 1 ? `<div class="ml-4 h-5 w-0.5 ${isCompleted ? "bg-success" : "bg-gray-200"}"></div>` : ""}
+        `;
+      }).join("");
+    }
+
+    function updateActions(d) {
+      const btn = document.getElementById("btn-advance");
+      const hint = document.getElementById("advance-hint");
+      const detailsCard = document.getElementById("details-card");
+      const gpsCard = document.getElementById("gps-card");
+
+      // Advance button: only meaningful before DELIVERED/RECEIVED
+      const labels = {
+        PENDING: "Démarrer la préparation",
+        PREPARING: "Marquer en transit",
+        IN_TRANSIT: "Marquer comme livrée"
+      };
+      if (labels[d.status]) {
+        btn.textContent = labels[d.status];
+        btn.classList.remove("hidden");
+        hint.classList.add("hidden");
       } else {
-        alert('La géolocalisation n\'est pas supportée par votre navigateur');
+        btn.classList.add("hidden");
+        hint.classList.remove("hidden");
+        hint.textContent = d.status === "DELIVERED"
+          ? "En attente de réception par le client."
+          : "Livraison terminée.";
       }
+
+      // Edit details: only in PENDING or PREPARING
+      if (d.status === "PENDING" || d.status === "PREPARING") {
+        detailsCard.classList.remove("hidden");
+        document.getElementById("d-address").value = d.deliveryAddress || "";
+        document.getElementById("d-phone").value = d.contactPhone || "";
+        document.getElementById("d-person").value = d.contactPerson || "";
+        document.getElementById("d-eta").value = toDatetimeLocal(d.estimatedDeliveryDate);
+      } else {
+        detailsCard.classList.add("hidden");
+      }
+
+      // GPS update: only when IN_TRANSIT
+      if (d.status === "IN_TRANSIT") {
+        gpsCard.classList.remove("hidden");
+        document.getElementById("latitude").value = d.currentLatitude ?? "";
+        document.getElementById("longitude").value = d.currentLongitude ?? "";
+      } else {
+        gpsCard.classList.add("hidden");
+      }
+    }
+
+    function updateCurrentLocation(d) {
+      const el = document.getElementById("current-location");
+      if (d.currentLatitude != null && d.currentLongitude != null) {
+        el.innerHTML = `
+          <div class="flex gap-3">
+            <div class="w-3 h-3 mt-1 rounded-full bg-accent flex-shrink-0"></div>
+            <div>
+              <p class="text-sm font-medium text-textPrimary font-mono">${Number(d.currentLatitude).toFixed(4)}, ${Number(d.currentLongitude).toFixed(4)}</p>
+              <p class="text-xs text-textSecondary mt-1">${d.lastLocationUpdate ? formatRelativeTime(d.lastLocationUpdate) : "Horodatage inconnu"}</p>
+            </div>
+          </div>`;
+      } else {
+        el.innerHTML = `<p class="text-textSecondary">Aucune position GPS enregistrée.</p>`;
+      }
+    }
+
+    function initMap(d) {
+      const hasPos = d.currentLatitude != null && d.currentLongitude != null;
+      const mapEl = document.getElementById("map");
+      const noPos = document.getElementById("no-position");
+
+      if (!hasPos) {
+        mapEl.classList.add("hidden");
+        noPos.classList.remove("hidden");
+        return;
+      }
+      mapEl.classList.remove("hidden");
+      noPos.classList.add("hidden");
+
+      const lat = Number(d.currentLatitude);
+      const lng = Number(d.currentLongitude);
+
+      if (!map) {
+        map = L.map("map").setView([lat, lng], 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors"
+        }).addTo(map);
+      } else {
+        map.setView([lat, lng], 13);
+      }
+
+      const truckIcon = L.divIcon({
+        html: `<div style="background:#2C74B3" class="text-white w-10 h-10 rounded-full flex items-center justify-center pulse-marker shadow-lg">
+          <i data-lucide="truck" class="w-5 h-5"></i>
+        </div>`,
+        className: "custom-marker",
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+      });
+
+      if (truckMarker) { map.removeLayer(truckMarker); }
+      truckMarker = L.marker([lat, lng], { icon: truckIcon })
+        .addTo(map)
+        .bindPopup("Position actuelle de la livraison");
+
+      setTimeout(() => map.invalidateSize(), 100);
+      lucide.createIcons();
+    }
+
+    function getCurrentPosition() {
+      if (!navigator.geolocation) {
+        showToast("La géolocalisation n'est pas supportée par votre navigateur", "warning");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          document.getElementById("latitude").value = position.coords.latitude;
+          document.getElementById("longitude").value = position.coords.longitude;
+          showToast("Position actuelle récupérée", "success");
+        },
+        () => showToast("Impossible d'obtenir votre position actuelle", "error")
+      );
     }
 
     async function updatePosition() {
-      const latitude = document.getElementById('latitude').value;
-      const longitude = document.getElementById('longitude').value;
-      const notes = document.getElementById('position-notes').value;
-
-      if (!latitude || !longitude) {
-        alert('Veuillez entrer la latitude et la longitude');
+      if (!currentDelivery || currentDelivery.status !== "IN_TRANSIT") {
+        showToast("La position ne peut être mise à jour qu'en transit", "warning");
         return;
       }
-
-      try {
-        await apiFetch(`/admin/deliveries/${deliveryId}/position`, {
-          method: 'PATCH',
-          body: JSON.stringify({
-            latitude: parseFloat(latitude),
-            longitude: parseFloat(longitude),
-            notes
-          })
-        });
-        alert('Position mise à jour avec succès');
-        loadDelivery();
-      } catch (error) {
-        console.error("Failed to update position:", error);
-        alert('Erreur lors de la mise à jour de la position');
+      const lat = document.getElementById("latitude").value;
+      const lng = document.getElementById("longitude").value;
+      if (lat === "" || lng === "" || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
+        showToast("Veuillez entrer une latitude et une longitude valides", "warning");
+        return;
       }
+      const r = await apiFetch(`/deliveries/${deliveryId}/gps`, {
+        method: "POST",
+        body: JSON.stringify({ latitude: parseFloat(lat), longitude: parseFloat(lng) })
+      });
+      if (!r || !r.ok) { showToast(r?.data?.message || "Échec de la mise à jour de la position", "error"); return; }
+      showToast("Position mise à jour", "success");
+      loadDelivery();
     }
 
     async function advanceStatus() {
-      try {
-        await apiFetch(`/admin/deliveries/${deliveryId}/advance`, { method: 'PATCH' });
+      if (!currentDelivery) return;
+      const status = currentDelivery.status;
+
+      if (status === "PENDING" || status === "PREPARING") {
+        const next = status === "PENDING" ? "PREPARING" : "IN_TRANSIT";
+        if (!confirm(`Confirmer le changement de statut vers "${labelFor(next)}" ?`)) return;
+        const r = await apiFetch(`/deliveries/${deliveryId}/status`, {
+          method: "POST",
+          body: JSON.stringify({ status: next })
+        });
+        if (!r || !r.ok) { showToast(r?.data?.message || "Échec du changement de statut", "error"); return; }
+        showToast("Statut mis à jour", "success");
         loadDelivery();
-      } catch (error) {
-        console.error("Failed to advance status:", error);
+      } else if (status === "IN_TRANSIT") {
+        const notes = prompt("Notes de livraison (optionnel) :", currentDelivery.deliveryNotes || "");
+        if (notes === null) return; // cancelled
+        const r = await apiFetch(`/deliveries/${deliveryId}/delivered`, {
+          method: "PUT",
+          body: JSON.stringify({ deliveryNotes: notes })
+        });
+        if (!r || !r.ok) { showToast(r?.data?.message || "Échec de la livraison", "error"); return; }
+        showToast("Livraison marquée comme livrée", "success");
+        loadDelivery();
       }
     }
 
-    function getDeliveryStatusLabel(status) {
-      const labels = {
-        PREPARING: "En préparation",
-        SHIPPED: "Expédiée",
-        IN_TRANSIT: "En transit",
-        DELIVERED: "Livrée",
-        FAILED: "Échouée"
+    document.getElementById("details-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentDelivery || (currentDelivery.status !== "PENDING" && currentDelivery.status !== "PREPARING")) {
+        showToast("Les détails ne sont modifiables qu'avant le transit", "warning");
+        return;
+      }
+      const etaVal = document.getElementById("d-eta").value;
+      const body = {
+        deliveryAddress: document.getElementById("d-address").value.trim(),
+        contactPhone: document.getElementById("d-phone").value.trim(),
+        contactPerson: document.getElementById("d-person").value.trim(),
+        estimatedDeliveryDate: etaVal ? new Date(etaVal).toISOString() : ""
       };
-      return labels[status] || status;
+      const r = await apiFetch(`/deliveries/${deliveryId}/details`, {
+        method: "PUT",
+        body: JSON.stringify(body)
+      });
+      if (!r || !r.ok) { showToast(r?.data?.message || "Échec de la mise à jour des détails", "error"); return; }
+      showToast("Détails mis à jour", "success");
+      loadDelivery();
+    });
+
+    function labelFor(key) {
+      const s = statusSteps.find((x) => x.key === key);
+      return s ? s.label : key;
     }
 
-    function getDeliveryStatusColor(status) {
-      const colors = {
-        PREPARING: "bg-gray-100 text-gray-800",
-        SHIPPED: "bg-blue-100 text-blue-800",
-        IN_TRANSIT: "bg-amber-100 text-amber-800",
-        DELIVERED: "bg-green-100 text-green-800",
-        FAILED: "bg-red-100 text-red-800"
-      };
-      return colors[status] || 'bg-gray-100 text-gray-800';
+    function toDatetimeLocal(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const pad = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
 
-    function getTimeAgo(dateString) {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now - date;
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMins / 60);
-      const diffDays = Math.floor(diffHours / 24);
-
-      if (diffMins < 1) return 'À l\'instant';
-      if (diffMins < 60) return `Il y a ${diffMins} minutes`;
-      if (diffHours < 24) return `Il y a ${diffHours} heures`;
-      return `Il y a ${diffDays} jours`;
-    }
-
-    // Load delivery on page load
     if (deliveryId) {
       loadDelivery();
     } else {
-      window.location.href = '/medsupply-cloud/pages/deliveries.html';
+      location.href = "deliveries.html";
     }
   </script>
 </body>

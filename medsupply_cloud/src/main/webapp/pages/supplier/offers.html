@@ -52,31 +52,36 @@
             <div>
               <h1 class="text-2xl font-bold text-textPrimary">Mes Offres</h1>
               <p class="text-textSecondary">
-                Gérez vos soumissions aux appels d'offres
+                Vos soumissions aux appels d'offres
               </p>
             </div>
+            <a
+              href="../supplier/marketplace.html"
+              class="inline-flex items-center gap-2 bg-accent hover:bg-secondary text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              <i data-lucide="gavel" class="w-4 h-4"></i>
+              Voir les appels d'offres
+            </a>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div
               class="bg-surface rounded-xl shadow-sm border border-border p-6"
             >
-              <p class="text-textSecondary text-sm">Total offres</p>
-              <p class="text-2xl font-bold text-primary" id="stat-total">0</p>
+              <p class="text-textSecondary text-sm">Total offres soumises</p>
+              <p class="text-2xl font-bold text-primary" id="stat-total">-</p>
             </div>
             <div
               class="bg-surface rounded-xl shadow-sm border border-border p-6"
             >
-              <p class="text-textSecondary text-sm">En attente</p>
-              <p class="text-2xl font-bold text-warning" id="stat-pending">0</p>
+              <p class="text-textSecondary text-sm">Appels en cours</p>
+              <p class="text-2xl font-bold text-success" id="stat-open">-</p>
             </div>
             <div
               class="bg-surface rounded-xl shadow-sm border border-border p-6"
             >
-              <p class="text-textSecondary text-sm">Acceptées</p>
-              <p class="text-2xl font-bold text-success" id="stat-accepted">
-                0
-              </p>
+              <p class="text-textSecondary text-sm">Marchés attribués</p>
+              <p class="text-2xl font-bold text-accent" id="stat-awarded">-</p>
             </div>
           </div>
 
@@ -145,42 +150,94 @@
       }
       renderHeader();
 
+      function escapeHtml(str) {
+        return String(str ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+
+      // The supplier's bids are fetched directly from GET /tenders/my-bids
+      // (all tenders, including closed/awarded ones). Bids only expose
+      // {bidId, tenderId, supplierId, price, createdAt} with NO title/status,
+      // so we resolve each unique tender via GET /tenders/{id} to obtain the
+      // tender title and status (used for the derived "Statut" column).
       async function loadOffers() {
-        try {
-          const response = await apiFetch("/supplier/offers");
-          const offers = response?.data?.offers || [];
+        const tbody = document.getElementById("offers-body");
 
-          document.getElementById("stat-total").textContent = offers.length;
-          document.getElementById("stat-pending").textContent = offers.filter(
-            (o) => o.status === "PENDING",
-          ).length;
-          document.getElementById("stat-accepted").textContent = offers.filter(
-            (o) => o.status === "ACCEPTED",
-          ).length;
+        const res = await apiFetch("/tenders/my-bids");
+        if (!res || !res.ok) {
+          showToast(res?.data?.message || "Erreur de chargement", "error");
+          tbody.innerHTML =
+            '<tr><td colspan="4" class="px-6 py-12 text-center text-danger">Erreur de chargement des offres</td></tr>';
+          return;
+        }
 
-          const tbody = document.getElementById("offers-body");
-          if (offers.length === 0) {
-            tbody.innerHTML =
-              '<tr><td colspan="4" class="px-6 py-12 text-center text-textSecondary">Aucune offre soumise</td></tr>';
-          } else {
-            tbody.innerHTML = offers
-              .map(
-                (o) => `
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 font-medium text-sm">${o.tenderTitle || ""}</td>
-                <td class="px-6 py-4 text-sm font-medium">${formatCurrency(o.amount || 0)}</td>
-                <td class="px-6 py-4 text-sm text-textSecondary">${formatDate(o.submittedAt || "")}</td>
-                <td class="px-6 py-4">${renderBadge(o.status || "PENDING")}</td>
+        const bids = res.data?.bids || [];
+
+        // Resolve tender details once per unique tenderId.
+        const uniqueIds = [...new Set(bids.map((b) => b.tenderId).filter(Boolean))];
+        const tendersById = {};
+        await Promise.all(
+          uniqueIds.map(async (id) => {
+            const tr = await apiFetch("/tenders/" + id);
+            if (tr && tr.ok && tr.data?.tender) {
+              tendersById[id] = tr.data.tender;
+            }
+          }),
+        );
+
+        // Build enriched offer rows, newest first.
+        const offers = bids
+          .map((b) => {
+            const t = tendersById[b.tenderId] || {};
+            return {
+              tenderId: b.tenderId,
+              tenderTitle: t.title || (b.tenderId ? "#" + b.tenderId.slice(0, 8) : "—"),
+              tenderStatus: t.status || null,
+              price: b.price,
+              createdAt: b.createdAt,
+            };
+          })
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+        document.getElementById("stat-total").textContent = offers.length;
+        document.getElementById("stat-open").textContent = offers.filter(
+          (o) => o.tenderStatus === "OPEN",
+        ).length;
+        document.getElementById("stat-awarded").textContent = offers.filter(
+          (o) => o.tenderStatus === "AWARDED",
+        ).length;
+
+        if (offers.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="4" class="px-6 py-12 text-center text-textSecondary">Aucune offre soumise</td></tr>';
+          lucide.createIcons();
+          return;
+        }
+
+        tbody.innerHTML = offers
+          .map(
+            (o) => `
+              <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location.href='../supplier/marketplace-detail.html?id=${encodeURIComponent(o.tenderId)}'">
+                <td class="px-6 py-4 font-medium text-sm text-textPrimary">${escapeHtml(o.tenderTitle)}</td>
+                <td class="px-6 py-4 text-sm font-semibold text-textPrimary">${formatCurrency(o.price || 0)}</td>
+                <td class="px-6 py-4 text-sm text-textSecondary">${o.createdAt ? formatDate(o.createdAt) : "—"}</td>
+                <td class="px-6 py-4">${o.tenderStatus ? renderBadge(o.tenderStatus) : '<span class="text-textSecondary text-sm">—</span>'}</td>
               </tr>
             `,
-              )
-              .join("");
-          }
-          lucide.createIcons();
-        } catch (error) {
-          console.error("Failed to load offers:", error);
-        }
+          )
+          .join("");
+        lucide.createIcons();
       }
+
       loadOffers();
     </script>
   </body>

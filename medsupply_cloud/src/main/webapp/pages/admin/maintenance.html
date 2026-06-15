@@ -39,18 +39,24 @@
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col ml-72">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
         <!-- Page Header -->
-        <div class="mb-6">
-          <h1 class="text-2xl font-bold text-textPrimary">Maintenance & SAV</h1>
-          <p class="text-textSecondary">Gérez les contrats de maintenance</p>
+        <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold text-textPrimary">Maintenance & SAV</h1>
+            <p class="text-textSecondary">Gérez les contrats de maintenance</p>
+          </div>
+          <button onclick="openNewContractModal()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Nouveau contrat
+          </button>
         </div>
 
         <!-- Alert Banner -->
@@ -86,11 +92,11 @@
           <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-textSecondary text-sm">Interventions ce mois</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-interventions">0</p>
+                <p class="text-textSecondary text-sm">Contrats suspendus / inactifs</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-suspended">0</p>
               </div>
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i data-lucide="wrench" class="w-6 h-6 text-blue-600"></i>
+              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="pause-circle" class="w-6 h-6 text-orange-600"></i>
               </div>
             </div>
           </div>
@@ -110,21 +116,23 @@
         <!-- Filter Bar -->
         <div class="bg-surface rounded-xl shadow-sm border border-border p-4 mb-6">
           <div class="flex flex-wrap items-center gap-4">
-            <select id="status-filter" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            <select id="status-filter" onchange="applyFilters()" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
               <option value="">Tous les statuts</option>
               <option value="ACTIVE">Actif</option>
               <option value="EXPIRED">Expiré</option>
               <option value="SUSPENDED">Suspendu</option>
+              <option value="INACTIVE">Inactif</option>
             </select>
-            <select id="client-filter" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            <select id="client-filter" onchange="applyFilters()" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
               <option value="">Tous les clients</option>
             </select>
-            <select id="product-filter" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            <select id="product-filter" onchange="applyFilters()" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
               <option value="">Tous les produits</option>
             </select>
             <div class="flex items-center gap-2">
+              <label class="text-sm text-textSecondary">Expire entre</label>
               <input type="date" id="expiry-from" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
-              <span class="text-textSecondary">à</span>
+              <span class="text-textSecondary">et</span>
               <input type="date" id="expiry-to" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
             </div>
             <button onclick="applyFilters()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
@@ -142,13 +150,13 @@
             <table class="w-full">
               <thead class="bg-gray-50 border-b border-border">
                 <tr>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Référence</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Client</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Produit</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Date début</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Date fin</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Statut</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Jours restants</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Nb interventions</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -180,6 +188,85 @@
     </div>
   </div>
 
+  <!-- New Contract Modal -->
+  <div id="new-contract-modal" class="hidden fixed inset-0 z-50 items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal('new-contract-modal')"></div>
+    <div class="relative bg-surface rounded-xl shadow-xl border border-border w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+        <h2 class="text-lg font-bold text-textPrimary">Nouveau contrat de maintenance</h2>
+        <button onclick="closeModal('new-contract-modal')" class="p-1 hover:bg-gray-100 rounded transition-colors">
+          <i data-lucide="x" class="w-5 h-5 text-textSecondary"></i>
+        </button>
+      </div>
+      <form id="new-contract-form" onsubmit="submitNewContract(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-1">Client</label>
+          <select id="contract-client" class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            <option value="">Sélectionner un client</option>
+          </select>
+          <p class="text-xs text-textSecondary mt-1">Le client propriétaire du contrat.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-1">Produit</label>
+          <select id="contract-product" required class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            <option value="">Sélectionner un produit</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-textPrimary mb-1">Durée garantie (mois)</label>
+            <input type="number" id="contract-warranty" min="1" value="24" required class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-textPrimary mb-1">Date de début</label>
+            <input type="date" id="contract-start" required class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="closeModal('new-contract-modal')" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+            Annuler
+          </button>
+          <button type="submit" id="contract-submit-btn" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
+            Créer le contrat
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Status Change Modal -->
+  <div id="status-modal" class="hidden fixed inset-0 z-50 items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50" onclick="closeModal('status-modal')"></div>
+    <div class="relative bg-surface rounded-xl shadow-xl border border-border w-full max-w-sm">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+        <h2 class="text-lg font-bold text-textPrimary">Modifier le statut</h2>
+        <button onclick="closeModal('status-modal')" class="p-1 hover:bg-gray-100 rounded transition-colors">
+          <i data-lucide="x" class="w-5 h-5 text-textSecondary"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-sm text-textSecondary">Contrat <span id="status-modal-ref" class="font-mono text-textPrimary">--</span></p>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-1">Nouveau statut</label>
+          <select id="status-modal-select" class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            <option value="ACTIVE">Actif</option>
+            <option value="SUSPENDED">Suspendu</option>
+            <option value="INACTIVE">Inactif</option>
+            <option value="EXPIRED">Expiré</option>
+          </select>
+        </div>
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="closeModal('status-modal')" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+            Annuler
+          </button>
+          <button type="button" id="status-submit-btn" onclick="submitStatusChange()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="../../js/api.js"></script>
   <script src="../../js/auth.js"></script>
   <script>
@@ -191,6 +278,7 @@
   <script src="../../js/components/header.js"></script>
   <script src="../../js/components/badge.js"></script>
   <script src="../../js/components/toast.js"></script>
+  <script src="../../js/components/modal.js"></script>
   <script src="../../js/components/skeleton.js"></script>
   <script src="../../js/utils/format.js"></script>
   <script>
@@ -201,193 +289,266 @@
     }
     renderHeader();
 
+    // ---- Module state (client-side filtering & paging) ----
+    let allContracts = [];        // full list from API
+    let filteredContracts = [];   // after applying filters
+    let productsByid = {};         // productId -> product
+    let clientsByUser = {};        // userId -> client profile
     let currentPage = 1;
     const pageSize = 20;
-    let totalRecords = 0;
+    let statusModalContractId = null;
 
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+    function daysBetween(from, to) {
+      return Math.ceil((new Date(to).getTime() - new Date(from).getTime()) / MS_PER_DAY);
+    }
+
+    function clientLabel(clientId) {
+      if (!clientId) return "—";
+      const c = clientsByUser[clientId];
+      if (c && c.name) return c.name;
+      return "#" + String(clientId).slice(0, 8);
+    }
+
+    function productLabel(productId) {
+      if (!productId) return { name: "—", reference: "" };
+      const p = productsByid[productId];
+      if (p) return { name: p.name || ("#" + String(productId).slice(0, 8)), reference: p.reference || "" };
+      return { name: "#" + String(productId).slice(0, 8), reference: "" };
+    }
+
+    // ---- Reference data ----
+    async function loadProducts() {
+      const r = await apiFetch("/products");
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Erreur lors du chargement des produits", "error");
+        return [];
+      }
+      const products = r.data.products || [];
+      productsByid = {};
+      products.forEach(p => { if (p.id) productsByid[p.id] = p; });
+
+      // Populate filter + create-modal product selects
+      const optionsHtml = products
+        .map(p => `<option value="${p.id}">${p.name || ("#" + String(p.id).slice(0, 8))}</option>`)
+        .join("");
+      document.getElementById("product-filter").innerHTML =
+        '<option value="">Tous les produits</option>' + optionsHtml;
+      document.getElementById("contract-product").innerHTML =
+        '<option value="">Sélectionner un produit</option>' + optionsHtml;
+      return products;
+    }
+
+    async function loadClients() {
+      const r = await apiFetch("/clients");
+      if (!r || !r.ok) {
+        // Not fatal: fall back to id-based labels.
+        return [];
+      }
+      const clients = r.data.clients || [];
+      clientsByUser = {};
+      clients.forEach(c => { if (c.userId) clientsByUser[c.userId] = c; });
+
+      // Populate create-modal client select
+      document.getElementById("contract-client").innerHTML =
+        '<option value="">Sélectionner un client</option>' +
+        clients.map(c => `<option value="${c.userId}">${c.name || ("#" + String(c.userId).slice(0, 8))}</option>`).join("");
+      return clients;
+    }
+
+    // ---- Contracts ----
     async function loadContracts() {
-      try {
-        // Show skeleton while loading
-        showSkeleton('contracts-table-body', 'table', { rows: 5, columns: 7 });
+      showSkeleton('contracts-table-body', 'table', { rows: 5, columns: 8 });
 
-        const status = document.getElementById('status-filter').value;
-        const client = document.getElementById('client-filter').value;
-        const product = document.getElementById('product-filter').value;
-        const expiryFrom = document.getElementById('expiry-from').value;
-        const expiryTo = document.getElementById('expiry-to').value;
+      const r = await apiFetch("/maintenance/contracts");
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Erreur lors du chargement des contrats", "error");
+        document.getElementById("contracts-table-body").innerHTML =
+          `<tr><td colspan="8" class="px-6 py-12 text-center text-textSecondary">Erreur lors du chargement</td></tr>`;
+        return;
+      }
 
-        const response = await apiFetch(`/maintenance/contracts?status=${status}&page=${currentPage}&size=${pageSize}`);
-        const data = response?.data || {};
+      allContracts = r.data.contracts || [];
+      populateClientFilter();
+      computeStats();
+      currentPage = 1;
+      applyFilters();
+    }
 
-        // Update stats
-        document.getElementById("stat-active").textContent = data.stats?.active || 0;
-        document.getElementById("stat-expiring").textContent = data.stats?.expiring || 0;
-        document.getElementById("stat-interventions").textContent = data.stats?.interventions || 0;
-        document.getElementById("stat-expired").textContent = data.stats?.expired || 0;
-
-        // Update alert banner
-        if (data.stats?.expiring > 0) {
-          document.getElementById('alert-banner').classList.remove('hidden');
-          document.getElementById('alert-message').textContent = `${data.stats.expiring} contrats expirent dans moins de 30 jours`;
-        } else {
-          document.getElementById('alert-banner').classList.add('hidden');
+    function populateClientFilter() {
+      // Derive distinct clientIds present in the contracts list.
+      const seen = new Set();
+      const distinct = [];
+      allContracts.forEach(c => {
+        if (c.clientId && !seen.has(c.clientId)) {
+          seen.add(c.clientId);
+          distinct.push(c.clientId);
         }
+      });
+      const select = document.getElementById("client-filter");
+      const prev = select.value;
+      select.innerHTML = '<option value="">Tous les clients</option>' +
+        distinct.map(id => `<option value="${id}">${clientLabel(id)}</option>`).join("");
+      select.value = prev;
+    }
 
-        // Update filter options
-        if (data.clients && data.clients.length > 0) {
-          const clientSelect = document.getElementById('client-filter');
-          clientSelect.innerHTML = '<option value="">Tous les clients</option>' +
-            data.clients.map(client => `<option value="${client.clientId}">${client.organizationName}</option>`).join('');
+    function computeStats() {
+      const today = new Date();
+      let active = 0, expired = 0, suspended = 0, expiring = 0;
+      allContracts.forEach(c => {
+        if (c.status === "ACTIVE") active++;
+        else if (c.status === "EXPIRED") expired++;
+        else if (c.status === "SUSPENDED" || c.status === "INACTIVE") suspended++;
+
+        if (c.status === "ACTIVE" && c.endDate) {
+          const remaining = daysBetween(today, c.endDate);
+          if (remaining >= 0 && remaining <= 30) expiring++;
         }
+      });
 
-        if (data.products && data.products.length > 0) {
-          const productSelect = document.getElementById('product-filter');
-          productSelect.innerHTML = '<option value="">Tous les produits</option>' +
-            data.products.map(product => `<option value="${product.productId}">${product.name}</option>`).join('');
-        }
+      document.getElementById("stat-active").textContent = active;
+      document.getElementById("stat-expiring").textContent = expiring;
+      document.getElementById("stat-suspended").textContent = suspended;
+      document.getElementById("stat-expired").textContent = expired;
 
-        // Update table
-        const tbody = document.getElementById("contracts-table-body");
-        if (data.contracts.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-textSecondary">Aucun contrat trouvé</td></tr>`;
-        } else {
-          tbody.innerHTML = data.contracts.map(contract => {
-            const daysRemaining = contract.daysRemaining || 0;
-            const totalDays = contract.totalDays || 365;
-            const progressPercent = Math.max(0, Math.min(100, (daysRemaining / totalDays) * 100));
-            const progressColor = daysRemaining < 30 ? 'bg-red-500' : daysRemaining < 90 ? 'bg-amber-500' : 'bg-green-500';
-
-            return `
-              <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewContract('${contract.contractId}')">
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <p class="font-medium text-textPrimary">${contract.clientName}</p>
-                    ${renderClientTypeBadge(contract.clientType)}
-                  </div>
-                </td>
-                <td class="px-6 py-4">
-                  <div>
-                    <p class="font-medium text-textPrimary">${contract.productName}</p>
-                    <p class="text-sm text-textSecondary font-mono">${contract.productReference}</p>
-                  </div>
-                </td>
-                <td class="px-6 py-4 text-textSecondary">${formatDate(contract.startDate)}</td>
-                <td class="px-6 py-4 text-textSecondary">${formatDate(contract.endDate)}</td>
-                <td class="px-6 py-4">
-                  ${renderStatusBadge(contract.status)}
-                </td>
-                <td class="px-6 py-4">
-                  <div class="w-32">
-                    <div class="flex justify-between text-xs mb-1">
-                      <span class="text-textSecondary">${daysRemaining} jours</span>
-                      <span class="text-textSecondary">${progressPercent.toFixed(0)}%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                      <div class="${progressColor} h-2 rounded-full" style="width: ${progressPercent}%"></div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-6 py-4 text-textPrimary">${contract.interventionCount}</td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                    <button onclick="viewContract('${contract.contractId}')" class="p-2 hover:bg-gray-100 rounded transition-colors" title="Voir">
-                      <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
-                    </button>
-                    <button onclick="addIntervention('${contract.contractId}')" class="p-2 hover:bg-blue-100 rounded transition-colors" title="Ajouter intervention">
-                      <i data-lucide="wrench" class="w-4 h-4 text-blue-600"></i>
-                    </button>
-                    ${contract.status === 'ACTIVE' ? `
-                      <button onclick="renewContract('${contract.contractId}')" class="p-2 hover:bg-green-100 rounded transition-colors" title="Renouveler">
-                        <i data-lucide="refresh-cw" class="w-4 h-4 text-green-600"></i>
-                      </button>
-                    ` : ''}
-                  </div>
-                </td>
-              </tr>
-            `;
-          }).join("");
-        }
-
-        // Update pagination
-        totalRecords = data.total;
-        document.getElementById("showing-from").textContent = (currentPage - 1) * pageSize + 1;
-        document.getElementById("showing-to").textContent = Math.min(currentPage * pageSize, totalRecords);
-        document.getElementById("total-records").textContent = totalRecords;
-        document.getElementById("current-page").textContent = currentPage;
-
-        document.getElementById("prev-btn").disabled = currentPage === 1;
-        document.getElementById("next-btn").disabled = currentPage * pageSize >= totalRecords;
-
-        lucide.createIcons();
-
-        // Hide skeleton
-        hideSkeleton('contracts-table-body');
-      } catch (error) {
-        console.error("Failed to load contracts:", error);
-        showToast("Erreur lors du chargement des contrats", "error");
+      const banner = document.getElementById("alert-banner");
+      if (expiring > 0) {
+        banner.classList.remove("hidden");
+        document.getElementById("alert-message").textContent =
+          `${expiring} contrat${expiring > 1 ? 's' : ''} expire${expiring > 1 ? 'nt' : ''} dans moins de 30 jours`;
+      } else {
+        banner.classList.add("hidden");
       }
     }
 
-    function renderClientTypeBadge(type) {
-      const colors = {
-        HOSPITAL: "bg-blue-100 text-blue-800",
-        LABORATORY: "bg-purple-100 text-purple-800",
-        CLINIC: "bg-teal-100 text-teal-800",
-        DOCTOR: "bg-green-100 text-green-800",
-        MEDICAL_OFFICE: "bg-orange-100 text-orange-800",
-        RESELLER: "bg-slate-100 text-slate-800"
-      };
-      const labels = {
-        HOSPITAL: "Hôpital",
-        LABORATORY: "Laboratoire",
-        CLINIC: "Clinique",
-        DOCTOR: "Médecin",
-        MEDICAL_OFFICE: "Cabinet",
-        RESELLER: "Revendeur"
-      };
-      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[type] || 'bg-gray-100 text-gray-800'}">${labels[type] || type}</span>`;
-    }
-
-    function renderStatusBadge(status) {
-      const colors = {
-        ACTIVE: "bg-green-100 text-green-800",
-        EXPIRED: "bg-red-100 text-red-800",
-        SUSPENDED: "bg-orange-100 text-orange-800"
-      };
-      const labels = {
-        ACTIVE: "Actif",
-        EXPIRED: "Expiré",
-        SUSPENDED: "Suspendu"
-      };
-      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
-    }
-
     function applyFilters() {
+      const status = document.getElementById("status-filter").value;
+      const client = document.getElementById("client-filter").value;
+      const product = document.getElementById("product-filter").value;
+      const expiryFrom = document.getElementById("expiry-from").value;
+      const expiryTo = document.getElementById("expiry-to").value;
+
+      filteredContracts = allContracts.filter(c => {
+        if (status && c.status !== status) return false;
+        if (client && c.clientId !== client) return false;
+        if (product && c.productId !== product) return false;
+        if (expiryFrom && c.endDate && new Date(c.endDate) < new Date(expiryFrom)) return false;
+        if (expiryTo && c.endDate && new Date(c.endDate) > new Date(expiryTo)) return false;
+        return true;
+      });
+
       currentPage = 1;
-      loadContracts();
+      renderTable();
     }
 
     function resetFilters() {
-      document.getElementById('status-filter').value = '';
-      document.getElementById('client-filter').value = '';
-      document.getElementById('product-filter').value = '';
-      document.getElementById('expiry-from').value = '';
-      document.getElementById('expiry-to').value = '';
-      currentPage = 1;
-      loadContracts();
+      document.getElementById("status-filter").value = "";
+      document.getElementById("client-filter").value = "";
+      document.getElementById("product-filter").value = "";
+      document.getElementById("expiry-from").value = "";
+      document.getElementById("expiry-to").value = "";
+      applyFilters();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("contracts-table-body");
+      const total = filteredContracts.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const start = (currentPage - 1) * pageSize;
+      const pageItems = filteredContracts.slice(start, start + pageSize);
+
+      if (total === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="8" class="px-6 py-12 text-center text-textSecondary">
+            <div class="flex flex-col items-center gap-2">
+              <i data-lucide="file-x" class="w-10 h-10 text-gray-300"></i>
+              <p>Aucun contrat trouvé</p>
+            </div>
+          </td></tr>`;
+      } else {
+        const today = new Date();
+        tbody.innerHTML = pageItems.map(contract => {
+          const prod = productLabel(contract.productId);
+          const totalDays = (contract.startDate && contract.endDate)
+            ? Math.max(1, daysBetween(contract.startDate, contract.endDate)) : 365;
+          const remaining = contract.endDate ? daysBetween(today, contract.endDate) : 0;
+          const clampedRemaining = Math.max(0, remaining);
+          const progressPercent = Math.max(0, Math.min(100, (clampedRemaining / totalDays) * 100));
+          const progressColor = remaining < 0 ? 'bg-red-600'
+            : remaining < 30 ? 'bg-red-500'
+            : remaining < 90 ? 'bg-amber-500'
+            : 'bg-green-500';
+          const remainingLabel = remaining < 0 ? "Expiré" : `${clampedRemaining} jours`;
+
+          return `
+            <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewContract('${contract.contractId}')">
+              <td class="px-6 py-4">
+                <span class="font-mono text-sm text-textPrimary">${contract.contractReference || ('#' + String(contract.contractId).slice(0, 8))}</span>
+              </td>
+              <td class="px-6 py-4">
+                <p class="font-medium text-textPrimary">${clientLabel(contract.clientId)}</p>
+              </td>
+              <td class="px-6 py-4">
+                <div>
+                  <p class="font-medium text-textPrimary">${prod.name}</p>
+                  ${prod.reference ? `<p class="text-sm text-textSecondary font-mono">${prod.reference}</p>` : ''}
+                </div>
+              </td>
+              <td class="px-6 py-4 text-textSecondary">${contract.startDate ? formatDate(contract.startDate) : '—'}</td>
+              <td class="px-6 py-4 text-textSecondary">${contract.endDate ? formatDate(contract.endDate) : '—'}</td>
+              <td class="px-6 py-4">${renderBadge(contract.status)}</td>
+              <td class="px-6 py-4">
+                <div class="w-32">
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-textSecondary">${remainingLabel}</span>
+                    <span class="text-textSecondary">${progressPercent.toFixed(0)}%</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="${progressColor} h-2 rounded-full" style="width: ${progressPercent}%"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+                  <button onclick="viewContract('${contract.contractId}')" class="p-2 hover:bg-gray-100 rounded transition-colors" title="Voir le détail">
+                    <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
+                  </button>
+                  <button onclick="openStatusModal('${contract.contractId}', '${contract.contractReference || ('#' + String(contract.contractId).slice(0, 8))}', '${contract.status}')" class="p-2 hover:bg-blue-100 rounded transition-colors" title="Modifier le statut">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 text-blue-600"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>`;
+        }).join("");
+      }
+
+      // Pagination footer
+      document.getElementById("showing-from").textContent = total === 0 ? 0 : start + 1;
+      document.getElementById("showing-to").textContent = Math.min(start + pageSize, total);
+      document.getElementById("total-records").textContent = total;
+      document.getElementById("current-page").textContent = currentPage;
+      document.getElementById("prev-btn").disabled = currentPage === 1;
+      document.getElementById("next-btn").disabled = currentPage >= totalPages;
+
+      hideSkeleton('contracts-table-body');
+      lucide.createIcons();
     }
 
     function previousPage() {
       if (currentPage > 1) {
         currentPage--;
-        loadContracts();
+        renderTable();
       }
     }
 
     function nextPage() {
-      if (currentPage * pageSize < totalRecords) {
+      const totalPages = Math.max(1, Math.ceil(filteredContracts.length / pageSize));
+      if (currentPage < totalPages) {
         currentPage++;
-        loadContracts();
+        renderTable();
       }
     }
 
@@ -395,24 +556,92 @@
       window.location.href = `maintenance-detail.html?id=${contractId}`;
     }
 
-    function addIntervention(contractId) {
-      window.location.href = `maintenance-detail.html?id=${contractId}`;
-    }
-
-    async function renewContract(contractId) {
-      if (confirm('Voulez-vous renouveler ce contrat ?')) {
-        try {
-          await apiFetch(`/admin/maintenance/${contractId}/renew`, { method: 'POST' });
-          loadContracts();
-        } catch (error) {
-          console.error("Failed to renew contract:", error);
-          alert('Erreur lors du renouvellement du contrat');
-        }
+    // ---- Status change ----
+    function openStatusModal(contractId, ref, currentStatus) {
+      statusModalContractId = contractId;
+      document.getElementById("status-modal-ref").textContent = ref;
+      const select = document.getElementById("status-modal-select");
+      if (currentStatus && [...select.options].some(o => o.value === currentStatus)) {
+        select.value = currentStatus;
       }
+      openModal("status-modal");
     }
 
-    // Load contracts on page load
-    loadContracts();
+    async function submitStatusChange() {
+      if (!statusModalContractId) return;
+      const status = document.getElementById("status-modal-select").value;
+      const btn = document.getElementById("status-submit-btn");
+      btn.disabled = true;
+      btn.textContent = "Enregistrement...";
+
+      const r = await apiFetch(`/maintenance/contracts/${statusModalContractId}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ status })
+      });
+
+      btn.disabled = false;
+      btn.textContent = "Enregistrer";
+
+      if (!r || !r.ok || (r.data && r.data.success === false)) {
+        showToast(r?.data?.message || "Erreur lors de la mise à jour du statut", "error");
+        return;
+      }
+
+      showToast("Statut mis à jour", "success");
+      closeModal("status-modal");
+      statusModalContractId = null;
+      await loadContracts();
+    }
+
+    // ---- New contract ----
+    function openNewContractModal() {
+      document.getElementById("new-contract-form").reset();
+      document.getElementById("contract-warranty").value = 24;
+      document.getElementById("contract-start").value = new Date().toISOString().slice(0, 10);
+      openModal("new-contract-modal");
+    }
+
+    async function submitNewContract(event) {
+      event.preventDefault();
+      const clientId = document.getElementById("contract-client").value.trim();
+      const productId = document.getElementById("contract-product").value;
+      const warrantyDuration = parseInt(document.getElementById("contract-warranty").value, 10);
+      const startDate = document.getElementById("contract-start").value;
+
+      if (!clientId) { showToast("Veuillez sélectionner un client", "warning"); return; }
+      if (!productId) { showToast("Veuillez sélectionner un produit", "warning"); return; }
+      if (!warrantyDuration || warrantyDuration < 1) { showToast("Durée de garantie invalide", "warning"); return; }
+      if (!startDate) { showToast("Veuillez choisir une date de début", "warning"); return; }
+
+      const btn = document.getElementById("contract-submit-btn");
+      btn.disabled = true;
+      btn.textContent = "Création...";
+
+      const r = await apiFetch("/maintenance/contracts", {
+        method: "POST",
+        body: JSON.stringify({ clientId, productId, warrantyDuration, startDate })
+      });
+
+      btn.disabled = false;
+      btn.textContent = "Créer le contrat";
+
+      if (!r || !r.ok || (r.data && r.data.success === false)) {
+        showToast(r?.data?.message || "Erreur lors de la création du contrat", "error");
+        return;
+      }
+
+      showToast("Contrat créé avec succès", "success");
+      closeModal("new-contract-modal");
+      await loadContracts();
+    }
+
+    // ---- Init ----
+    async function init() {
+      await Promise.all([loadProducts(), loadClients()]);
+      await loadContracts();
+    }
+
+    init();
   </script>
 </body>
 </html>

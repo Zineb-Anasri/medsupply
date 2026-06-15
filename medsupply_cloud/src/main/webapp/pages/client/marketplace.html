@@ -39,12 +39,12 @@
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col ">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
         <!-- Page Header -->
@@ -53,7 +53,7 @@
             <h1 class="text-2xl font-bold text-textPrimary">Marketplace B2B — Mes Appels d'Offres</h1>
             <p class="text-textSecondary">Gérez vos appels d'offres et les offres des fournisseurs</p>
           </div>
-          <button onclick="window.location.href='marketplace-new.html'" class="bg-primary hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+          <button onclick="window.location.href='marketplace-new.html'" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Lancer un appel d'offres</span>
           </button>
@@ -75,11 +75,11 @@
           <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-textSecondary text-sm">En cours</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-active">0</p>
+                <p class="text-textSecondary text-sm">Clôturés</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-closed">0</p>
               </div>
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i data-lucide="clock" class="w-6 h-6 text-blue-600"></i>
+              <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="clock" class="w-6 h-6 text-gray-600"></i>
               </div>
             </div>
           </div>
@@ -89,8 +89,8 @@
                 <p class="text-textSecondary text-sm">Attribués</p>
                 <p class="text-2xl font-bold text-textPrimary" id="stat-awarded">0</p>
               </div>
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i data-lucide="check-circle" class="w-6 h-6 text-purple-600"></i>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-6 h-6 text-blue-600"></i>
               </div>
             </div>
           </div>
@@ -102,9 +102,8 @@
             <select id="status-filter" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
               <option value="">Tous les statuts</option>
               <option value="OPEN">Ouvert</option>
-              <option value="CLOSED">Fermé</option>
+              <option value="CLOSED">Clôturé</option>
               <option value="AWARDED">Attribué</option>
-              <option value="CANCELLED">Annulé</option>
             </select>
             <button onclick="applyFilters()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
               Filtrer
@@ -142,88 +141,133 @@
     }
     renderHeader();
 
+    // Full set of tenders fetched once, filtered client-side.
+    let allTenders = [];
     let countdownIntervals = {};
 
     async function loadTenders() {
-      try {
-        const status = document.getElementById('status-filter').value;
+      const grid = document.getElementById("tenders-grid");
+      grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">Chargement...</div>`;
 
-        const response = await apiFetch(`/tenders?status=${status}`);
-        const data = response?.data || {};
+      const r = await apiFetch("/tenders");
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Erreur de chargement", "error");
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">Erreur de chargement des appels d'offres</div>`;
+        return;
+      }
 
-        // Update stats
-        document.getElementById("stat-open").textContent = data.stats?.open || 0;
-        document.getElementById("stat-active").textContent = data.stats?.active || 0;
-        document.getElementById("stat-awarded").textContent = data.stats?.awarded || 0;
+      allTenders = r.data.tenders || [];
+      updateStats();
+      renderTenders();
+    }
 
-        // Clear existing countdown intervals
-        Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
-        countdownIntervals = {};
+    function updateStats() {
+      const open = allTenders.filter(t => t.status === "OPEN").length;
+      const closed = allTenders.filter(t => t.status === "CLOSED").length;
+      const awarded = allTenders.filter(t => t.status === "AWARDED").length;
+      document.getElementById("stat-open").textContent = open;
+      document.getElementById("stat-closed").textContent = closed;
+      document.getElementById("stat-awarded").textContent = awarded;
+    }
 
-        // Update tender cards grid
-        const grid = document.getElementById('tenders-grid');
-        const tenders = data.tenders || [];
-        if (tenders.length === 0) {
-          grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">Aucun appel d'offres trouvé</div>`;
-        } else {
-          grid.innerHTML = tenders.map(tender => {
-            const countdownId = `countdown-${tender.tenderId}`;
-            return `
-              <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
-                <div class="p-6">
-                  <div class="flex items-start justify-between mb-4">
-                    <h3 class="font-semibold text-textPrimary text-lg">${tender.title}</h3>
-                    ${renderStatusBadge(tender.status)}
-                  </div>
-                  <div class="space-y-3 mb-4">
-                    <div class="flex items-center gap-2">
-                      <i data-lucide="wallet" class="w-4 h-4 text-accent"></i>
-                      <span class="text-sm text-textSecondary">Budget max: ${formatCurrency(tender.maxBudget)}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <i data-lucide="clock" class="w-4 h-4 ${getDeadlineUrgencyClass(tender.deadline)}"></i>
-                      <span class="text-sm ${getDeadlineUrgencyClass(tender.deadline)}" id="${countdownId}">--</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      <i data-lucide="file-text" class="w-4 h-4 text-textSecondary"></i>
-                      <span class="text-sm text-textSecondary">${tender.offerCount} offre(s) reçue(s)</span>
-                    </div>
-                  </div>
-                  <button onclick="viewTender('${tender.tenderId}')" class="w-full bg-accent hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
-                    Voir les offres
-                  </button>
+    function renderTenders() {
+      // Clear existing countdown intervals before re-rendering.
+      Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
+      countdownIntervals = {};
+
+      const status = document.getElementById("status-filter").value;
+      const tenders = status ? allTenders.filter(t => t.status === status) : allTenders;
+
+      const grid = document.getElementById("tenders-grid");
+
+      if (tenders.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16">
+            <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+              <i data-lucide="gavel" class="w-8 h-8 text-textSecondary"></i>
+            </div>
+            <p class="text-textSecondary font-medium">Aucun appel d'offres trouvé</p>
+            <p class="text-textSecondary text-sm mt-1">Lancez un nouvel appel d'offres pour recevoir des offres de fournisseurs.</p>
+          </div>`;
+        lucide.createIcons();
+        return;
+      }
+
+      grid.innerHTML = tenders.map(tender => {
+        const countdownId = `countdown-${tender.tenderId}`;
+        const bidsId = `bids-${tender.tenderId}`;
+        return `
+          <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden flex flex-col">
+            <div class="p-6 flex flex-col flex-1">
+              <div class="flex items-start justify-between gap-2 mb-4">
+                <h3 class="font-semibold text-textPrimary text-lg">${escapeHtml(tender.title || "#" + String(tender.tenderId).slice(0, 8))}</h3>
+                ${renderBadge(tender.status)}
+              </div>
+              <div class="space-y-3 mb-4 flex-1">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="wallet" class="w-4 h-4 text-accent"></i>
+                  <span class="text-sm text-textSecondary">Budget max: ${formatCurrency(tender.budgetMax)}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="clock" class="w-4 h-4 ${getDeadlineUrgencyClass(tender.deadline)}"></i>
+                  <span class="text-sm ${getDeadlineUrgencyClass(tender.deadline)}" id="${countdownId}">--</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="file-text" class="w-4 h-4 text-textSecondary"></i>
+                  <span class="text-sm text-textSecondary" id="${bidsId}">Chargement des offres...</span>
                 </div>
               </div>
-            `;
-          }).join('');
+              <button onclick="viewTender('${tender.tenderId}')" class="w-full bg-accent hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
+                Voir les offres
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
 
-          // Start countdown timers
-          data.tenders.forEach(tender => {
-            startCountdown(tender.tenderId, tender.deadline);
-          });
-        }
+      lucide.createIcons();
 
-        lucide.createIcons();
-      } catch (error) {
-        console.error("Failed to load tenders:", error);
+      // Start countdown timers and load the bid count per tender.
+      tenders.forEach(tender => {
+        startCountdown(tender.tenderId, tender.deadline);
+        loadBidCount(tender.tenderId);
+      });
+    }
+
+    async function loadBidCount(tenderId) {
+      const el = document.getElementById(`bids-${tenderId}`);
+      if (!el) return;
+      const r = await apiFetch("/tenders/" + tenderId + "/bids");
+      if (!r || !r.ok) {
+        el.textContent = "Offres indisponibles";
+        return;
       }
+      const count = r.data.count != null ? r.data.count : (r.data.bids ? r.data.bids.length : 0);
+      el.textContent = `${count} offre${count > 1 ? "s" : ""} reçue${count > 1 ? "s" : ""}`;
     }
 
     function startCountdown(tenderId, deadline) {
       const elementId = `countdown-${tenderId}`;
       const element = document.getElementById(elementId);
-      
+
       if (!element) return;
 
       const updateCountdown = () => {
         const now = new Date();
         const deadlineDate = new Date(deadline);
         const diffMs = deadlineDate - now;
-        
+
+        if (!deadline || isNaN(deadlineDate.getTime())) {
+          element.textContent = "Échéance non définie";
+          element.className = "text-sm text-textSecondary";
+          if (countdownIntervals[tenderId]) clearInterval(countdownIntervals[tenderId]);
+          return;
+        }
+
         if (diffMs <= 0) {
-          element.textContent = 'Expiré';
-          element.className = 'text-sm text-red-600 font-medium';
-          clearInterval(countdownIntervals[tenderId]);
+          element.textContent = "Expiré";
+          element.className = "text-sm text-red-600 font-medium";
+          if (countdownIntervals[tenderId]) clearInterval(countdownIntervals[tenderId]);
           return;
         }
 
@@ -231,13 +275,13 @@
         const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
-        let text = '';
+        let text = "";
         if (diffDays > 0) {
-          text = `Ferme dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+          text = `Ferme dans ${diffDays} jour${diffDays > 1 ? "s" : ""}`;
         } else if (diffHours > 0) {
-          text = `Ferme dans ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+          text = `Ferme dans ${diffHours} heure${diffHours > 1 ? "s" : ""}`;
         } else {
-          text = `Ferme dans ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+          text = `Ferme dans ${diffMinutes} minute${diffMinutes > 1 ? "s" : ""}`;
         }
 
         element.textContent = text;
@@ -251,47 +295,40 @@
     function getDeadlineUrgencyClass(deadline) {
       const now = new Date();
       const deadlineDate = new Date(deadline);
+      if (!deadline || isNaN(deadlineDate.getTime())) return "text-textSecondary";
       const diffHours = (deadlineDate - now) / (1000 * 60 * 60);
-      
-      if (diffHours < 24) return 'text-red-600 font-medium';
-      if (diffHours < 168) return 'text-amber-600 font-medium'; // 7 days
-      return 'text-textSecondary';
+
+      if (diffHours < 24) return "text-red-600 font-medium";
+      if (diffHours < 168) return "text-amber-600 font-medium"; // 7 days
+      return "text-textSecondary";
     }
 
-    function renderStatusBadge(status) {
-      const colors = {
-        OPEN: "bg-green-100 text-green-800",
-        CLOSED: "bg-gray-100 text-gray-800",
-        AWARDED: "bg-blue-100 text-blue-800",
-        CANCELLED: "bg-red-100 text-red-800"
-      };
-      const labels = {
-        OPEN: "Ouvert",
-        CLOSED: "Fermé",
-        AWARDED: "Attribué",
-        CANCELLED: "Annulé"
-      };
-      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
     }
 
     function applyFilters() {
-      loadTenders();
+      renderTenders();
     }
 
     function resetFilters() {
-      document.getElementById('status-filter').value = '';
-      loadTenders();
+      document.getElementById("status-filter").value = "";
+      renderTenders();
     }
 
     function viewTender(tenderId) {
       window.location.href = `marketplace-detail.html?id=${tenderId}`;
     }
 
-    // Load tenders on page load
+    // Load tenders on page load.
     loadTenders();
 
-    // Cleanup intervals on page unload
-    window.addEventListener('beforeunload', () => {
+    // Cleanup intervals on page unload.
+    window.addEventListener("beforeunload", () => {
       Object.values(countdownIntervals).forEach(interval => clearInterval(interval));
     });
   </script>

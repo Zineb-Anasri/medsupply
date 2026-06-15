@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestion des Stocks - MedSupply Cloud</title>
+  <title>Référentiel Produits - MedSupply Cloud</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -28,140 +28,127 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
   </style>
 </head>
 <body class="bg-background">
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col ml-72">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
-        <div class="mb-6">
-          <h1 class="text-2xl font-bold text-textPrimary">Gestion des Stocks</h1>
-          <p class="text-textSecondary">Surveillez et gérez les stocks de produits</p>
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-textPrimary">Référentiel Produits</h1>
+            <p class="text-textSecondary">Consultez le catalogue de référence des produits</p>
+          </div>
+          <button onclick="window.location.href='product-form.html'" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Ajouter un produit</span>
+          </button>
         </div>
 
-        <!-- KPI Cards -->
+        <!-- Stat Cards (computed client-side) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div class="bg-surface rounded-xl p-6 border border-border shadow-sm">
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-textSecondary">Total produits</p>
-                <p id="kpi-total" class="text-3xl font-bold text-textPrimary mt-1">0</p>
+                <p id="stat-total" class="text-3xl font-bold text-textPrimary mt-1">—</p>
               </div>
-              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="package" class="w-6 h-6 text-blue-600"></i>
               </div>
             </div>
           </div>
-          
-          <div class="bg-surface rounded-xl p-6 border border-border shadow-sm">
+
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-textSecondary">En stock normal</p>
-                <p id="kpi-normal" class="text-3xl font-bold text-success mt-1">0</p>
+                <p class="text-sm text-textSecondary">Produits actifs</p>
+                <p id="stat-active" class="text-3xl font-bold text-success mt-1">—</p>
               </div>
-              <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="check-circle" class="w-6 h-6 text-success"></i>
               </div>
             </div>
           </div>
-          
-          <div class="bg-surface rounded-xl p-6 border border-border shadow-sm">
+
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-textSecondary">Stock faible</p>
-                <p id="kpi-low" class="text-3xl font-bold text-warning mt-1">0</p>
+                <p class="text-sm text-textSecondary">Produits inactifs</p>
+                <p id="stat-inactive" class="text-3xl font-bold text-textSecondary mt-1">—</p>
               </div>
-              <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                <i data-lucide="alert-triangle" class="w-6 h-6 text-warning"></i>
+              <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="ban" class="w-6 h-6 text-gray-500"></i>
               </div>
             </div>
           </div>
-          
-          <div class="bg-surface rounded-xl p-6 border border-border shadow-sm">
+
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-textSecondary">Rupture de stock</p>
-                <p id="kpi-out" class="text-3xl font-bold text-danger mt-1">0</p>
+                <p class="text-sm text-textSecondary">Prix moyen</p>
+                <p id="stat-avg-price" class="text-2xl font-bold text-textPrimary mt-1">—</p>
               </div>
-              <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <i data-lucide="x-circle" class="w-6 h-6 text-danger"></i>
+              <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="tag" class="w-6 h-6 text-warning"></i>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Alert Banners -->
-        <div id="alert-banners" class="space-y-3 mb-6">
-          <!-- Dynamic alerts will be inserted here -->
-        </div>
-
-        <!-- Filters -->
-        <div class="bg-surface rounded-xl p-4 border border-border shadow-sm mb-6">
-          <div class="flex flex-wrap gap-4">
-            <div class="flex-1 min-w-64">
-              <input type="text" id="search-input" placeholder="Rechercher un produit..." 
-                class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+        <!-- Filters (client-side) -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-4 mb-6">
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex-1 min-w-[200px]">
+              <div class="relative">
+                <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="search-input" placeholder="Rechercher par nom ou référence..." oninput="renderTable()"
+                  class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+              </div>
             </div>
-            <div class="min-w-48">
-              <select id="category-filter" class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                <option value="">Toutes les catégories</option>
-              </select>
-            </div>
-            <div class="min-w-48">
-              <select id="supplier-filter" class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                <option value="">Tous les fournisseurs</option>
-              </select>
-            </div>
-            <div class="min-w-48">
-              <select id="status-filter" class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                <option value="">Tous les statuts</option>
-                <option value="normal">En stock normal</option>
-                <option value="low">Stock faible</option>
-                <option value="out">Rupture de stock</option>
-              </select>
-            </div>
-            <button onclick="applyFilters()" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
-              <i data-lucide="filter" class="w-4 h-4"></i>
-              <span>Filtrer</span>
-            </button>
-            <button onclick="resetFilters()" class="bg-surface border border-border hover:bg-gray-50 px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <select id="status-filter" onchange="renderTable()" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+              <option value="">Tous les statuts</option>
+              <option value="active">Actifs</option>
+              <option value="inactive">Inactifs</option>
+            </select>
+            <button onclick="resetFilters()" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
               <i data-lucide="x" class="w-4 h-4"></i>
               <span>Réinitialiser</span>
             </button>
           </div>
         </div>
 
-        <!-- Stock Table -->
+        <!-- Product Table -->
         <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead class="bg-gray-50 border-b border-border">
                 <tr>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Produit</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Catégorie</th>
                   <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Fournisseur</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Stock actuel</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Stock minimum</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Niveau</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Dernière mise à jour</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Actions</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Prix unitaire</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Garantie</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Statut</th>
+                  <th class="px-6 py-3 text-right text-xs font-semibold text-textSecondary uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody id="stock-table-body" class="divide-y divide-border">
+              <tbody id="products-table-body" class="divide-y divide-border">
                 <tr>
-                  <td colspan="8" class="px-6 py-12 text-center text-textSecondary">Chargement...</td>
+                  <td colspan="6" class="px-6 py-12 text-center text-textSecondary">Chargement...</td>
                 </tr>
               </tbody>
             </table>
@@ -171,416 +158,157 @@
     </div>
   </div>
 
-  <!-- Stock Adjustment Modal -->
-  <div id="stock-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
-    <div class="bg-surface rounded-xl shadow-xl w-full max-w-md mx-4">
-      <div class="p-6 border-b border-border">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-textPrimary">Ajuster le stock</h3>
-          <button onclick="closeStockModal()" class="text-gray-400 hover:text-gray-600">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-      </div>
-      <div class="p-6 space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-textSecondary mb-1">Produit</label>
-          <input type="text" id="modal-product-name" readonly class="w-full px-4 py-2 border border-border rounded-lg bg-gray-50 text-textPrimary">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-textSecondary mb-1">Quantité actuelle</label>
-          <input type="text" id="modal-current-quantity" readonly class="w-full px-4 py-2 border border-border rounded-lg bg-gray-50 text-textPrimary">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-textSecondary mb-1">Type d'ajustement</label>
-          <select id="modal-adjustment-type" class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-            <option value="in">Entrée de stock</option>
-            <option value="out">Sortie de stock</option>
-            <option value="correction">Correction</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-textSecondary mb-1">Quantité</label>
-          <input type="number" id="modal-quantity" min="1" class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-textSecondary mb-1">Motif</label>
-          <textarea id="modal-reason" rows="3" class="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Expliquez la raison de cet ajustement..."></textarea>
-        </div>
-        <div class="bg-gray-50 p-4 rounded-lg">
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-textSecondary">Nouveau total</span>
-            <span id="modal-new-total" class="text-2xl font-bold text-textPrimary">0</span>
-          </div>
-        </div>
-      </div>
-      <div class="p-6 border-t border-border flex justify-end gap-3">
-        <button onclick="closeStockModal()" class="px-4 py-2 border border-border rounded-lg hover:bg-gray-50 transition-colors">
-          Annuler
-        </button>
-        <button onclick="confirmStockAdjustment()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition-colors">
-          Confirmer
-        </button>
-      </div>
-    </div>
-  </div>
-
+  <!-- Bootstrap scripts (contract order) -->
   <script src="../../js/api.js"></script>
   <script src="../../js/auth.js"></script>
+  <script>
+    requireAuth(["ADMIN"]);
+  </script>
   <script src="../../js/router.js"></script>
   <script src="../../js/components/sidebar.js"></script>
   <script src="../../js/components/header.js"></script>
-  <script src="../../js/components/notification-bell.js"></script>
+  <script src="../../js/components/badge.js"></script>
   <script src="../../js/components/toast.js"></script>
   <script src="../../js/utils/format.js"></script>
   <script>
-    requireAuth(["ADMIN"]);
+    initPage("ADMIN");
     const role = getCurrentRole();
     if (role) {
       renderSidebar(role.toLowerCase());
     }
     renderHeader();
 
-    let products = [];
-    let categories = [];
-    let suppliers = [];
-    let currentProduct = null;
+    let allProducts = [];
+    let suppliersByUser = {};
 
-    initPage("ADMIN");
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
 
-    async function loadStockData() {
-      try {
-        // Show skeleton while loading
-        showSkeleton('stock-table-body', 'table', { rows: 5, columns: 7 });
+    function supplierName(supplierId) {
+      if (!supplierId) return "—";
+      const s = suppliersByUser[supplierId];
+      if (s && s.companyName) return escapeHtml(s.companyName);
+      return "#" + String(supplierId).slice(0, 8);
+    }
 
-        const response = await apiFetch("/stocks");
-        const stocks = response?.data?.stocks || [];
-        
-        // Convert stocks to products format for rendering
-        products = stocks.map(stock => ({
-          productId: stock.productId,
-          name: stock.productName,
-          reference: stock.reference,
-          category: stock.category,
-          supplierName: stock.supplierName,
-          quantity: stock.quantity,
-          minQuantity: stock.minQuantity,
-          updatedAt: stock.updatedAt
-        }));
-        
-        // Extract unique categories and suppliers
-        categories = [...new Set(products.map(p => p.category).filter(c => c))];
-        suppliers = [...new Set(products.map(p => p.supplierName).filter(s => s))];
-        
-        // Populate filter dropdowns
-        populateFilters();
-        
-        // Update KPIs
-        updateKPIs();
-        
-        // Render table
-        renderStockTable();
-        
-        // Show alerts
-        showAlerts();
+    async function loadData() {
+      const tbody = document.getElementById("products-table-body");
+      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-textSecondary">Chargement...</td></tr>`;
 
-        // Hide skeleton
-        hideSkeleton('stock-table-body');
-      } catch (error) {
-        console.error("Failed to load stock data:", error);
-        showToast("Erreur lors du chargement des stocks", "error");
+      // Resolve supplier names once (admin-only listing).
+      const sr = await apiFetch("/suppliers");
+      if (sr && sr.ok && sr.data && Array.isArray(sr.data.suppliers)) {
+        suppliersByUser = {};
+        sr.data.suppliers.forEach(s => { if (s.userId) suppliersByUser[s.userId] = s; });
       }
-    }
 
-    function populateFilters() {
-      const categorySelect = document.getElementById("category-filter");
-      const supplierSelect = document.getElementById("supplier-filter");
-      
-      categorySelect.innerHTML = '<option value="">Toutes les catégories</option>' +
-        categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-      
-      supplierSelect.innerHTML = '<option value="">Tous les fournisseurs</option>' +
-        suppliers.map(sup => `<option value="${sup}">${sup}</option>`).join('');
-    }
-
-    function updateKPIs() {
-      const total = products.length;
-      const normal = products.filter(p => p.quantity > p.minQuantity).length;
-      const low = products.filter(p => p.quantity > 0 && p.quantity <= p.minQuantity).length;
-      const out = products.filter(p => p.quantity === 0).length;
-      
-      document.getElementById("kpi-total").textContent = total;
-      document.getElementById("kpi-normal").textContent = normal;
-      document.getElementById("kpi-low").textContent = low;
-      document.getElementById("kpi-out").textContent = out;
-    }
-
-    function showAlerts() {
-      const container = document.getElementById("alert-banners");
-      const low = products.filter(p => p.quantity > 0 && p.quantity <= p.minQuantity).length;
-      const out = products.filter(p => p.quantity === 0).length;
-      
-      let alerts = [];
-      
-      if (out > 0) {
-        alerts.push(`
-          <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-            <span class="text-2xl">🚨</span>
-            <p class="text-red-800 font-medium">${out} produit${out > 1 ? 's' : ''} en rupture de stock</p>
-          </div>
-        `);
-      }
-      
-      if (low > 0) {
-        alerts.push(`
-          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">
-            <span class="text-2xl">⚠️</span>
-            <p class="text-amber-800 font-medium">${low} produit${low > 1 ? 's' : ''} en stock faible</p>
-          </div>
-        `);
-      }
-      
-      container.innerHTML = alerts.join('');
-    }
-
-    function renderStockTable() {
-      const tbody = document.getElementById("stock-table-body");
-      
-      if (products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-textSecondary">Aucun produit trouvé</td></tr>`;
+      const r = await apiFetch("/products");
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Erreur lors du chargement des produits", "error");
+        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-textSecondary">Impossible de charger les produits</td></tr>`;
         return;
       }
-      
-      tbody.innerHTML = products.map(product => {
-        const status = getStockStatus(product.quantity, product.minQuantity);
-        const rowClass = status === 'out' ? 'bg-red-50' : '';
-        
+
+      allProducts = Array.isArray(r.data.products) ? r.data.products : [];
+      updateStats();
+      renderTable();
+    }
+
+    function updateStats() {
+      const total = allProducts.length;
+      const active = allProducts.filter(p => p.isActive).length;
+      const inactive = total - active;
+      const prices = allProducts.map(p => Number(p.unitPrice)).filter(n => !isNaN(n));
+      const avg = prices.length ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+
+      document.getElementById("stat-total").textContent = total;
+      document.getElementById("stat-active").textContent = active;
+      document.getElementById("stat-inactive").textContent = inactive;
+      document.getElementById("stat-avg-price").textContent = prices.length ? formatCurrency(avg) : "—";
+    }
+
+    function getFiltered() {
+      const search = document.getElementById("search-input").value.trim().toLowerCase();
+      const status = document.getElementById("status-filter").value;
+
+      return allProducts.filter(p => {
+        if (status === "active" && !p.isActive) return false;
+        if (status === "inactive" && p.isActive) return false;
+        if (search) {
+          const name = (p.name || "").toLowerCase();
+          const ref = (p.reference || "").toLowerCase();
+          if (!name.includes(search) && !ref.includes(search)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("products-table-body");
+      const rows = getFiltered();
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center gap-2 text-textSecondary">
+                <i data-lucide="package-x" class="w-10 h-10 text-gray-300"></i>
+                <p>Aucun produit trouvé</p>
+              </div>
+            </td>
+          </tr>`;
+        lucide.createIcons();
+        return;
+      }
+
+      tbody.innerHTML = rows.map(p => {
+        const statusEnum = p.isActive ? "ACTIVE" : "INACTIVE";
+        const warranty = (p.warrantyMonths != null && p.warrantyMonths !== "")
+          ? `${escapeHtml(p.warrantyMonths)} mois` : "—";
         return `
-          <tr class="${rowClass} hover:bg-gray-50">
+          <tr class="hover:bg-gray-50">
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <i data-lucide="package" class="w-5 h-5 text-gray-400"></i>
+                <div class="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  ${p.imageUrl
+                    ? `<img src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}" class="w-full h-full object-cover">`
+                    : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
+                         <i data-lucide="package" class="w-6 h-6 text-primary"></i>
+                       </div>`}
                 </div>
                 <div>
-                  <p class="font-medium text-textPrimary">${product.name}</p>
-                  <p class="text-xs text-textSecondary font-mono">${product.reference || 'N/A'}</p>
+                  <p class="font-medium text-textPrimary">${escapeHtml(p.name) || "#" + String(p.id).slice(0, 8)}</p>
+                  <p class="text-sm text-textSecondary font-mono">${escapeHtml(p.reference) || "—"}</p>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 text-sm text-textSecondary">${product.category || '-'}</td>
-            <td class="px-6 py-4 text-sm text-textSecondary">${product.supplierName || '-'}</td>
+            <td class="px-6 py-4 text-sm text-textPrimary">${supplierName(p.supplierId)}</td>
+            <td class="px-6 py-4 text-textPrimary font-medium">${formatCurrency(Number(p.unitPrice) || 0)}</td>
+            <td class="px-6 py-4 text-sm text-textSecondary">${warranty}</td>
+            <td class="px-6 py-4">${renderBadge(statusEnum)}</td>
             <td class="px-6 py-4">
-              <span class="text-2xl font-bold ${getStatusColor(status)}">${product.quantity}</span>
-            </td>
-            <td class="px-6 py-4 text-sm text-textSecondary">${product.minQuantity || 0}</td>
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeClass(status)}">${getStatusBadge(status)}</span>
-                <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div class="h-full ${getStatusBarClass(status)}" style="width: ${getStockPercentage(product.quantity, product.minQuantity)}%"></div>
-                </div>
+              <div class="flex items-center justify-end gap-2">
+                <a href="product-form.html?id=${encodeURIComponent(p.id)}" class="p-2 hover:bg-blue-100 rounded transition-colors" title="Modifier">
+                  <i data-lucide="edit" class="w-4 h-4 text-blue-600"></i>
+                </a>
               </div>
             </td>
-            <td class="px-6 py-4 text-sm text-textSecondary">${formatDate(product.updatedAt)}</td>
-            <td class="px-6 py-4">
-              <button onclick="openStockModal('${product.productId}')" class="text-primary hover:text-secondary text-sm font-medium">
-                Ajuster le stock
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-      
+          </tr>`;
+      }).join("");
+
       lucide.createIcons();
     }
 
-    function getStockStatus(quantity, minQuantity) {
-      if (quantity === 0) return 'out';
-      if (quantity <= minQuantity) return 'low';
-      return 'normal';
-    }
-
-    function getStatusColor(status) {
-      const colors = {
-        normal: 'text-success',
-        low: 'text-warning',
-        out: 'text-danger'
-      };
-      return colors[status] || 'text-gray-600';
-    }
-
-    function getStatusBadgeClass(status) {
-      const classes = {
-        normal: 'bg-green-100 text-green-800',
-        low: 'bg-amber-100 text-amber-800',
-        out: 'bg-red-100 text-red-800'
-      };
-      return classes[status] || 'bg-gray-100 text-gray-800';
-    }
-
-    function getStatusBadge(status) {
-      const badges = {
-        normal: 'En stock',
-        low: 'Stock faible',
-        out: 'Rupture'
-      };
-      return badges[status] || 'Inconnu';
-    }
-
-    function getStatusBarClass(status) {
-      const classes = {
-        normal: 'bg-success',
-        low: 'bg-warning',
-        out: 'bg-danger'
-      };
-      return classes[status] || 'bg-gray-400';
-    }
-
-    function getStockPercentage(quantity, minQuantity) {
-      if (quantity === 0) return 0;
-      if (minQuantity === 0) return 100;
-      const percentage = (quantity / minQuantity) * 100;
-      return Math.min(percentage, 100);
-    }
-
-    function formatDate(dateString) {
-      if (!dateString) return '-';
-      const date = new Date(dateString);
-      return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    }
-
-    function applyFilters() {
-      const search = document.getElementById("search-input").value.toLowerCase();
-      const category = document.getElementById("category-filter").value;
-      const supplier = document.getElementById("supplier-filter").value;
-      const status = document.getElementById("status-filter").value;
-      
-      let filtered = products;
-      
-      if (search) {
-        filtered = filtered.filter(p => 
-          p.name.toLowerCase().includes(search) || 
-          (p.reference && p.reference.toLowerCase().includes(search))
-        );
-      }
-      
-      if (category) {
-        filtered = filtered.filter(p => p.category === category);
-      }
-      
-      if (supplier) {
-        filtered = filtered.filter(p => p.supplierName === supplier);
-      }
-      
-      if (status) {
-        filtered = filtered.filter(p => getStockStatus(p.quantity, p.minQuantity) === status);
-      }
-      
-      // Temporarily replace products with filtered for rendering
-      const originalProducts = products;
-      products = filtered;
-      renderStockTable();
-      products = originalProducts;
-    }
-
     function resetFilters() {
-      document.getElementById("search-input").value = '';
-      document.getElementById("category-filter").value = '';
-      document.getElementById("supplier-filter").value = '';
-      document.getElementById("status-filter").value = '';
-      renderStockTable();
+      document.getElementById("search-input").value = "";
+      document.getElementById("status-filter").value = "";
+      renderTable();
     }
 
-    function openStockModal(productId) {
-      currentProduct = products.find(p => p.productId === productId);
-      if (!currentProduct) return;
-      
-      document.getElementById("modal-product-name").value = currentProduct.name;
-      document.getElementById("modal-current-quantity").value = currentProduct.quantity;
-      document.getElementById("modal-quantity").value = '';
-      document.getElementById("modal-reason").value = '';
-      document.getElementById("modal-new-total").textContent = currentProduct.quantity;
-      
-      document.getElementById("stock-modal").classList.remove("hidden");
-      
-      // Add event listener for quantity change
-      document.getElementById("modal-quantity").addEventListener("input", updateNewTotal);
-      document.getElementById("modal-adjustment-type").addEventListener("change", updateNewTotal);
-    }
-
-    function closeStockModal() {
-      document.getElementById("stock-modal").classList.add("hidden");
-      currentProduct = null;
-      
-      // Remove event listeners
-      document.getElementById("modal-quantity").removeEventListener("input", updateNewTotal);
-      document.getElementById("modal-adjustment-type").removeEventListener("change", updateNewTotal);
-    }
-
-    function updateNewTotal() {
-      if (!currentProduct) return;
-      
-      const adjustmentType = document.getElementById("modal-adjustment-type").value;
-      const quantity = parseInt(document.getElementById("modal-quantity").value) || 0;
-      const current = currentProduct.quantity;
-      
-      let newTotal;
-      if (adjustmentType === 'in') {
-        newTotal = current + quantity;
-      } else if (adjustmentType === 'out') {
-        newTotal = Math.max(0, current - quantity);
-      } else {
-        newTotal = quantity;
-      }
-      
-      document.getElementById("modal-new-total").textContent = newTotal;
-    }
-
-    async function confirmStockAdjustment() {
-      if (!currentProduct) return;
-      
-      const adjustmentType = document.getElementById("modal-adjustment-type").value;
-      const quantity = parseInt(document.getElementById("modal-quantity").value);
-      const reason = document.getElementById("modal-reason").value;
-      
-      if (!quantity || quantity <= 0) {
-        alert("Veuillez entrer une quantité valide");
-        return;
-      }
-      
-      if (!reason || reason.trim() === '') {
-        alert("Veuillez entrer un motif pour cet ajustement");
-        return;
-      }
-      
-      try {
-        const newQuantity = calculateNewQuantity(currentProduct.quantity, adjustmentType, quantity);
-        
-        await apiFetch(`/stocks/${currentProduct.productId}`, {
-          method: "PUT",
-          body: JSON.stringify({
-            quantity: newQuantity,
-            reason: reason,
-            adjustmentType: adjustmentType
-          })
-        });
-        
-        closeStockModal();
-        loadStockData();
-      } catch (error) {
-        console.error("Failed to adjust stock:", error);
-        alert("Erreur lors de l'ajustement du stock");
-      }
-    }
-
-    function calculateNewQuantity(current, type, quantity) {
-      if (type === 'in') return current + quantity;
-      if (type === 'out') return Math.max(0, current - quantity);
-      return quantity;
-    }
-
-    loadStockData();
+    loadData();
   </script>
 </body>
 </html>

@@ -50,12 +50,12 @@
   <div class="flex h-screen">
     <!-- Sidebar -->
     <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col ml-72">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
         <!-- Page Header -->
@@ -80,10 +80,10 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-textSecondary text-sm">En préparation</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-preparing">0</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-preparing">--</p>
               </div>
-              <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                <i data-lucide="package" class="w-6 h-6 text-gray-600"></i>
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="package" class="w-6 h-6 text-purple-600"></i>
               </div>
             </div>
           </div>
@@ -91,7 +91,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-textSecondary text-sm">En transit</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-in-transit">0</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-in-transit">--</p>
               </div>
               <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="truck" class="w-6 h-6 text-amber-600"></i>
@@ -101,8 +101,8 @@
           <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-textSecondary text-sm">Livrées aujourd'hui</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-delivered-today">0</p>
+                <p class="text-textSecondary text-sm">Livrées</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-delivered">--</p>
               </div>
               <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
@@ -112,53 +112,67 @@
           <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-textSecondary text-sm">Échecs</p>
-                <p class="text-2xl font-bold text-textPrimary" id="stat-failed">0</p>
+                <p class="text-textSecondary text-sm">Réceptionnées</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-received">--</p>
               </div>
-              <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <i data-lucide="x-circle" class="w-6 h-6 text-red-600"></i>
+              <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="package-check" class="w-6 h-6 text-emerald-600"></i>
               </div>
             </div>
           </div>
         </div>
 
         <!-- List View -->
-        <div id="list-view" class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50 border-b border-border">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">N° Livraison</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">N° Commande</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Client</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Livreur</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Statut</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Dernière position</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">MAJ</th>
-                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="deliveries-table-body" class="divide-y divide-border">
-                <tr>
-                  <td colspan="8" class="px-6 py-12 text-center text-textSecondary">Chargement...</td>
-                </tr>
-              </tbody>
-            </table>
+        <div id="list-view">
+          <!-- Status filter -->
+          <div class="flex items-center gap-3 mb-4">
+            <label class="text-sm text-textSecondary">Filtrer par statut</label>
+            <select id="status-filter" onchange="applyStatusFilter()" class="px-3 py-2 border border-border rounded-lg text-sm bg-surface focus:outline-none focus:ring-2 focus:ring-accent">
+              <option value="">Tous les statuts</option>
+              <option value="PENDING">En attente</option>
+              <option value="PREPARING">En préparation</option>
+              <option value="IN_TRANSIT">En transit</option>
+              <option value="DELIVERED">Livrée</option>
+              <option value="RECEIVED">Réceptionnée</option>
+            </select>
           </div>
 
-          <!-- Pagination -->
-          <div class="px-6 py-4 border-t border-border flex items-center justify-between">
-            <p class="text-sm text-textSecondary">
-              Affichage de <span id="showing-from">0</span> à <span id="showing-to">0</span> sur <span id="total-records">0</span> livraisons
-            </p>
-            <div class="flex items-center gap-2">
-              <button onclick="previousPage()" id="prev-btn" class="px-3 py-1 border border-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                <i data-lucide="chevron-left" class="w-4 h-4"></i>
-              </button>
-              <span class="px-3 py-1 bg-primary text-white rounded" id="current-page">1</span>
-              <button onclick="nextPage()" id="next-btn" class="px-3 py-1 border border-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-              </button>
+          <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 border-b border-border">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">N° Livraison</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">N° Commande</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Client</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Statut</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Dernière position</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">MAJ</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="deliveries-table-body" class="divide-y divide-border">
+                  <tr>
+                    <td colspan="7" class="px-6 py-12 text-center text-textSecondary">Chargement...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 border-t border-border flex items-center justify-between">
+              <p class="text-sm text-textSecondary">
+                Affichage de <span id="showing-from">0</span> à <span id="showing-to">0</span> sur <span id="total-records">0</span> livraisons
+              </p>
+              <div class="flex items-center gap-2">
+                <button onclick="previousPage()" id="prev-btn" class="px-3 py-1 border border-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <span class="px-3 py-1 bg-primary text-white rounded" id="current-page">1</span>
+                <button onclick="nextPage()" id="next-btn" class="px-3 py-1 border border-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -167,6 +181,7 @@
         <div id="map-view" class="hidden">
           <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
             <div id="map"></div>
+            <p id="map-empty-hint" class="hidden mt-4 text-center text-sm text-textSecondary">Aucune livraison géolocalisée pour le moment.</p>
           </div>
         </div>
       </main>
@@ -184,7 +199,6 @@
   <script src="../../js/components/header.js"></script>
   <script src="../../js/components/badge.js"></script>
   <script src="../../js/components/toast.js"></script>
-  <script src="../../js/components/skeleton.js"></script>
   <script src="../../js/utils/format.js"></script>
   <script>
     initPage("ADMIN");
@@ -194,108 +208,153 @@
     }
     renderHeader();
 
+    // ---- Module state ----
     let currentView = 'list';
     let currentPage = 1;
     const pageSize = 20;
-    let totalRecords = 0;
+    let allDeliveries = [];        // full list from GET /deliveries
+    let statusFilter = '';         // ADMIN status filter
+    let clientsByUser = {};        // userId -> client profile
     let map = null;
     let markers = [];
 
+    // Leaflet divIcon fill colours by status (token-aligned; Leaflet can't use Tailwind classes)
+    const MARKER_COLORS = {
+      PENDING: '#64748B',
+      PREPARING: '#6B7280',
+      IN_TRANSIT: '#D97706',
+      DELIVERED: '#16A34A',
+      RECEIVED: '#16A34A'
+    };
+
+    function clientName(delivery) {
+      if (delivery.contactPerson) return delivery.contactPerson;
+      if (delivery.clientId) {
+        const c = clientsByUser[delivery.clientId];
+        if (c && c.name) return c.name;
+        return '#' + delivery.clientId.slice(0, 8);
+      }
+      return '--';
+    }
+
+    async function loadClients() {
+      const r = await apiFetch('/clients');
+      if (!r || !r.ok) return; // non-fatal: name resolution falls back to id
+      (r.data.clients || []).forEach(c => { clientsByUser[c.userId] = c; });
+    }
+
+    async function loadLogistics() {
+      const r = await apiFetch('/admin/dashboard/logistics');
+      if (!r || !r.ok) return; // non-fatal: stats fall back to client-side counts
+      const d = r.data.data || {};
+      // Overview: prefer server logistics for in-transit + total active context
+      if (typeof d.activeDeliveries === 'number') {
+        document.getElementById('stat-in-transit').textContent = d.activeDeliveries;
+      }
+      if (typeof d.deliveredOrders === 'number') {
+        document.getElementById('stat-delivered').textContent = d.deliveredOrders;
+      }
+    }
+
+    function computeStats() {
+      const preparing = allDeliveries.filter(d => d.status === 'PREPARING').length;
+      const inTransit = allDeliveries.filter(d => d.status === 'IN_TRANSIT').length;
+      const delivered = allDeliveries.filter(d => d.status === 'DELIVERED').length;
+      const received = allDeliveries.filter(d => d.status === 'RECEIVED').length;
+      document.getElementById('stat-preparing').textContent = preparing;
+      // logistics may have already filled these; fall back to client-side counts
+      const inTransitEl = document.getElementById('stat-in-transit');
+      if (inTransitEl.textContent === '--') inTransitEl.textContent = inTransit;
+      const deliveredEl = document.getElementById('stat-delivered');
+      if (deliveredEl.textContent === '--') deliveredEl.textContent = delivered;
+      document.getElementById('stat-received').textContent = received;
+    }
+
     async function loadDeliveries() {
-      try {
-        // Show skeleton while loading
-        showSkeleton('deliveries-table-body', 'table', { rows: 5, columns: 8 });
+      const tbody = document.getElementById('deliveries-table-body');
+      tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-textSecondary">Chargement...</td></tr>`;
 
-        const response = await apiFetch(`/deliveries?page=${currentPage}&size=${pageSize}`);
-        const data = response?.data || {};
+      const endpoint = statusFilter ? `/deliveries?status=${encodeURIComponent(statusFilter)}` : '/deliveries';
+      const r = await apiFetch(endpoint);
+      if (!r || !r.ok) {
+        showToast(r?.data?.message || "Erreur lors du chargement des livraisons", "error");
+        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-textSecondary">Erreur de chargement</td></tr>`;
+        return;
+      }
+      allDeliveries = r.data.deliveries || [];
+      computeStats();
+      currentPage = 1;
+      renderTable();
 
-        // Update stats
-        document.getElementById("stat-preparing").textContent = data.stats?.preparing || 0;
-        document.getElementById("stat-in-transit").textContent = data.stats?.inTransit || 0;
-        document.getElementById("stat-delivered-today").textContent = data.stats?.deliveredToday || 0;
-        document.getElementById("stat-failed").textContent = data.stats?.failed || 0;
+      // Refresh map markers from cache if the map is already shown
+      if (currentView === 'map' && map) {
+        renderMarkers();
+      }
+    }
 
-        // Update table
-        const tbody = document.getElementById("deliveries-table-body");
-        const deliveries = data.deliveries || [];
-        if (deliveries.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-textSecondary">Aucune livraison trouvée</td></tr>`;
-        } else {
-          tbody.innerHTML = deliveries.map(delivery => `
-            <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewDelivery('${delivery.deliveryId}')">
+    function renderTable() {
+      const tbody = document.getElementById('deliveries-table-body');
+      const total = allDeliveries.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      if (total === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-textSecondary">
+          <i data-lucide="truck" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i>
+          <p>Aucune livraison trouvée</p>
+        </td></tr>`;
+      } else {
+        const start = (currentPage - 1) * pageSize;
+        const pageItems = allDeliveries.slice(start, start + pageSize);
+        tbody.innerHTML = pageItems.map(d => {
+          const pos = (d.currentLatitude != null && d.currentLongitude != null)
+            ? `${Number(d.currentLatitude).toFixed(4)}, ${Number(d.currentLongitude).toFixed(4)}`
+            : '--';
+          const maj = d.lastLocationUpdate ? formatRelativeTime(d.lastLocationUpdate) : '--';
+          const orderRef = d.orderId ? d.orderId.slice(0, 8) : '--';
+          return `
+            <tr class="hover:bg-gray-50 cursor-pointer" onclick="viewDelivery('${d.deliveryId}')">
               <td class="px-6 py-4">
-                <span class="font-mono text-textPrimary font-medium">${delivery.deliveryRef}</span>
+                <span class="font-mono text-textPrimary font-medium">${d.deliveryId.slice(0, 8)}</span>
               </td>
-              <td class="px-6 py-4 font-mono text-sm text-textSecondary">${delivery.orderRef}</td>
-              <td class="px-6 py-4 text-textPrimary font-medium">${delivery.clientName}</td>
-              <td class="px-6 py-4 text-textSecondary">${delivery.driverName || '--'}</td>
-              <td class="px-6 py-4">
-                ${renderDeliveryStatusBadge(delivery.status)}
-              </td>
-              <td class="px-6 py-4 text-textSecondary text-sm">
-                ${delivery.currentPosition ? 
-                  `${delivery.currentPosition.lat.toFixed(4)}, ${delivery.currentPosition.lng.toFixed(4)}` : 
-                  '--'
-                }
-              </td>
-              <td class="px-6 py-4 text-textSecondary text-sm">
-                ${delivery.lastUpdated ? formatDateTime(delivery.lastUpdated) : '--'}
-              </td>
+              <td class="px-6 py-4 font-mono text-sm text-textSecondary">${orderRef}</td>
+              <td class="px-6 py-4 text-textPrimary font-medium">${clientName(d)}</td>
+              <td class="px-6 py-4">${renderBadge(d.status)}</td>
+              <td class="px-6 py-4 text-textSecondary text-sm font-mono">${pos}</td>
+              <td class="px-6 py-4 text-textSecondary text-sm">${maj}</td>
               <td class="px-6 py-4">
                 <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                  <button onclick="updatePosition('${delivery.deliveryId}')" class="p-2 hover:bg-blue-100 rounded transition-colors" title="Mettre à jour position">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
-                  </button>
-                  <button onclick="viewDelivery('${delivery.deliveryId}')" class="p-2 hover:bg-gray-100 rounded transition-colors" title="Voir détail">
+                  <button onclick="viewDelivery('${d.deliveryId}')" class="p-2 hover:bg-gray-100 rounded transition-colors" title="Voir détail">
                     <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
                   </button>
                 </div>
               </td>
             </tr>
-          `).join("");
-        }
-
-        // Update pagination
-        totalRecords = data.total;
-        document.getElementById("showing-from").textContent = (currentPage - 1) * pageSize + 1;
-        document.getElementById("showing-to").textContent = Math.min(currentPage * pageSize, totalRecords);
-        document.getElementById("total-records").textContent = totalRecords;
-        document.getElementById("current-page").textContent = currentPage;
-
-        document.getElementById("prev-btn").disabled = currentPage === 1;
-        document.getElementById("next-btn").disabled = currentPage * pageSize >= totalRecords;
-
-        lucide.createIcons();
-
-        // Hide skeleton
-        hideSkeleton('deliveries-table-body');
-      } catch (error) {
-        console.error("Failed to load deliveries:", error);
-        showToast("Erreur lors du chargement des livraisons", "error");
+          `;
+        }).join('');
       }
+
+      // Pagination labels
+      const from = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+      const to = Math.min(currentPage * pageSize, total);
+      document.getElementById('showing-from').textContent = from;
+      document.getElementById('showing-to').textContent = to;
+      document.getElementById('total-records').textContent = total;
+      document.getElementById('current-page').textContent = currentPage;
+      document.getElementById('prev-btn').disabled = currentPage <= 1;
+      document.getElementById('next-btn').disabled = currentPage >= totalPages;
+
+      lucide.createIcons();
     }
 
-    function renderDeliveryStatusBadge(status) {
-      const colors = {
-        PREPARING: "bg-gray-100 text-gray-800",
-        SHIPPED: "bg-blue-100 text-blue-800",
-        IN_TRANSIT: "bg-amber-100 text-amber-800",
-        DELIVERED: "bg-green-100 text-green-800",
-        FAILED: "bg-red-100 text-red-800"
-      };
-      const labels = {
-        PREPARING: "En préparation",
-        SHIPPED: "Expédiée",
-        IN_TRANSIT: "En transit",
-        DELIVERED: "Livrée",
-        FAILED: "Échouée"
-      };
-      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
+    function applyStatusFilter() {
+      statusFilter = document.getElementById('status-filter').value;
+      loadDeliveries();
     }
 
     function setView(view) {
       currentView = view;
-      
+
       const btnList = document.getElementById('btn-list-view');
       const btnMap = document.getElementById('btn-map-view');
       const listView = document.getElementById('list-view');
@@ -312,99 +371,78 @@
         mapView.classList.remove('hidden');
         listView.classList.add('hidden');
         initMap();
+        renderMarkers();
       }
     }
 
-    async function initMap() {
+    function initMap() {
       if (map) {
+        map.invalidateSize();
         return;
       }
-
-      map = L.map('map').setView([33.5731, -7.5898], 10); // Casablanca
-
+      map = L.map('map').setView([33.5731, -7.5898], 10); // Casablanca default
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
+    }
 
-      try {
-        const response = await apiFetch('/admin/deliveries/all');
-        const deliveries = response.data || [];
+    function renderMarkers() {
+      if (!map) return;
 
-        // Clear existing markers
-        markers.forEach(marker => map.removeLayer(marker));
-        markers = [];
+      // Clear existing markers
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
 
-        deliveries.forEach(delivery => {
-          if (delivery.currentPosition) {
-            const color = getDeliveryStatusColor(delivery.status);
-            const icon = L.divIcon({
-              html: `<div class="w-8 h-8 rounded-full flex items-center justify-center pulse-marker" style="background-color: ${color}; color: white;">
-                <i data-lucide="truck" class="w-4 h-4"></i>
-              </div>`,
-              className: 'custom-marker',
-              iconSize: [32, 32],
-              iconAnchor: [16, 16]
-            });
+      const geo = allDeliveries.filter(d => d.currentLatitude != null && d.currentLongitude != null);
+      const hint = document.getElementById('map-empty-hint');
 
-            const marker = L.marker([delivery.currentPosition.lat, delivery.currentPosition.lng], { icon })
-              .addTo(map)
-              .bindPopup(`
-                <div class="p-2">
-                  <p class="font-bold">${delivery.deliveryRef}</p>
-                  <p class="text-sm">${delivery.clientName}</p>
-                  <p class="text-sm">${getDeliveryStatusLabel(delivery.status)}</p>
-                  <button onclick="viewDelivery('${delivery.deliveryId}')" class="mt-2 bg-primary text-white text-xs px-2 py-1 rounded">Voir détail</button>
-                </div>
-              `);
-
-            markers.push(marker);
-          }
+      geo.forEach(d => {
+        const color = MARKER_COLORS[d.status] || '#64748B';
+        const icon = L.divIcon({
+          html: `<div class="w-8 h-8 rounded-full flex items-center justify-center pulse-marker" style="background-color: ${color}; color: white;">
+            <i data-lucide="truck" class="w-4 h-4"></i>
+          </div>`,
+          className: 'custom-marker',
+          iconSize: [32, 32],
+          iconAnchor: [16, 16]
         });
+        const statusLabel = (window.statusConfig && window.statusConfig[d.status]) ? window.statusConfig[d.status].label : d.status;
+        const marker = L.marker([Number(d.currentLatitude), Number(d.currentLongitude)], { icon })
+          .addTo(map)
+          .bindPopup(`
+            <div class="p-2">
+              <p class="font-bold font-mono">${d.deliveryId.slice(0, 8)}</p>
+              <p class="text-sm">${clientName(d)}</p>
+              <p class="text-sm">${statusLabel}</p>
+              <button onclick="viewDelivery('${d.deliveryId}')" class="mt-2 bg-accent hover:bg-secondary text-white text-xs px-2 py-1 rounded">Voir détail</button>
+            </div>
+          `);
+        markers.push(marker);
+      });
 
-        if (markers.length > 0) {
-          const group = L.featureGroup(markers);
-          map.fitBounds(group.getBounds().pad(0.1));
-        }
-
-        lucide.createIcons();
-      } catch (error) {
-        console.error("Failed to load deliveries for map:", error);
+      if (markers.length > 0) {
+        hint.classList.add('hidden');
+        const group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
+      } else {
+        hint.classList.remove('hidden');
       }
-    }
 
-    function getDeliveryStatusColor(status) {
-      const colors = {
-        PREPARING: '#6B7280',
-        SHIPPED: '#3B82F6',
-        IN_TRANSIT: '#F59E0B',
-        DELIVERED: '#16A34A',
-        FAILED: '#DC2626'
-      };
-      return colors[status] || '#6B7280';
-    }
-
-    function getDeliveryStatusLabel(status) {
-      const labels = {
-        PREPARING: "En préparation",
-        SHIPPED: "Expédiée",
-        IN_TRANSIT: "En transit",
-        DELIVERED: "Livrée",
-        FAILED: "Échouée"
-      };
-      return labels[status] || status;
+      lucide.createIcons();
     }
 
     function previousPage() {
       if (currentPage > 1) {
         currentPage--;
-        loadDeliveries();
+        renderTable();
       }
     }
 
     function nextPage() {
-      if (currentPage * pageSize < totalRecords) {
+      const totalPages = Math.max(1, Math.ceil(allDeliveries.length / pageSize));
+      if (currentPage < totalPages) {
         currentPage++;
-        loadDeliveries();
+        renderTable();
       }
     }
 
@@ -412,12 +450,12 @@
       window.location.href = `delivery-detail.html?id=${deliveryId}`;
     }
 
-    function updatePosition(deliveryId) {
-      window.location.href = `delivery-detail.html?id=${deliveryId}`;
-    }
-
-    // Load deliveries on page load
-    loadDeliveries();
+    // ---- Bootstrap ----
+    (async function init() {
+      await loadClients();
+      // logistics overview + deliveries list in parallel
+      await Promise.all([loadLogistics(), loadDeliveries()]);
+    })();
   </script>
 </body>
 </html>
