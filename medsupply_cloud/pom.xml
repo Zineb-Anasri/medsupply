@@ -68,6 +68,20 @@
           <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
       </plugin>
+
+      <!-- Run the demo data seeder:
+           mvn -q compile exec:java -Dexec.mainClass=com.medsupply.seed.SeedData
+           (pass exec.args of "[append]" to skip the wipe).
+           Picks up Supabase config from src/main/resources/supabase.properties on the classpath. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <mainClass>com.medsupply.seed.SeedData</mainClass>
+          <classpathScope>compile</classpathScope>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
