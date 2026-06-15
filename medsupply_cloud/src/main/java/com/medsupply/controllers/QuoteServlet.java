@@ -57,7 +57,7 @@ public class QuoteServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
-            String userId = (String) session.getAttribute("userId");
+            String userId = (String) session.getAttribute("clientId"); // client profile id (clients.id)
 
             String pathInfo = req.getPathInfo();
 
@@ -137,7 +137,7 @@ public class QuoteServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
-            String userId = (String) session.getAttribute("userId");
+            String userId = (String) session.getAttribute("clientId"); // client profile id (clients.id)
 
             // Check if user is CLIENT
             if (!"CLIENT".equals(role)) {
@@ -188,7 +188,7 @@ public class QuoteServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
-            String userId = (String) session.getAttribute("userId");
+            String userId = (String) session.getAttribute("clientId"); // client profile id (clients.id)
 
             // Extract quote ID and action from path
             String pathInfo = req.getPathInfo();

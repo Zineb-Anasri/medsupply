@@ -90,7 +90,7 @@ public class MaintenanceServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = session == null ? null : (String) session.getAttribute("role");
-            String userId = session == null ? null : (String) session.getAttribute("userId");
+            String userId = session == null ? null : (String) session.getAttribute("clientId"); // client profile id (clients.id)
 
             String pathInfo = req.getPathInfo();
 
@@ -261,7 +261,7 @@ public class MaintenanceServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = session == null ? null : (String) session.getAttribute("role");
-            String userId = session == null ? null : (String) session.getAttribute("userId");
+            String userId = session == null ? null : (String) session.getAttribute("clientId"); // client profile id (clients.id)
 
             String pathInfo = req.getPathInfo();
 

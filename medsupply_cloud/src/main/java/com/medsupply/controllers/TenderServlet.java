@@ -61,7 +61,7 @@ public class TenderServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
-            String userId = (String) session.getAttribute("userId");
+            String userId = (String) session.getAttribute("clientId"); // client profile id (for tender ownership/create)
 
             String pathInfo = req.getPathInfo();
 
@@ -74,7 +74,7 @@ public class TenderServlet extends HttpServlet {
                     resp.getWriter().print(gson.toJson(response));
                     return;
                 }
-                List<SupplierBid> myBids = tenderService.getBidsBySupplier(userId);
+                List<SupplierBid> myBids = tenderService.getBidsBySupplier((String) session.getAttribute("supplierId"));
                 response.addProperty("success", true);
                 response.addProperty("count", myBids.size());
                 response.add("bids", gson.toJsonTree(myBids));
@@ -223,7 +223,7 @@ public class TenderServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
-            String userId = (String) session.getAttribute("userId");
+            String userId = (String) session.getAttribute("clientId"); // client profile id (for tender ownership/create)
 
             String pathInfo = req.getPathInfo();
 
@@ -248,7 +248,7 @@ public class TenderServlet extends HttpServlet {
                 JsonObject requestJson = JsonParser.parseString(requestBody.toString()).getAsJsonObject();
                 BigDecimal price = requestJson.get("price").getAsBigDecimal();
 
-                SupplierBid bid = tenderService.submitBid(tenderId, userId, price);
+                SupplierBid bid = tenderService.submitBid(tenderId, (String) session.getAttribute("supplierId"), price);
 
                 response.addProperty("success", true);
                 response.addProperty("message", "Bid submitted successfully");
@@ -319,7 +319,7 @@ public class TenderServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
-            String userId = (String) session.getAttribute("userId");
+            String userId = (String) session.getAttribute("clientId"); // client profile id (for tender ownership/create)
 
             String pathInfo = req.getPathInfo();
             if (pathInfo == null) {

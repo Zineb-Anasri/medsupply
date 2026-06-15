@@ -73,6 +73,20 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("role", user.getRole());
                 session.setMaxInactiveInterval(30 * 60); // 30 minutes
 
+                // Resolve and cache the CLIENT/SUPPLIER profile id. Business rows
+                // (quotes, orders, tenders, ...) reference clients.id / suppliers.id,
+                // NOT the user id, so client-scoped endpoints must use these.
+                try {
+                    Object profile = authService.getUserProfile(user.getUserId(), user.getRole());
+                    if (profile instanceof com.medsupply.models.Client) {
+                        session.setAttribute("clientId", ((com.medsupply.models.Client) profile).getClientId());
+                    } else if (profile instanceof com.medsupply.models.Supplier) {
+                        session.setAttribute("supplierId", ((com.medsupply.models.Supplier) profile).getSupplierId());
+                    }
+                } catch (Exception ignored) {
+                    // profile resolution is best-effort; auth still succeeds
+                }
+
                 response.addProperty("success", true);
                 response.addProperty("message", "Login successful");
                 response.addProperty("userId", user.getUserId());

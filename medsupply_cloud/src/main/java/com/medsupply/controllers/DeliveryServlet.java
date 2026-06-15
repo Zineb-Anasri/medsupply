@@ -57,7 +57,7 @@ public class DeliveryServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
-            String userId = (String) session.getAttribute("userId");
+            String userId = (String) session.getAttribute("clientId"); // client profile id (clients.id)
 
             String pathInfo = req.getPathInfo();
 
@@ -151,7 +151,7 @@ public class DeliveryServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
-            String userId = (String) session.getAttribute("userId");
+            String userId = (String) session.getAttribute("clientId"); // client profile id (clients.id)
 
             // Extract delivery ID and action from path
             String pathInfo = req.getPathInfo();
