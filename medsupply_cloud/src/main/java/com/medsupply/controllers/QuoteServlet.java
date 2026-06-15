@@ -1,6 +1,7 @@
 package com.medsupply.controllers;
 
 import com.google.gson.Gson;
+import com.medsupply.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -43,7 +44,7 @@ public class QuoteServlet extends HttpServlet {
     @Override
     public void init() {
         this.quoteService = new QuoteService();
-        this.gson = new Gson();
+        this.gson = JsonUtil.GSON;
     }
 
     @Override

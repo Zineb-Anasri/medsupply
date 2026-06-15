@@ -1,6 +1,7 @@
 package com.medsupply.controllers;
 
 import com.google.gson.Gson;
+import com.medsupply.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.medsupply.models.Payment;
@@ -40,7 +41,7 @@ public class PaymentServlet extends HttpServlet {
     @Override
     public void init() {
         this.paymentService = new PaymentService();
-        this.gson = new Gson();
+        this.gson = JsonUtil.GSON;
     }
 
     @Override

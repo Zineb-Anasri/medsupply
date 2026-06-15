@@ -1,6 +1,7 @@
 package com.medsupply.controllers;
 
 import com.google.gson.Gson;
+import com.medsupply.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import com.medsupply.dao.ClientDAO;
 import com.medsupply.models.Client;
@@ -32,7 +33,7 @@ public class ClientServlet extends HttpServlet {
     @Override
     public void init() {
         this.clientDAO = new ClientDAO();
-        this.gson = new Gson();
+        this.gson = JsonUtil.GSON;
     }
 
     @Override

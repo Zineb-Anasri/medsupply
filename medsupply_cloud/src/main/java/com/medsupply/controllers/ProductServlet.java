@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.medsupply.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.medsupply.models.Product;
@@ -40,7 +41,7 @@ public class ProductServlet extends HttpServlet {
     @Override
     public void init() {
         this.productService = new ProductService();
-        this.gson = new Gson();
+        this.gson = JsonUtil.GSON;
     }
 
     @Override

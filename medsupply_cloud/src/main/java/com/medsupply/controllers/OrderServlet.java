@@ -1,6 +1,7 @@
 package com.medsupply.controllers;
 
 import com.google.gson.Gson;
+import com.medsupply.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.medsupply.models.Order;
@@ -38,7 +39,7 @@ public class OrderServlet extends HttpServlet {
     @Override
     public void init() {
         this.orderService = new OrderService();
-        this.gson = new Gson();
+        this.gson = JsonUtil.GSON;
     }
 
     @Override

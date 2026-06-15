@@ -35,7 +35,7 @@ public class SupabaseClient {
         .connectTimeout(Duration.ofSeconds(30))
         .build();
 
-    private static final Gson gson = new Gson();
+    private static final Gson gson = JsonUtil.GSON;
 
     static {
         Properties props = new Properties();

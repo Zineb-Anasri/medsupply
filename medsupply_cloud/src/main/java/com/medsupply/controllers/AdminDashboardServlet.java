@@ -1,6 +1,7 @@
 package com.medsupply.controllers;
 
 import com.google.gson.Gson;
+import com.medsupply.utils.JsonUtil;
 import com.google.gson.JsonObject;
 import com.medsupply.services.AdminDashboardService;
 import jakarta.servlet.annotation.WebServlet;
@@ -38,7 +39,7 @@ public class AdminDashboardServlet extends HttpServlet {
     @Override
     public void init() {
         this.dashboardService = new AdminDashboardService();
-        this.gson = new Gson();
+        this.gson = JsonUtil.GSON;
     }
 
     @Override
