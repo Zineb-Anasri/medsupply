@@ -118,7 +118,7 @@ async function handleLogout() {
 
 async function updateNotificationBadge() {
   try {
-    const response = await apiFetch("/notifications/unread-count");
+    const response = await apiFetch("/notifications/count");
     const badge = document.getElementById("notification-badge");
     const count = response?.data?.unreadCount || 0;
     if (badge && count > 0) {

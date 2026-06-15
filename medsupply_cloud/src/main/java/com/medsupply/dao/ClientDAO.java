@@ -96,6 +96,20 @@ public class ClientDAO {
     }
 
     /**
+     * Find all client profiles (ADMIN listing / name resolution).
+     * @return List of all clients
+     */
+    public java.util.List<Client> findAll() throws Exception {
+        String response = SupabaseClient.get("clients", "order=organization_name.asc");
+        JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
+        java.util.List<Client> clients = new java.util.ArrayList<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            clients.add(mapJsonToClient(jsonArray.get(i).getAsJsonObject()));
+        }
+        return clients;
+    }
+
+    /**
      * Create a new client profile
      * @param client Client object to create
      * @return Created client with generated ID

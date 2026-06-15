@@ -1,321 +1,138 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Notifications - MedSupply Cloud</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#0A2647",
-            secondary: "#144272",
-            accent: "#2C74B3",
-            success: "#16A34A",
-            warning: "#D97706",
-            danger: "#DC2626",
-            background: "#F8FAFC",
-            surface: "#FFFFFF",
-            border: "#E2E8F0",
-            textPrimary: "#0F172A",
-            textSecondary: "#64748B",
-          }
-        }
-      }
-    }
+    tailwind.config = { theme: { extend: { colors: {
+      primary: "#0A2647", secondary: "#144272", accent: "#2C74B3",
+      success: "#16A34A", warning: "#D97706", danger: "#DC2626",
+      background: "#F8FAFC", surface: "#FFFFFF", border: "#E2E8F0",
+      textPrimary: "#0F172A", textSecondary: "#64748B" } } } };
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-  </style>
+  <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
 <body class="bg-background">
   <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col ">
-      <!-- Header -->
+    <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    <div class="flex-1 flex flex-col">
       <header id="header"></header>
-      
-      <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
-        <div class="mb-6">
-          <h1 class="text-2xl font-bold text-textPrimary">Notifications</h1>
-          <p class="text-textSecondary">Toutes vos notifications</p>
-        </div>
-
-        <!-- Filter Tabs -->
-        <div class="flex items-center gap-2 mb-6">
-          <button onclick="setFilter('all')" id="filter-all" class="px-4 py-2 rounded-lg transition-colors bg-primary text-white">Toutes</button>
-          <button onclick="setFilter('unread')" id="filter-unread" class="px-4 py-2 rounded-lg transition-colors bg-surface border border-border hover:bg-gray-50">Non lues</button>
-          <button onclick="setFilter('read')" id="filter-read" class="px-4 py-2 rounded-lg transition-colors bg-surface border border-border hover:bg-gray-50">Lues</button>
-        </div>
-
-        <!-- Type Filter -->
-        <div class="flex items-center gap-2 mb-6">
-          <select onchange="setTypeFilter(this.value)" class="bg-surface border border-border rounded-lg px-4 py-2 text-sm">
-            <option value="">Tous les types</option>
-            <option value="NEW_QUOTE">Nouveaux devis</option>
-            <option value="QUOTE_VALIDATED">Devis validés</option>
-            <option value="QUOTE_REJECTED">Devis rejetés</option>
-            <option value="ORDER_CONFIRMED">Commandes confirmées</option>
-            <option value="ORDER_SHIPPED">Commandes expédiées</option>
-            <option value="ORDER_DELIVERED">Commandes livrées</option>
-            <option value="PAYMENT_RECEIVED">Paiements reçus</option>
-            <option value="PAYMENT_OVERDUE">Paiements en retard</option>
-            <option value="MAINTENANCE_EXPIRING">Maintenance expirante</option>
-            <option value="NEW_TENDER_OFFER">Offres d'appel d'offres</option>
-          </select>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex items-center gap-4 mb-6">
-          <button onclick="markAllAsRead()" class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-            <i data-lucide="check-all" class="w-4 h-4"></i>
-            <span>Tout marquer comme lu</span>
-          </button>
-          <button onclick="loadNotifications()" class="bg-surface border border-border hover:bg-gray-50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-            <span>Actualiser</span>
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-textPrimary">Notifications</h1>
+            <p class="text-textSecondary"><span id="unread-count">0</span> non lue(s)</p>
+          </div>
+          <button onclick="markAllRead()" class="bg-white border border-border hover:bg-gray-50 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <i data-lucide="check-check" class="w-5 h-5"></i> Tout marquer comme lu
           </button>
         </div>
 
-        <!-- Notifications List -->
-        <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
-          <div id="notifications-list" class="space-y-3">
-            <p class="text-textSecondary">Chargement...</p>
-          </div>
-          
-          <!-- Empty State -->
-          <div id="empty-state" class="hidden text-center py-12">
-            <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <i data-lucide="bell" class="w-12 h-12 text-gray-400"></i>
-            </div>
-            <p class="text-lg font-medium text-textPrimary">Aucune notification</p>
-            <p class="text-textSecondary">Vous n'avez aucune notification pour le moment</p>
-          </div>
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-2 mb-4 inline-flex gap-1">
+          <button data-tab="all" onclick="setTab('all')" class="tab-btn px-4 py-1.5 rounded-lg text-sm font-medium">Toutes</button>
+          <button data-tab="unread" onclick="setTab('unread')" class="tab-btn px-4 py-1.5 rounded-lg text-sm font-medium">Non lues</button>
+        </div>
+
+        <div id="list" class="space-y-2 max-w-3xl">
+          <p class="text-textSecondary">Chargement...</p>
         </div>
       </main>
     </div>
   </div>
 
   <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>requireAuth();</script>
   <script src="js/router.js"></script>
   <script src="js/components/sidebar.js"></script>
   <script src="js/components/header.js"></script>
   <script src="js/components/badge.js"></script>
-  <script src="js/components/notification-bell.js"></script>
+  <script src="js/components/toast.js"></script>
   <script src="js/utils/format.js"></script>
   <script>
-    let currentFilter = 'all';
-    let currentTypeFilter = '';
-    let notifications = [];
+    initPage(getCurrentRole());
+    renderSidebar(getCurrentRole().toLowerCase());
+    renderHeader();
 
-    initPage();
+    let all = [];
+    let tab = "all";
 
-    async function loadNotifications() {
-      try {
-        const response = await apiFetch("/notifications");
-        const notifications = response?.data?.notifications || [];
-        
-        filterAndRenderNotifications(notifications);
-      } catch (error) {
-        console.error("Failed to load notifications:", error);
+    const typeIcon = (t) => ({
+      QUOTE: "file-text", ORDER: "shopping-cart", PAYMENT: "credit-card",
+      DELIVERY: "truck", MAINTENANCE: "wrench", TENDER: "gavel", SYSTEM: "bell",
+    }[t] || "bell");
+
+    async function load() {
+      const r = await apiFetch("/notifications");
+      if (!r || !r.ok) {
+        document.getElementById("list").innerHTML = `<p class="text-danger">${r?.data?.message || "Erreur de chargement"}</p>`;
+        return;
       }
+      all = r.data.notifications || [];
+      render();
     }
 
-    function filterAndRenderNotifications(notifications) {
-      if (!notifications) notifications = [];
-      let filtered = notifications;
-      
-      // Filter by read status
-      if (currentFilter === 'unread') {
-        filtered = filtered.filter(n => !n.isRead);
-      } else if (currentFilter === 'read') {
-        filtered = filtered.filter(n => n.isRead);
-      }
-      
-      // Filter by type
-      if (currentTypeFilter) {
-        filtered = filtered.filter(n => n.type === currentTypeFilter);
-      }
-      
-      const container = document.getElementById("notifications-list");
-      const emptyState = document.getElementById("empty-state");
-      
-      if (filtered.length === 0) {
-        container.classList.add("hidden");
-        emptyState.classList.remove("hidden");
-      } else {
-        container.classList.remove("hidden");
-        emptyState.classList.add("hidden");
-        container.innerHTML = filtered.map(notif => `
-          <div class="flex items-start gap-4 p-4 ${notif.isRead ? 'bg-gray-50' : 'bg-blue-50'} rounded-lg border ${notif.isRead ? 'border-gray-200' : 'border-blue-200 border-l-4'}">
-            <div class="w-10 h-10 ${getNotificationIconBg(notif.type)} rounded-full flex items-center justify-center flex-shrink-0">
-              <i data-lucide="${getNotificationIcon(notif.type)}" class="w-5 h-5 ${getNotificationIconColor(notif.type)}"></i>
-            </div>
-            <div class="flex-1">
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <p class="font-semibold ${notif.isRead ? 'text-textPrimary' : 'text-textPrimary font-bold'}">${notif.title}</p>
-                  <p class="text-sm text-textSecondary mt-1">${notif.message}</p>
-                </div>
-                <div class="flex items-center gap-2 ml-4">
-                  ${!notif.isRead ? `<button onclick="markAsRead('${notif.notificationId}')" class="text-accent text-sm hover:underline flex items-center gap-1">
-                    <i data-lucide="check" class="w-4 h-4"></i>
-                    Marquer comme lu
-                  </button>` : ''}
-                  <button onclick="deleteNotification('${notif.notificationId}')" class="text-danger hover:text-red-700 transition-colors">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="mt-2">
-                <p class="text-xs text-textSecondary">${formatDate(notif.createdAt)}</p>
-              </div>
-            </div>
-          </div>
-        `).join("");
-      }
+    function setTab(t) { tab = t; render(); }
 
+    function render() {
+      document.querySelectorAll(".tab-btn").forEach((b) => {
+        const active = b.getAttribute("data-tab") === tab;
+        b.className = "tab-btn px-4 py-1.5 rounded-lg text-sm font-medium " + (active ? "bg-accent text-white" : "text-textSecondary hover:bg-gray-100");
+      });
+      const unread = all.filter((n) => !n.isRead);
+      document.getElementById("unread-count").textContent = unread.length;
+
+      const rows = (tab === "unread" ? unread : all).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const el = document.getElementById("list");
+      if (rows.length === 0) {
+        el.innerHTML = `<div class="bg-surface rounded-xl border border-border p-10 text-center text-textSecondary"><i data-lucide="bell-off" class="w-8 h-8 mx-auto mb-2"></i><p>Aucune notification</p></div>`;
+        lucide.createIcons(); return;
+      }
+      el.innerHTML = rows.map((n) => `
+        <div class="bg-surface rounded-xl border ${n.isRead ? "border-border" : "border-accent/40 bg-blue-50/40"} p-4 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="${typeIcon(n.type)}" class="w-5 h-5 text-accent"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <p class="font-medium text-textPrimary">${n.title || "Notification"}</p>
+              ${n.isRead ? "" : '<span class="w-2 h-2 bg-accent rounded-full"></span>'}
+            </div>
+            <p class="text-sm text-textSecondary">${n.message || ""}</p>
+            <p class="text-xs text-textSecondary mt-1">${formatRelativeTime(n.createdAt)}</p>
+          </div>
+          ${n.isRead ? "" : `<button onclick="markRead('${n.notificationId}')" class="text-accent hover:bg-blue-50 p-2 rounded-lg" title="Marquer comme lu"><i data-lucide="check" class="w-4 h-4"></i></button>`}
+        </div>`).join("");
       lucide.createIcons();
     }
 
-    function setFilter(filter) {
-      currentFilter = filter;
-      
-      // Update button styles
-      document.getElementById('filter-all').className = filter === 'all' 
-        ? 'px-4 py-2 rounded-lg transition-colors bg-primary text-white'
-        : 'px-4 py-2 rounded-lg transition-colors bg-surface border border-border hover:bg-gray-50';
-      document.getElementById('filter-unread').className = filter === 'unread'
-        ? 'px-4 py-2 rounded-lg transition-colors bg-primary text-white'
-        : 'px-4 py-2 rounded-lg transition-colors bg-surface border border-border hover:bg-gray-50';
-      document.getElementById('filter-read').className = filter === 'read'
-        ? 'px-4 py-2 rounded-lg transition-colors bg-primary text-white'
-        : 'px-4 py-2 rounded-lg transition-colors bg-surface border border-border hover:bg-gray-50';
-      
-      filterAndRenderNotifications();
+    async function markRead(id) {
+      const r = await apiFetch(`/notifications/${id}/read`, { method: "PUT" });
+      if (r && r.ok && r.data.success) {
+        const n = all.find((x) => x.notificationId === id);
+        if (n) n.isRead = true;
+        render();
+        if (typeof updateNotificationBadge === "function") updateNotificationBadge();
+      } else showToast(r?.data?.message || "Erreur", "error");
     }
 
-    function setTypeFilter(type) {
-      currentTypeFilter = type;
-      filterAndRenderNotifications();
+    async function markAllRead() {
+      const r = await apiFetch("/notifications/read-all", { method: "PUT" });
+      if (r && r.ok && r.data.success) {
+        all.forEach((n) => (n.isRead = true));
+        render();
+        showToast("Toutes les notifications sont lues", "success");
+        if (typeof updateNotificationBadge === "function") updateNotificationBadge();
+      } else showToast(r?.data?.message || "Aucune notification à marquer", "info");
     }
 
-    function getNotificationIcon(type) {
-      const icons = {
-        NEW_QUOTE: "file-text",
-        QUOTE_VALIDATED: "check-circle",
-        QUOTE_REJECTED: "x-circle",
-        ORDER_CONFIRMED: "package",
-        ORDER_SHIPPED: "truck",
-        ORDER_DELIVERED: "check-circle-2",
-        PAYMENT_RECEIVED: "credit-card",
-        PAYMENT_OVERDUE: "alert-triangle",
-        MAINTENANCE_EXPIRING: "wrench",
-        NEW_TENDER_OFFER: "gavel"
-      };
-      return icons[type] || "bell";
-    }
-
-    function getNotificationIconBg(type) {
-      const bgs = {
-        NEW_QUOTE: "bg-blue-100",
-        QUOTE_VALIDATED: "bg-green-100",
-        QUOTE_REJECTED: "bg-red-100",
-        ORDER_CONFIRMED: "bg-blue-100",
-        ORDER_SHIPPED: "bg-amber-100",
-        ORDER_DELIVERED: "bg-green-100",
-        PAYMENT_RECEIVED: "bg-green-100",
-        PAYMENT_OVERDUE: "bg-red-100",
-        MAINTENANCE_EXPIRING: "bg-amber-100",
-        NEW_TENDER_OFFER: "bg-purple-100"
-      };
-      return bgs[type] || "bg-gray-100";
-    }
-
-    function getNotificationIconColor(type) {
-      const colors = {
-        NEW_QUOTE: "text-blue-600",
-        QUOTE_VALIDATED: "text-green-600",
-        QUOTE_REJECTED: "text-red-600",
-        ORDER_CONFIRMED: "text-blue-600",
-        ORDER_SHIPPED: "text-amber-600",
-        ORDER_DELIVERED: "text-green-600",
-        PAYMENT_RECEIVED: "text-green-600",
-        PAYMENT_OVERDUE: "text-red-600",
-        MAINTENANCE_EXPIRING: "text-amber-600",
-        NEW_TENDER_OFFER: "text-purple-600"
-      };
-      return colors[type] || "text-gray-600";
-    }
-
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      const options = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      };
-      return date.toLocaleDateString('fr-FR', options);
-    }
-
-    async function markAsRead(notificationId) {
-      try {
-        await apiFetch(`/notifications/${notificationId}/read`, { method: "PUT" });
-        loadNotifications();
-        updateNotificationBadge();
-      } catch (error) {
-        console.error("Failed to mark notification as read:", error);
-      }
-    }
-
-    async function deleteNotification(notificationId) {
-      try {
-        await apiFetch(`/notifications/${notificationId}`, { method: "DELETE" });
-        loadNotifications();
-        updateNotificationBadge();
-      } catch (error) {
-        console.error("Failed to delete notification:", error);
-      }
-    }
-
-    async function markAllAsRead() {
-      try {
-        await apiFetch("/notifications/read-all", { method: "PUT" });
-        loadNotifications();
-        updateNotificationBadge();
-      } catch (error) {
-        console.error("Failed to mark all notifications as read:", error);
-      }
-    }
-
-    async function updateNotificationBadge() {
-      try {
-        const response = await apiFetch("/notifications/unread-count");
-        const count = response?.data?.count || 0;
-        const badge = document.getElementById("notification-badge");
-        if (badge) {
-          badge.textContent = count > 0 ? count : "";
-          badge.classList.toggle("hidden", count === 0);
-        }
-      } catch (error) {
-        console.error("Failed to fetch notification count:", error);
-      }
-    }
-
-    loadNotifications();
+    load();
   </script>
 </body>
 </html>

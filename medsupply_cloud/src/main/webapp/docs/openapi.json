@@ -55,6 +55,14 @@
     {
       "name": "infra",
       "description": "Diagnostics / connectivity"
+    },
+    {
+      "name": "clients",
+      "description": "Client profiles (read-only: name resolution & admin listing)"
+    },
+    {
+      "name": "suppliers",
+      "description": "Supplier profiles (read-only: name resolution & admin listing)"
     }
   ],
   "security": [
@@ -2546,7 +2554,7 @@
             }
           },
           "500": {
-            "description": "Business-rule failures thrown as plain Exception: 'Order not found', 'Delivery already exists for this order', 'Order is not eligible for delivery...' \u2014 all surface as 500 (should be 404/409/400). Also malformed JSON body. Leaks raw exception message.",
+            "description": "Business-rule failures thrown as plain Exception: 'Order not found', 'Delivery already exists for this order', 'Order is not eligible for delivery...' — all surface as 500 (should be 404/409/400). Also malformed JSON body. Leaks raw exception message.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3030,7 +3038,7 @@
             }
           },
           "500": {
-            "description": "Missing 'latitude'/'longitude' (get(...) returns null -> NPE), 'Delivery not found', or 'GPS tracking only available for IN_TRANSIT deliveries' \u2014 all surface as 500. Leaks raw exception message.",
+            "description": "Missing 'latitude'/'longitude' (get(...) returns null -> NPE), 'Delivery not found', or 'GPS tracking only available for IN_TRANSIT deliveries' — all surface as 500. Leaks raw exception message.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3132,7 +3140,7 @@
             }
           },
           "500": {
-            "description": "Missing 'status' field (requestJson.get(\"status\") returns null -> NPE), 'Delivery not found', or 'Invalid status transition from X to Y' \u2014 all surface as 500. Leaks raw exception message.",
+            "description": "Missing 'status' field (requestJson.get(\"status\") returns null -> NPE), 'Delivery not found', or 'Invalid status transition from X to Y' — all surface as 500. Leaks raw exception message.",
             "content": {
               "application/json": {
                 "schema": {
@@ -5835,7 +5843,7 @@
           "notifications"
         ],
         "summary": "Mark all of the current user's notifications as read.",
-        "description": "Requires an authenticated session. Any authenticated role.\n\npathInfo == \"/read-all\". Must be checked before \"/{id}/read\" \u2014 it is. Scoped to session userId. No request body consumed.",
+        "description": "Requires an authenticated session. Any authenticated role.\n\npathInfo == \"/read-all\". Must be checked before \"/{id}/read\" — it is. Scoped to session userId. No request body consumed.",
         "responses": {
           "200": {
             "description": "Marked as read (note: returns true even when there were no unread notifications; see findings).",
@@ -6747,6 +6755,227 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/clients": {
+      "get": {
+        "tags": [
+          "clients"
+        ],
+        "summary": "List all client profiles (name resolution / admin listing).",
+        "description": "Requires an authenticated session. Roles: **ADMIN**.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "clients": [
+                    {
+                      "clientId": "...",
+                      "userId": "...",
+                      "name": "Hôpital Central",
+                      "type": "HOSPITAL",
+                      "email": "contact@hopital.ma",
+                      "phone": "+212600000000"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Not an admin"
+          }
+        }
+      }
+    },
+    "/api/clients/{userId}": {
+      "get": {
+        "tags": [
+          "clients"
+        ],
+        "summary": "Get one client by user id.",
+        "description": "Requires an authenticated session. Roles: **ADMIN**, or the CLIENT requesting its own profile.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Owning user's id (== client_id used on entities)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": true,
+                  "client": {
+                    "clientId": "...",
+                    "userId": "...",
+                    "name": "Hôpital Central",
+                    "type": "HOSPITAL"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Client not found"
+          }
+        }
+      }
+    },
+    "/api/suppliers": {
+      "get": {
+        "tags": [
+          "suppliers"
+        ],
+        "summary": "List all supplier profiles (name resolution / admin listing).",
+        "description": "Requires an authenticated session. Roles: **ADMIN**.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": true,
+                  "count": 1,
+                  "suppliers": [
+                    {
+                      "supplierId": "...",
+                      "userId": "...",
+                      "companyName": "MedDistrib",
+                      "contactPerson": "A. Saidi",
+                      "isVerified": true,
+                      "rating": 4.5
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Not an admin"
+          }
+        }
+      }
+    },
+    "/api/suppliers/{userId}": {
+      "get": {
+        "tags": [
+          "suppliers"
+        ],
+        "summary": "Get one supplier by user id.",
+        "description": "Requires an authenticated session. Roles: **ADMIN**, or the SUPPLIER requesting its own profile.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Owning user's id (== supplier_id used on bids)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": true,
+                  "supplier": {
+                    "supplierId": "...",
+                    "userId": "...",
+                    "companyName": "MedDistrib"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Supplier not found"
+          }
+        }
+      }
+    },
+    "/api/tenders/my-bids": {
+      "get": {
+        "tags": [
+          "tenders"
+        ],
+        "summary": "List the calling supplier's own bids across all tenders.",
+        "description": "Requires an authenticated session. Roles: **SUPPLIER**.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": true,
+                  "count": 2,
+                  "bids": [
+                    {
+                      "bidId": "...",
+                      "tenderId": "...",
+                      "supplierId": "...",
+                      "price": 12500.0,
+                      "createdAt": "2026-06-15T10:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Not a supplier"
           }
         }
       }

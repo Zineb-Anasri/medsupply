@@ -55,6 +55,20 @@ public class SupplierDAO {
     }
 
     /**
+     * Find all supplier profiles (ADMIN listing / name resolution).
+     * @return List of all suppliers
+     */
+    public java.util.List<Supplier> findAll() throws Exception {
+        String response = SupabaseClient.get("suppliers", "order=company_name.asc");
+        JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
+        java.util.List<Supplier> suppliers = new java.util.ArrayList<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            suppliers.add(mapJsonToSupplier(jsonArray.get(i).getAsJsonObject()));
+        }
+        return suppliers;
+    }
+
+    /**
      * Create a new supplier profile
      * @param supplier Supplier object to create
      * @return Created supplier with generated ID

@@ -37,13 +37,13 @@
 <body class="bg-background">
   <div class="flex h-screen">
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
-    
+    <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
+
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col ml-72">
+    <div class="flex-1 flex flex-col">
       <!-- Header -->
       <header id="header"></header>
-      
+
       <!-- Content -->
       <main id="main-content" class="flex-1 p-6 overflow-y-auto">
 
@@ -75,22 +75,28 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
-            <p class="text-textSecondary text-sm">Appels d'offres ouverts</p>
-            <p class="text-2xl font-bold text-textPrimary" id="stat-tenders">0</p>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="gavel" class="w-6 h-6 text-accent"></i>
+              </div>
+              <div>
+                <p class="text-textSecondary text-sm">Appels d'offres ouverts</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-tenders">...</p>
+              </div>
+            </div>
           </div>
           <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
-            <p class="text-textSecondary text-sm">Offres soumises</p>
-            <p class="text-2xl font-bold text-textPrimary" id="stat-bids">0</p>
-          </div>
-          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
-            <p class="text-textSecondary text-sm">Offres gagnées</p>
-            <p class="text-2xl font-bold text-textPrimary" id="stat-won">0</p>
-          </div>
-          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
-            <p class="text-textSecondary text-sm">Produits actifs</p>
-            <p class="text-2xl font-bold text-textPrimary" id="stat-products">0</p>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="package" class="w-6 h-6 text-success"></i>
+              </div>
+              <div>
+                <p class="text-textSecondary text-sm">Produits actifs</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-products">...</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -105,13 +111,13 @@
           </div>
         </div>
 
-        <!-- My Bids -->
+        <!-- Notifications -->
         <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-textPrimary">Mes offres récentes</h2>
-            <a href="/medsupply-cloud/pages/supplier/offers.html" class="text-accent text-sm hover:underline">Voir tout</a>
+            <h2 class="text-lg font-semibold text-textPrimary">Notifications</h2>
+            <a href="/medsupply-cloud/pages/supplier/notifications.html" class="text-accent text-sm hover:underline">Voir tout</a>
           </div>
-          <div id="my-bids" class="space-y-3">
+          <div id="notifications" class="space-y-3">
             <p class="text-textSecondary">Chargement...</p>
           </div>
         </div>
@@ -138,52 +144,101 @@
     }
     renderHeader();
 
-    async function loadDashboardData() {
+    function escapeHtml(str) {
+      return String(str == null ? "" : str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function loadTenders() {
+      const statEl = document.getElementById("stat-tenders");
+      const container = document.getElementById("open-tenders");
       try {
-        // Load open tenders
-        const tendersResponse = await apiFetch("/tenders/open");
-        const tenders = tendersResponse?.data?.tenders || [];
-        document.getElementById("stat-tenders").textContent = tenders.length;
-        
-        const tendersContainer = document.getElementById("open-tenders");
+        const r = await apiFetch("/tenders/open");
+        if (!r || !r.ok) {
+          statEl.textContent = "—";
+          container.innerHTML = "<p class='text-textSecondary'>Impossible de charger les appels d'offres</p>";
+          showToast(r?.data?.message || "Erreur lors du chargement des appels d'offres", "error");
+          return;
+        }
+        const tenders = r.data?.tenders || [];
+        statEl.textContent = tenders.length;
+
         if (tenders.length === 0) {
-          tendersContainer.innerHTML = "<p class='text-textSecondary'>Aucun appel d'offres ouvert</p>";
+          container.innerHTML = "<div class='text-center py-8'><i data-lucide='gavel' class='w-10 h-10 text-textSecondary mx-auto mb-2'></i><p class='text-textSecondary'>Aucun appel d'offres ouvert</p></div>";
         } else {
-          tendersContainer.innerHTML = tenders.slice(0, 5).map(tender => `
+          container.innerHTML = tenders.slice(0, 5).map(tender => `
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div>
-                <p class="font-medium text-textPrimary">${tender.title}</p>
-                <p class="text-sm text-textSecondary">Budget: ${formatCurrency(tender.budgetMax)} - Deadline: ${formatDate(tender.deadline)}</p>
+              <div class="min-w-0">
+                <p class="font-medium text-textPrimary truncate">${escapeHtml(tender.title) || ("#" + String(tender.tenderId || "").slice(0, 8))}</p>
+                <p class="text-sm text-textSecondary">Budget: ${formatCurrency(tender.budgetMax)} - Échéance: ${formatDate(tender.deadline)}</p>
               </div>
-              <a href="/medsupply-cloud/pages/supplier/marketplace.html" class="text-accent text-sm hover:underline">Enchérir</a>
+              <a href="/medsupply-cloud/pages/supplier/marketplace.html?id=${encodeURIComponent(tender.tenderId || "")}" class="text-accent text-sm hover:underline whitespace-nowrap ml-3">Enchérir</a>
             </div>
           `).join("");
         }
-
-        // Load notifications
-        const notificationsResponse = await apiFetch("/notifications/unread");
-        const notifications = notificationsResponse?.data?.notifications || [];
-        document.getElementById("stat-bids").textContent = notifications.length;
-        
-        const bidsContainer = document.getElementById("my-bids");
-        if (notifications.length === 0) {
-          bidsContainer.innerHTML = "<p class='text-textSecondary'>Aucune notification récente</p>";
-        } else {
-          bidsContainer.innerHTML = notifications.slice(0, 5).map(notif => `
-            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <div class="flex-1">
-                <p class="text-sm font-medium text-textPrimary">${notif.title}</p>
-                <p class="text-xs text-textSecondary">${formatRelativeTime(notif.createdAt)}</p>
-              </div>
-            </div>
-          `).join("");
-        }
-
         lucide.createIcons();
       } catch (error) {
-        console.error("Failed to load dashboard data:", error);
+        console.error("Failed to load tenders:", error);
+        statEl.textContent = "—";
+        container.innerHTML = "<p class='text-textSecondary'>Impossible de charger les appels d'offres</p>";
       }
+    }
+
+    async function loadProducts() {
+      const statEl = document.getElementById("stat-products");
+      try {
+        const user = getCurrentUser();
+        const r = await apiFetch("/products?supplierId=" + encodeURIComponent(user.userId));
+        if (!r || !r.ok) {
+          statEl.textContent = "—";
+          showToast(r?.data?.message || "Erreur lors du chargement des produits", "error");
+          return;
+        }
+        statEl.textContent = r.data?.products?.length ?? r.data?.count ?? 0;
+      } catch (error) {
+        console.error("Failed to load products:", error);
+        statEl.textContent = "—";
+      }
+    }
+
+    async function loadNotifications() {
+      const container = document.getElementById("notifications");
+      try {
+        const r = await apiFetch("/notifications/unread");
+        if (!r || !r.ok) {
+          container.innerHTML = "<p class='text-textSecondary'>Impossible de charger les notifications</p>";
+          showToast(r?.data?.message || "Erreur lors du chargement des notifications", "error");
+          return;
+        }
+        const notifs = r.data?.notifications || [];
+        if (notifs.length === 0) {
+          container.innerHTML = "<div class='text-center py-8'><i data-lucide='bell-off' class='w-10 h-10 text-textSecondary mx-auto mb-2'></i><p class='text-textSecondary'>Aucune notification récente</p></div>";
+        } else {
+          container.innerHTML = notifs.slice(0, 5).map(notif => `
+            <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+              <div class="w-2 h-2 bg-accent rounded-full mt-2 flex-shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-textPrimary">${escapeHtml(notif.title)}</p>
+                ${notif.message ? `<p class="text-xs text-textSecondary mt-0.5">${escapeHtml(notif.message)}</p>` : ""}
+                <p class="text-xs text-textSecondary mt-1">${formatRelativeTime(notif.createdAt)}</p>
+              </div>
+            </div>
+          `).join("");
+        }
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load notifications:", error);
+        container.innerHTML = "<p class='text-textSecondary'>Impossible de charger les notifications</p>";
+      }
+    }
+
+    function loadDashboardData() {
+      loadTenders();
+      loadProducts();
+      loadNotifications();
     }
 
     loadDashboardData();

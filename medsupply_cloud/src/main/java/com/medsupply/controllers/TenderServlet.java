@@ -64,8 +64,23 @@ public class TenderServlet extends HttpServlet {
 
             String pathInfo = req.getPathInfo();
 
+            // GET /api/tenders/my-bids - the supplier's own bids across all tenders (SUPPLIER)
+            if (pathInfo != null && pathInfo.equals("/my-bids")) {
+                if (!"SUPPLIER".equals(role)) {
+                    response.addProperty("success", false);
+                    response.addProperty("message", "Unauthorized - Only suppliers have bids");
+                    resp.setStatus(403);
+                    resp.getWriter().print(gson.toJson(response));
+                    return;
+                }
+                List<SupplierBid> myBids = tenderService.getBidsBySupplier(userId);
+                response.addProperty("success", true);
+                response.addProperty("count", myBids.size());
+                response.add("bids", gson.toJsonTree(myBids));
+                resp.setStatus(200);
+            }
             // GET /api/tenders/open - Get open tenders (SUPPLIER)
-            if (pathInfo != null && pathInfo.equals("/open")) {
+            else if (pathInfo != null && pathInfo.equals("/open")) {
                 if (!"SUPPLIER".equals(role) && !"ADMIN".equals(role)) {
                     response.addProperty("success", false);
                     response.addProperty("message", "Unauthorized - Only suppliers and admins can view open tenders");

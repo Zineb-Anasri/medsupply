@@ -10,17 +10,10 @@
         theme: {
           extend: {
             colors: {
-              primary: "#0A2647",
-              secondary: "#144272",
-              accent: "#2C74B3",
-              success: "#16A34A",
-              warning: "#D97706",
-              danger: "#DC2626",
-              background: "#F8FAFC",
-              surface: "#FFFFFF",
-              border: "#E2E8F0",
-              textPrimary: "#0F172A",
-              textSecondary: "#64748B",
+              primary: "#0A2647", secondary: "#144272", accent: "#2C74B3",
+              success: "#16A34A", warning: "#D97706", danger: "#DC2626",
+              background: "#F8FAFC", surface: "#FFFFFF", border: "#E2E8F0",
+              textPrimary: "#0F172A", textSecondary: "#64748B",
             },
           },
         },
@@ -28,337 +21,59 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-      body {
-        font-family: "Inter", sans-serif;
-      }
-      .font-mono {
-        font-family: "JetBrains Mono", monospace;
-      }
-      .step-content {
-        display: none;
-      }
-      .step-content.active {
-        display: block;
-      }
+      body { font-family: "Inter", sans-serif; }
+      .font-mono { font-family: "JetBrains Mono", monospace; }
     </style>
   </head>
   <body class="bg-background">
     <div class="flex h-screen">
-      <!-- Sidebar -->
-      <aside
-        id="sidebar"
-        class="bg-white border-r border-gray-200 flex-shrink-0"
-      ></aside>
-
-      <!-- Main Content -->
-      <div class="flex-1 flex flex-col ">
-        <!-- Header -->
+      <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
+      <div class="flex-1 flex flex-col">
         <header id="header"></header>
-
-        <!-- Content -->
         <main id="main-content" class="flex-1 p-6 overflow-y-auto">
-          <!-- Page Header -->
-          <div class="mb-6">
-            <h1 class="text-2xl font-bold text-textPrimary">Nouveau Devis</h1>
-            <p class="text-textSecondary">Créez une demande de devis</p>
-          </div>
-
-          <!-- Progress Indicator -->
-          <div class="mb-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <div
-                  class="step-indicator w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold"
-                  data-step="1"
-                >
-                  1
-                </div>
-                <span class="text-sm font-medium text-textPrimary"
-                  >Sélection des produits</span
-                >
-              </div>
-              <div class="flex-1 h-1 bg-gray-200 mx-4">
-                <div
-                  class="progress-bar h-full bg-primary transition-all duration-300"
-                  style="width: 50%"
-                ></div>
-              </div>
-              <div class="flex items-center gap-2">
-                <div
-                  class="step-indicator w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-bold"
-                  data-step="2"
-                >
-                  2
-                </div>
-                <span class="text-sm font-medium text-textSecondary"
-                  >Révision</span
-                >
-              </div>
+          <div class="flex items-center gap-3 mb-6">
+            <a href="/medsupply-cloud/pages/client/quotes.html" class="p-2 rounded-lg hover:bg-gray-100">
+              <i data-lucide="arrow-left" class="w-5 h-5 text-textSecondary"></i>
+            </a>
+            <div>
+              <h1 class="text-2xl font-bold text-textPrimary">Nouveau devis</h1>
+              <p class="text-textSecondary">Sélectionnez les produits et quantités souhaités</p>
             </div>
           </div>
 
-          <!-- Step 1: Product Selection -->
-          <div class="step-content active" data-step="1">
-            <div class="flex flex-col lg:flex-row gap-6">
-              <!-- Product Search & Results -->
-              <div class="w-full lg:w-2/3">
-                <div
-                  class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6"
-                >
-                  <div class="relative">
-                    <i
-                      data-lucide="search"
-                      class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
-                    ></i>
-                    <input
-                      type="text"
-                      id="product-search"
-                      placeholder="Rechercher des produits (nom, référence)..."
-                      class="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
-                      oninput="searchProducts(this.value)"
-                    />
-                  </div>
-                </div>
-
-                <div id="product-results" class="space-y-4">
-                  <div class="text-center py-12 text-textSecondary">
-                    <i
-                      data-lucide="search"
-                      class="w-12 h-12 mx-auto mb-4 text-gray-400"
-                    ></i>
-                    <p>Recherchez des produits pour commencer</p>
-                  </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Catalog -->
+            <div class="lg:col-span-2 bg-surface rounded-xl shadow-sm border border-border p-6">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="relative flex-1">
+                  <i data-lucide="search" class="w-4 h-4 text-textSecondary absolute left-3 top-1/2 -translate-y-1/2"></i>
+                  <input id="product-search" oninput="renderCatalog()" type="text" placeholder="Rechercher un produit..."
+                         class="w-full pl-9 pr-4 py-2 border border-border rounded-lg outline-none focus:ring-2 focus:ring-accent" />
                 </div>
               </div>
-
-              <!-- Quote Basket -->
-              <div class="w-full lg:w-1/3">
-                <div
-                  class="bg-surface rounded-xl shadow-sm border border-border p-6 sticky top-6"
-                >
-                  <h3 class="font-semibold text-textPrimary mb-4">
-                    Votre panier
-                  </h3>
-                  <div
-                    id="quote-basket"
-                    class="space-y-4 mb-4 max-h-96 overflow-y-auto"
-                  >
-                    <p class="text-textSecondary text-sm">
-                      Aucun produit ajouté
-                    </p>
-                  </div>
-                  <div class="border-t border-border pt-4">
-                    <div class="flex justify-between mb-2">
-                      <span class="text-textSecondary">Sous-total</span>
-                      <span
-                        class="text-textPrimary font-medium"
-                        id="basket-subtotal"
-                        >0,00 MAD</span
-                      >
-                    </div>
-                    <div class="flex justify-between mb-2">
-                      <span class="text-textSecondary">TVA (20%)</span>
-                      <span class="text-textPrimary font-medium" id="basket-tax"
-                        >0,00 MAD</span
-                      >
-                    </div>
-                    <div class="flex justify-between">
-                      <span class="font-semibold text-textPrimary">Total</span>
-                      <span
-                        class="font-bold text-xl text-accent"
-                        id="basket-total"
-                        >0,00 MAD</span
-                      >
-                    </div>
-                  </div>
-                  <button
-                    onclick="goToStep(2)"
-                    id="btn-review"
-                    class="w-full mt-4 bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled
-                  >
-                    Réviser le devis
-                  </button>
-                </div>
+              <div id="catalog" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto">
+                <p class="text-textSecondary">Chargement du catalogue...</p>
               </div>
             </div>
-          </div>
 
-          <!-- Step 2: Review -->
-          <div class="step-content" data-step="2">
-            <div class="flex flex-col lg:flex-row gap-6">
-              <!-- Quote Summary -->
-              <div class="w-full lg:w-2/3">
-                <div
-                  class="bg-surface rounded-xl shadow-sm border border-border p-6"
-                >
-                  <h3 class="font-semibold text-textPrimary mb-4">
-                    Récapitulatif du devis
-                  </h3>
-                  <div class="overflow-x-auto mb-6">
-                    <table class="w-full">
-                      <thead class="bg-gray-50 border-b border-border">
-                        <tr>
-                          <th
-                            class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                          >
-                            Produit
-                          </th>
-                          <th
-                            class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                          >
-                            Quantité
-                          </th>
-                          <th
-                            class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                          >
-                            Prix unitaire
-                          </th>
-                          <th
-                            class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                          >
-                            Total
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody
-                        id="review-items-body"
-                        class="divide-y divide-border"
-                      ></tbody>
-                    </table>
-                  </div>
-                  <div class="flex justify-end">
-                    <div class="w-64">
-                      <div
-                        class="flex justify-between py-2 border-b border-border"
-                      >
-                        <span class="text-textSecondary">Sous-total</span>
-                        <span
-                          class="text-textPrimary font-medium"
-                          id="review-subtotal"
-                          >--</span
-                        >
-                      </div>
-                      <div
-                        class="flex justify-between py-2 border-b border-border"
-                      >
-                        <span class="text-textSecondary">TVA (20%)</span>
-                        <span
-                          class="text-textPrimary font-medium"
-                          id="review-tax"
-                          >--</span
-                        >
-                      </div>
-                      <div class="flex justify-between py-3">
-                        <span class="font-semibold text-textPrimary"
-                          >Total</span
-                        >
-                        <span
-                          class="font-bold text-xl text-accent"
-                          id="review-total"
-                          >--</span
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Notes -->
-                <div
-                  class="bg-surface rounded-xl shadow-sm border border-border p-6 mt-6"
-                >
-                  <h3 class="font-semibold text-textPrimary mb-4">
-                    Notes pour Planet Santé
-                  </h3>
-                  <textarea
-                    id="quote-notes"
-                    rows="4"
-                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"
-                    placeholder="Ajoutez des notes ou des instructions spéciales pour votre demande de devis..."
-                  ></textarea>
-                </div>
+            <!-- Selection -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6 h-fit">
+              <h2 class="text-lg font-semibold text-textPrimary mb-4">Articles sélectionnés</h2>
+              <div id="cart" class="space-y-3 mb-4">
+                <p class="text-textSecondary text-sm">Aucun article. Ajoutez des produits depuis le catalogue.</p>
               </div>
-
-              <!-- Actions -->
-              <div class="w-full lg:w-1/3">
-                <div
-                  class="bg-surface rounded-xl shadow-sm border border-border p-6 sticky top-6"
-                >
-                  <h3 class="font-semibold text-textPrimary mb-4">Actions</h3>
-                  <div class="space-y-3">
-                    <button
-                      onclick="submitQuote()"
-                      class="w-full bg-success hover:bg-green-700 text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
-                    >
-                      <i data-lucide="send" class="w-4 h-4"></i>
-                      <span>Envoyer la demande</span>
-                    </button>
-                    <button
-                      onclick="goToStep(1)"
-                      class="w-full bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium py-3 rounded-lg transition-colors"
-                    >
-                      Retour
-                    </button>
-                  </div>
-                </div>
+              <div class="border-t border-border pt-4 flex items-center justify-between mb-4">
+                <span class="text-textSecondary">Total estimé</span>
+                <span class="font-bold text-textPrimary" id="cart-total">0,00 MAD</span>
               </div>
-            </div>
-          </div>
-
-          <!-- Success State -->
-          <div id="success-state" class="hidden">
-            <div
-              class="bg-surface rounded-xl shadow-sm border border-border p-12 text-center max-w-2xl mx-auto"
-            >
-              <div
-                class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
-              >
-                <i
-                  data-lucide="check-circle"
-                  class="w-10 h-10 text-green-600"
-                ></i>
-              </div>
-              <h2 class="text-2xl font-bold text-textPrimary mb-2">
-                Demande de devis envoyée !
-              </h2>
-              <p class="text-textSecondary mb-6">
-                Votre demande a été envoyée avec succès. Vous recevrez une
-                réponse sous peu.
-              </p>
-              <div
-                class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
-              >
-                <p class="text-sm text-blue-800">Numéro de référence</p>
-                <p
-                  class="text-2xl font-bold text-blue-900 font-mono"
-                  id="success-ref"
-                >
-                  DV-2024-0001
-                </p>
-              </div>
-              <div class="flex justify-center gap-4">
-                <button
-                  onclick="
-                    window.location.href =
-                      '/medsupply-cloud/pages/client/quotes.html'
-                  "
-                  class="bg-primary hover:bg-secondary text-white font-medium px-6 py-3 rounded-lg transition-colors"
-                >
-                  Voir mes devis
-                </button>
-                <button
-                  onclick="resetForm()"
-                  class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-6 py-3 rounded-lg transition-colors"
-                >
-                  Nouveau devis
-                </button>
-              </div>
+              <p class="text-xs text-textSecondary mb-4">Prix indicatifs (catalogue). L'administrateur confirmera les prix dans le devis.</p>
+              <button id="submit-btn" onclick="submitQuote()" disabled
+                      class="w-full bg-accent hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <i data-lucide="send" class="w-5 h-5"></i> Envoyer la demande
+              </button>
             </div>
           </div>
         </main>
@@ -367,347 +82,115 @@
 
     <script src="../../js/api.js"></script>
     <script src="../../js/auth.js"></script>
-    <script>
-      requireAuth(["CLIENT"]);
-      const currentUser = getCurrentUser();
-    </script>
+    <script>requireAuth(["CLIENT"]);</script>
     <script src="../../js/router.js"></script>
     <script src="../../js/components/sidebar.js"></script>
     <script src="../../js/components/header.js"></script>
+    <script src="../../js/components/badge.js"></script>
+    <script src="../../js/components/toast.js"></script>
     <script src="../../js/utils/format.js"></script>
     <script>
       initPage("CLIENT");
+      renderSidebar(getCurrentRole().toLowerCase());
+      renderHeader();
 
-      let currentStep = 1;
-      let quoteBasket = [];
-      let searchTimeout = null;
+      let products = [];
+      const cart = {}; // productId -> { product, quantity }
 
-      function goToStep(step) {
-        currentStep = step;
-
-        // Update step content
-        document.querySelectorAll(".step-content").forEach((content) => {
-          content.classList.remove("active");
-        });
-        document
-          .querySelector(`.step-content[data-step="${step}"]`)
-          .classList.add("active");
-
-        // Update progress indicators
-        document.querySelectorAll(".step-indicator").forEach((indicator) => {
-          const indicatorStep = parseInt(indicator.dataset.step);
-          if (indicatorStep <= step) {
-            indicator.classList.remove("bg-gray-200", "text-gray-500");
-            indicator.classList.add("bg-primary", "text-white");
-          } else {
-            indicator.classList.remove("bg-primary", "text-white");
-            indicator.classList.add("bg-gray-200", "text-gray-500");
-          }
-        });
-
-        // Update progress bars
-        const progressBar = document.querySelector(".progress-bar");
-        progressBar.style.width = step === 1 ? "50%" : "100%";
-
-        if (step === 2) {
-          loadReviewStep();
+      async function loadProducts() {
+        const r = await apiFetch("/products");
+        if (!r || !r.ok) {
+          document.getElementById("catalog").innerHTML =
+            `<p class="text-danger">${r?.data?.message || "Erreur de chargement du catalogue"}</p>`;
+          return;
         }
+        products = r.data.products || [];
+        renderCatalog();
+      }
 
+      function renderCatalog() {
+        const q = (document.getElementById("product-search").value || "").toLowerCase();
+        const list = products.filter(
+          (p) => !q || (p.name || "").toLowerCase().includes(q) || (p.reference || "").toLowerCase().includes(q)
+        );
+        const el = document.getElementById("catalog");
+        if (list.length === 0) { el.innerHTML = `<p class="text-textSecondary">Aucun produit trouvé</p>`; return; }
+        el.innerHTML = list.map((p) => `
+          <div class="border border-border rounded-lg p-3 flex flex-col justify-between">
+            <div>
+              <p class="font-medium text-textPrimary text-sm leading-tight">${p.name || "Produit"}</p>
+              <p class="text-xs text-textSecondary font-mono">${p.reference || ""}</p>
+              <p class="text-sm font-semibold text-accent mt-1">${p.unitPrice != null ? formatCurrency(p.unitPrice) : "—"}</p>
+            </div>
+            <button onclick="addToCart('${p.id}')" class="mt-2 text-sm bg-blue-50 hover:bg-blue-100 text-accent font-medium py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1">
+              <i data-lucide="plus" class="w-4 h-4"></i> Ajouter
+            </button>
+          </div>`).join("");
         lucide.createIcons();
       }
 
-      function searchProducts(query) {
-        clearTimeout(searchTimeout);
-        if (query.length < 2) {
-          document.getElementById("product-results").innerHTML = `
-          <div class="text-center py-12 text-textSecondary">
-            <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-gray-400"></i>
-            <p>Recherchez des produits pour commencer</p>
-          </div>
-        `;
-          lucide.createIcons();
+      function addToCart(productId) {
+        const product = products.find((p) => p.id === productId);
+        if (!product) return;
+        if (!cart[productId]) cart[productId] = { product, quantity: 0 };
+        cart[productId].quantity += 1;
+        renderCart();
+      }
+
+      function setQty(productId, qty) {
+        qty = parseInt(qty, 10);
+        if (!cart[productId]) return;
+        if (!qty || qty < 1) { delete cart[productId]; } else { cart[productId].quantity = qty; }
+        renderCart();
+      }
+
+      function renderCart() {
+        const items = Object.values(cart);
+        const el = document.getElementById("cart");
+        const submitBtn = document.getElementById("submit-btn");
+        if (items.length === 0) {
+          el.innerHTML = `<p class="text-textSecondary text-sm">Aucun article. Ajoutez des produits depuis le catalogue.</p>`;
+          document.getElementById("cart-total").textContent = formatCurrency(0);
+          submitBtn.disabled = true;
           return;
         }
-
-        searchTimeout = setTimeout(async () => {
-          try {
-            const response = await apiFetch(
-              `/client/catalog?search=${query}&size=10`,
-            );
-            const products = response.data.products || [];
-            const container = document.getElementById("product-results");
-
-            if (products.length === 0) {
-              container.innerHTML = `
-              <div class="text-center py-12 text-textSecondary">
-                <i data-lucide="package-x" class="w-12 h-12 mx-auto mb-4 text-gray-400"></i>
-                <p>Aucun produit trouvé</p>
-              </div>
-            `;
-            } else {
-              container.innerHTML = products
-                .map((product) => {
-                  const inBasket = quoteBasket.find(
-                    (item) => item.productId === product.productId,
-                  );
-                  return `
-                <div class="bg-surface rounded-xl shadow-sm border border-border p-4 flex items-center gap-4">
-                  <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    ${
-                      product.imageUrl
-                        ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover">`
-                        : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
-                          <i data-lucide="package" class="w-8 h-8 text-primary"></i>
-                        </div>`
-                    }
-                  </div>
-                  <div class="flex-1">
-                    <h4 class="font-semibold text-textPrimary">${product.name}</h4>
-                    <p class="text-sm text-textSecondary font-mono">${product.reference}</p>
-                    <p class="text-accent font-bold">${formatCurrency(product.unitPrice)}</p>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    ${
-                      inBasket
-                        ? `
-                      <span class="text-green-600 text-sm font-medium">Ajouté</span>
-                    `
-                        : `
-                      <button onclick="addToBasket('${product.productId}')" class="bg-primary hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
-                        Ajouter
-                      </button>
-                    `
-                    }
-                  </div>
-                </div>
-              `;
-                })
-                .join("");
-            }
-
-            lucide.createIcons();
-          } catch (error) {
-            console.error("Failed to search products:", error);
-          }
-        }, 300);
-      }
-
-      function addToBasket(productId) {
-        const existingItem = quoteBasket.find(
-          (item) => item.productId === productId,
-        );
-        if (existingItem) {
-          existingItem.quantity++;
-        } else {
-          quoteBasket.push({ productId, quantity: 1 });
-        }
-        updateBasket();
-      }
-
-      function removeFromBasket(productId) {
-        quoteBasket = quoteBasket.filter(
-          (item) => item.productId !== productId,
-        );
-        updateBasket();
-      }
-
-      function updateBasketQuantity(productId, quantity) {
-        const item = quoteBasket.find((item) => item.productId === productId);
-        if (item) {
-          item.quantity = parseInt(quantity);
-          if (item.quantity < 1) {
-            removeFromBasket(productId);
-          } else {
-            updateBasket();
-          }
-        }
-      }
-
-      async function updateBasket() {
-        const container = document.getElementById("quote-basket");
-        const btnReview = document.getElementById("btn-review");
-
-        if (quoteBasket.length === 0) {
-          container.innerHTML = `<p class="text-textSecondary text-sm">Aucun produit ajouté</p>`;
-          btnReview.disabled = true;
-          document.getElementById("basket-subtotal").textContent = "0,00 MAD";
-          document.getElementById("basket-tax").textContent = "0,00 MAD";
-          document.getElementById("basket-total").textContent = "0,00 MAD";
-          return;
-        }
-
-        btnReview.disabled = false;
-
-        try {
-          const productIds = quoteBasket.map((item) => item.productId);
-          const response = await apiFetch(
-            `/client/catalog/products?ids=${productIds.join(",")}`,
-          );
-          const products = response.data || [];
-
-          let subtotal = 0;
-
-          container.innerHTML = quoteBasket
-            .map((basketItem) => {
-              const product = products.find(
-                (p) => p.productId === basketItem.productId,
-              );
-              if (!product) return "";
-
-              const lineTotal = product.unitPrice * basketItem.quantity;
-              subtotal += lineTotal;
-
-              return `
-            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                ${
-                  product.imageUrl
-                    ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover">`
-                    : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
-                      <i data-lucide="package" class="w-5 h-5 text-primary"></i>
-                    </div>`
-                }
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="font-medium text-textPrimary text-sm truncate">${product.name}</p>
-                <p class="text-xs text-textSecondary">${formatCurrency(product.unitPrice)}</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <input type="number" value="${basketItem.quantity}" min="1"
-                  class="w-16 px-2 py-1 border border-border rounded text-sm text-center"
-                  onchange="updateBasketQuantity('${basketItem.productId}', this.value)">
-                <button onclick="removeFromBasket('${basketItem.productId}')" class="p-1 hover:bg-red-100 rounded">
-                  <i data-lucide="x" class="w-4 h-4 text-red-600"></i>
-                </button>
-              </div>
+        let total = 0;
+        el.innerHTML = items.map(({ product, quantity }) => {
+          total += (product.unitPrice || 0) * quantity;
+          return `
+          <div class="flex items-center gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-textPrimary truncate">${product.name}</p>
+              <p class="text-xs text-textSecondary">${formatCurrency(product.unitPrice || 0)} / u.</p>
             </div>
-          `;
-            })
-            .join("");
-
-          const tax = subtotal * 0.2;
-          const total = subtotal + tax;
-
-          document.getElementById("basket-subtotal").textContent =
-            formatCurrency(subtotal);
-          document.getElementById("basket-tax").textContent =
-            formatCurrency(tax);
-          document.getElementById("basket-total").textContent =
-            formatCurrency(total);
-
-          lucide.createIcons();
-        } catch (error) {
-          console.error("Failed to update basket:", error);
-        }
-      }
-
-      async function loadReviewStep() {
-        try {
-          const productIds = quoteBasket.map((item) => item.productId);
-          const response = await apiFetch(
-            `/client/catalog/products?ids=${productIds.join(",")}`,
-          );
-          const products = response.data || [];
-
-          const tbody = document.getElementById("review-items-body");
-          let subtotal = 0;
-
-          tbody.innerHTML = quoteBasket
-            .map((basketItem) => {
-              const product = products.find(
-                (p) => p.productId === basketItem.productId,
-              );
-              if (!product) return "";
-
-              const lineTotal = product.unitPrice * basketItem.quantity;
-              subtotal += lineTotal;
-
-              return `
-            <tr>
-              <td class="px-4 py-3">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                    ${
-                      product.imageUrl
-                        ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover">`
-                        : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
-                          <i data-lucide="package" class="w-5 h-5 text-primary"></i>
-                        </div>`
-                    }
-                  </div>
-                  <div>
-                    <p class="font-medium text-textPrimary">${product.name}</p>
-                    <p class="text-sm text-textSecondary font-mono">${product.reference}</p>
-                  </div>
-                </div>
-              </td>
-              <td class="px-4 py-3 text-textPrimary">${basketItem.quantity}</td>
-              <td class="px-4 py-3 text-textPrimary">${formatCurrency(product.unitPrice)}</td>
-              <td class="px-4 py-3 text-textPrimary font-medium">${formatCurrency(lineTotal)}</td>
-            </tr>
-          `;
-            })
-            .join("");
-
-          const tax = subtotal * 0.2;
-          const total = subtotal + tax;
-
-          document.getElementById("review-subtotal").textContent =
-            formatCurrency(subtotal);
-          document.getElementById("review-tax").textContent =
-            formatCurrency(tax);
-          document.getElementById("review-total").textContent =
-            formatCurrency(total);
-
-          lucide.createIcons();
-        } catch (error) {
-          console.error("Failed to load review step:", error);
-        }
+            <input type="number" min="1" value="${quantity}" onchange="setQty('${product.id}', this.value)"
+                   class="w-16 px-2 py-1 border border-border rounded text-sm text-center" />
+            <button onclick="setQty('${product.id}', 0)" class="text-danger hover:bg-red-50 p-1 rounded">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>`;
+        }).join("");
+        document.getElementById("cart-total").textContent = formatCurrency(total);
+        submitBtn.disabled = false;
+        lucide.createIcons();
       }
 
       async function submitQuote() {
-        const notes = document.getElementById("quote-notes").value;
-
-        try {
-          const response = await apiFetch("/client/quotes", {
-            method: "POST",
-            body: JSON.stringify({
-              items: quoteBasket,
-              notes: notes,
-            }),
-          });
-
-          const quote = response.data;
-          document.getElementById("success-ref").textContent = quote.quoteRef;
-
-          // Hide step content and show success state
-          document.querySelectorAll(".step-content").forEach((content) => {
-            content.classList.remove("active");
-          });
-          document.getElementById("success-state").classList.remove("hidden");
-
-          lucide.createIcons();
-        } catch (error) {
-          console.error("Failed to submit quote:", error);
-          alert("Erreur lors de l'envoi de la demande de devis");
+        const items = Object.values(cart).map(({ product, quantity }) => ({ productId: product.id, quantity }));
+        if (items.length === 0) { showToast("Ajoutez au moins un produit", "warning"); return; }
+        const btn = document.getElementById("submit-btn");
+        btn.disabled = true;
+        const r = await apiFetch("/quotes", { method: "POST", body: JSON.stringify({ items }) });
+        if (r && r.ok && r.data.success) {
+          showToast("Demande de devis envoyée", "success");
+          setTimeout(() => (location.href = "quotes.html"), 800);
+        } else {
+          showToast(r?.data?.message || "Échec de l'envoi", "error");
+          btn.disabled = false;
         }
       }
 
-      function resetForm() {
-        quoteBasket = [];
-        currentStep = 1;
-        document.getElementById("product-search").value = "";
-        document.getElementById("quote-notes").value = "";
-        document.getElementById("success-state").classList.add("hidden");
-        document
-          .querySelector('.step-content[data-step="1"]')
-          .classList.add("active");
-        updateBasket();
-        goToStep(1);
-      }
-
-      // Initialize
-      lucide.createIcons();
+      loadProducts();
     </script>
   </body>
 </html>

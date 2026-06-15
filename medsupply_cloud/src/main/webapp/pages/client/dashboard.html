@@ -120,7 +120,7 @@
             >
               <p class="text-textSecondary text-sm">Commandes actives</p>
               <p class="text-2xl font-bold text-textPrimary" id="stat-orders">
-                0
+                ...
               </p>
             </div>
             <div
@@ -128,7 +128,7 @@
             >
               <p class="text-textSecondary text-sm">Devis en cours</p>
               <p class="text-2xl font-bold text-textPrimary" id="stat-quotes">
-                0
+                ...
               </p>
             </div>
             <div
@@ -136,7 +136,7 @@
             >
               <p class="text-textSecondary text-sm">Paiements en attente</p>
               <p class="text-2xl font-bold text-textPrimary" id="stat-payments">
-                0
+                ...
               </p>
             </div>
             <div
@@ -147,7 +147,7 @@
                 class="text-2xl font-bold text-textPrimary"
                 id="stat-deliveries"
               >
-                0
+                ...
               </p>
             </div>
           </div>
@@ -210,71 +210,143 @@
       }
       renderHeader();
 
-      async function loadDashboardData() {
-        try {
-          // Load recent orders
-          const ordersResponse = await apiFetch("/orders");
-          const orders = ordersResponse?.data?.orders || [];
-          document.getElementById("stat-orders").textContent = orders.length;
+      function setStat(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      }
 
-          const ordersContainer = document.getElementById("recent-orders");
-          if (orders.length === 0) {
-            ordersContainer.innerHTML =
-              "<p class='text-textSecondary'>Aucune commande récente</p>";
-          } else {
-            ordersContainer.innerHTML = orders
-              .slice(0, 5)
-              .map(
-                (order) => `
+      // --- Orders (also derives the "Livraisons en cours" card) ---
+      async function loadOrders() {
+        const container = document.getElementById("recent-orders");
+        const r = await apiFetch("/orders");
+        if (!r || !r.ok) {
+          setStat("stat-orders", "—");
+          setStat("stat-deliveries", "—");
+          container.innerHTML =
+            "<p class='text-textSecondary'>Impossible de charger les commandes.</p>";
+          throw new Error(r?.data?.message || "Erreur commandes");
+        }
+
+        const orders = r.data?.orders || [];
+
+        setStat(
+          "stat-orders",
+          orders.filter((o) =>
+            ["PENDING", "PROCESSING", "SHIPPED"].includes(o.status),
+          ).length,
+        );
+        setStat(
+          "stat-deliveries",
+          orders.filter((o) => ["PROCESSING", "SHIPPED"].includes(o.status))
+            .length,
+        );
+
+        if (orders.length === 0) {
+          container.innerHTML =
+            "<p class='text-textSecondary'>Aucune commande récente</p>";
+          return;
+        }
+
+        container.innerHTML = orders
+          .slice(0, 5)
+          .map(
+            (order) => `
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div>
-                <p class="font-medium text-textPrimary">Commande #${order.orderId.toString().substring(0, 8)}</p>
+                <p class="font-medium text-textPrimary">Commande #${(order.orderId || "").toString().slice(0, 8)}</p>
                 <p class="text-sm text-textSecondary">${formatDate(order.createdAt)}</p>
               </div>
               <div class="text-right">
                 ${renderBadge(order.status)}
-                <p class="text-sm font-medium text-textPrimary">${formatCurrency(order.totalAmount)}</p>
+                <p class="text-sm font-medium text-textPrimary">${formatCurrency(order.totalAmount || 0)}</p>
               </div>
             </div>
           `,
-              )
-              .join("");
-          }
+          )
+          .join("");
+      }
 
-          // Load recent notifications
-          const notificationsResponse = await apiFetch("/notifications/unread");
-          const notifications =
-            notificationsResponse?.data?.notifications || [];
-          document.getElementById("stat-quotes").textContent =
-            notifications.length;
+      // --- Quotes ("Devis en cours") ---
+      async function loadQuotes() {
+        const r = await apiFetch("/quotes");
+        if (!r || !r.ok) {
+          setStat("stat-quotes", "—");
+          throw new Error(r?.data?.message || "Erreur devis");
+        }
+        const quotes = r.data?.quotes || [];
+        setStat(
+          "stat-quotes",
+          quotes.filter((q) => ["PENDING", "REVIEWED"].includes(q.status))
+            .length,
+        );
+      }
 
-          const notificationsContainer = document.getElementById(
-            "recent-notifications",
-          );
-          if (notifications.length === 0) {
-            notificationsContainer.innerHTML =
-              "<p class='text-textSecondary'>Aucune notification récente</p>";
-          } else {
-            notificationsContainer.innerHTML = notifications
-              .slice(0, 5)
-              .map(
-                (notif) => `
+      // --- Payments ("Paiements en attente") ---
+      async function loadPayments() {
+        const r = await apiFetch("/payments");
+        if (!r || !r.ok) {
+          setStat("stat-payments", "—");
+          throw new Error(r?.data?.message || "Erreur paiements");
+        }
+        const payments = r.data?.payments || [];
+        setStat(
+          "stat-payments",
+          payments.filter((p) =>
+            ["PENDING", "PARTIAL", "OVERDUE"].includes(p.status),
+          ).length,
+        );
+      }
+
+      // --- Notifications ---
+      async function loadNotifications() {
+        const container = document.getElementById("recent-notifications");
+        const r = await apiFetch("/notifications/unread");
+        if (!r || !r.ok) {
+          container.innerHTML =
+            "<p class='text-textSecondary'>Impossible de charger les notifications.</p>";
+          throw new Error(r?.data?.message || "Erreur notifications");
+        }
+
+        const notifs = r.data?.notifications || [];
+        if (notifs.length === 0) {
+          container.innerHTML =
+            "<p class='text-textSecondary'>Aucune notification récente</p>";
+          return;
+        }
+
+        container.innerHTML = notifs
+          .slice(0, 5)
+          .map(
+            (notif) => `
             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
               <div class="flex-1">
-                <p class="text-sm font-medium text-textPrimary">${notif.title}</p>
+                <p class="text-sm font-medium text-textPrimary">${notif.title || "Notification"}</p>
                 <p class="text-xs text-textSecondary">${formatRelativeTime(notif.createdAt)}</p>
               </div>
             </div>
           `,
-              )
-              .join("");
-          }
+          )
+          .join("");
+      }
 
-          lucide.createIcons();
-        } catch (error) {
-          console.error("Failed to load dashboard data:", error);
+      async function loadDashboardData() {
+        const results = await Promise.allSettled([
+          loadOrders(),
+          loadQuotes(),
+          loadPayments(),
+          loadNotifications(),
+        ]);
+
+        const failed = results.some((r) => r.status === "rejected");
+        if (failed) {
+          showToast(
+            "Certaines données n'ont pas pu être chargées.",
+            "error",
+          );
         }
+
+        lucide.createIcons();
       }
 
       loadDashboardData();

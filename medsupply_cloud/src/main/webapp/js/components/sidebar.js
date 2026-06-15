@@ -315,7 +315,7 @@ function getBadgeColor(badgeType) {
 async function updateBadges() {
   try {
     // Update unread notifications badge
-    const notifResponse = await apiFetch("/notifications/unread-count");
+    const notifResponse = await apiFetch("/notifications/count");
     const unreadBadge = document.getElementById("badge-unread");
     if (unreadBadge && notifResponse?.data?.unreadCount > 0) {
       unreadBadge.textContent =
@@ -325,27 +325,20 @@ async function updateBadges() {
       unreadBadge.classList.remove("hidden");
     }
 
-    // Update pending quotes badge (admin only)
+    // Update pending quotes badge (admin only) — derived from the quotes list
     const pendingBadge = document.getElementById("badge-pending");
     if (pendingBadge) {
-      const quotesResponse = await apiFetch("/admin/quotes/stats");
-      const pendingCount = quotesResponse?.data?.pending || 0;
+      const quotesResponse = await apiFetch("/quotes?status=PENDING");
+      const pendingCount =
+        quotesResponse?.data?.count ??
+        (quotesResponse?.data?.quotes || []).length;
       if (pendingCount > 0) {
         pendingBadge.textContent = pendingCount > 9 ? "9+" : pendingCount;
         pendingBadge.classList.remove("hidden");
       }
     }
-
-    // Update low stock badge (admin only)
-    const lowStockBadge = document.getElementById("badge-low-stock");
-    if (lowStockBadge) {
-      const stocksResponse = await apiFetch("/admin/stocks/alerts");
-      const lowStockCount = stocksResponse?.data?.lowStock || 0;
-      if (lowStockCount > 0) {
-        lowStockBadge.textContent = lowStockCount > 9 ? "9+" : lowStockCount;
-        lowStockBadge.classList.remove("hidden");
-      }
-    }
+    // NOTE: low-stock badge intentionally omitted — the products table has no
+    // stock-quantity column and there is no stocks-alerts endpoint in the API.
   } catch (error) {
     console.error("Failed to update badges:", error);
   }
