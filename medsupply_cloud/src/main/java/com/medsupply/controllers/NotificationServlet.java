@@ -115,19 +115,16 @@ public class NotificationServlet extends HttpServlet {
                 response.addProperty("success", false);
                 response.addProperty("message", "Invalid request path");
                 resp.setStatus(400);
-                resp.getWriter().print(gson.toJson(response));
             }
 
         } catch (IllegalArgumentException e) {
             response.addProperty("success", false);
             response.addProperty("message", "Invalid notification ID format");
             resp.setStatus(400);
-            resp.getWriter().print(gson.toJson(response));
         } catch (Exception e) {
             response.addProperty("success", false);
             response.addProperty("message", "Server error: " + e.getMessage());
             resp.setStatus(500);
-            resp.getWriter().print(gson.toJson(response));
         }
 
         resp.getWriter().print(gson.toJson(response));
@@ -176,12 +173,10 @@ public class NotificationServlet extends HttpServlet {
             response.addProperty("success", false);
             response.addProperty("message", "Invalid request format");
             resp.setStatus(400);
-            resp.getWriter().print(gson.toJson(response));
         } catch (Exception e) {
             response.addProperty("success", false);
             response.addProperty("message", "Server error: " + e.getMessage());
             resp.setStatus(500);
-            resp.getWriter().print(gson.toJson(response));
         }
 
         resp.getWriter().print(gson.toJson(response));
@@ -250,19 +245,16 @@ public class NotificationServlet extends HttpServlet {
                 response.addProperty("success", false);
                 response.addProperty("message", "Invalid request path. Use /api/notifications/read-all or /api/notifications/{id}/read");
                 resp.setStatus(400);
-                resp.getWriter().print(gson.toJson(response));
             }
 
         } catch (IllegalArgumentException e) {
             response.addProperty("success", false);
             response.addProperty("message", "Invalid notification ID format");
             resp.setStatus(400);
-            resp.getWriter().print(gson.toJson(response));
         } catch (Exception e) {
             response.addProperty("success", false);
             response.addProperty("message", "Server error: " + e.getMessage());
             resp.setStatus(500);
-            resp.getWriter().print(gson.toJson(response));
         }
 
         resp.getWriter().print(gson.toJson(response));

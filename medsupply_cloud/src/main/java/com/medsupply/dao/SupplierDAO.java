@@ -19,7 +19,7 @@ public class SupplierDAO {
      * @return Supplier object if found, null otherwise
      */
     public Supplier findByUserId(String userId) throws Exception {
-        String filters = "user_id=eq." + userId;
+        String filters = "user_id=eq." + SupabaseClient.enc(userId);
         String response = SupabaseClient.get("suppliers", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -44,7 +44,7 @@ public class SupplierDAO {
      * @return Supplier object if found, null otherwise
      */
     public Supplier findById(String supplierId) throws Exception {
-        String filters = "supplier_id=eq." + supplierId;
+        String filters = "supplier_id=eq." + SupabaseClient.enc(supplierId);
         String response = SupabaseClient.get("suppliers", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -104,7 +104,7 @@ public class SupplierDAO {
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
         String response = SupabaseClient.patch("suppliers", supplier.getSupplierId().toString(), body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -118,7 +118,7 @@ public class SupplierDAO {
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
         String response = SupabaseClient.patch("suppliers", supplierId, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -133,7 +133,7 @@ public class SupplierDAO {
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
         String response = SupabaseClient.patch("suppliers", supplierId, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -143,7 +143,7 @@ public class SupplierDAO {
      */
     public boolean delete(String supplierId) throws Exception {
         String response = SupabaseClient.delete("suppliers", supplierId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

@@ -12,7 +12,7 @@ import com.medsupply.utils.SupabaseClient;
 public class UserDAO {
 
     public User authenticate(String email, String password) throws Exception {
-        String filters = "email=eq." + email + "&is_active=eq.true";
+        String filters = "email=eq." + SupabaseClient.enc(email) + "&is_active=eq.true";
         String response = SupabaseClient.get("users", filters);
 
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -32,7 +32,7 @@ public class UserDAO {
     }
 
     public User findByEmail(String email) throws Exception {
-        String filters = "email=eq." + email;
+        String filters = "email=eq." + SupabaseClient.enc(email);
         String response = SupabaseClient.get("users", filters);
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
         if (jsonArray.size() > 0) {
@@ -42,7 +42,7 @@ public class UserDAO {
     }
 
     public User findById(String userId) throws Exception {
-        String filters = "id=eq." + userId;
+        String filters = "id=eq." + SupabaseClient.enc(userId);
         String response = SupabaseClient.get("users", filters);
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
         if (jsonArray.size() > 0) {
@@ -80,18 +80,18 @@ public class UserDAO {
         String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
         body.addProperty("password_hash", hashedPassword);
         String response = SupabaseClient.patch("users", userId, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     public boolean deactivate(String userId) throws Exception {
         JsonObject body = new JsonObject();
         body.addProperty("is_active", false);
         String response = SupabaseClient.patch("users", userId, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     public User findByVerificationToken(String token) throws Exception {
-        String filters = "verification_token=eq." + token;
+        String filters = "verification_token=eq." + SupabaseClient.enc(token);
         String response = SupabaseClient.get("users", filters);
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
         if (jsonArray.size() > 0) {
@@ -105,7 +105,7 @@ public class UserDAO {
         body.addProperty("verification_token", token);
         body.addProperty("token_expiry", expiry.toString());
         String response = SupabaseClient.patch("users", userId, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     public boolean verifyEmail(String userId) throws Exception {
@@ -114,7 +114,7 @@ public class UserDAO {
         body.addProperty("verification_token", (String) null);
         body.addProperty("token_expiry", (String) null);
         String response = SupabaseClient.patch("users", userId, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     private User mapJsonToUser(JsonObject json) {

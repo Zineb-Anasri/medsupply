@@ -19,7 +19,7 @@ public class TenderItemDAO {
      * @return TenderItem object if found, null otherwise
      */
     public TenderItem findById(String tenderItemId) throws Exception {
-        String filters = "tender_item_id=eq." + tenderItemId;
+        String filters = "tender_item_id=eq." + SupabaseClient.enc(tenderItemId);
         String response = SupabaseClient.get("tender_items", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -35,7 +35,7 @@ public class TenderItemDAO {
      * @return List of items for the tender
      */
     public List<TenderItem> findByTenderId(String tenderId) throws Exception {
-        String filters = "tender_id=eq." + tenderId;
+        String filters = "tender_id=eq." + SupabaseClient.enc(tenderId);
         String response = SupabaseClient.get("tender_items", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -89,7 +89,7 @@ public class TenderItemDAO {
      */
     public boolean deleteByTenderId(String tenderId) throws Exception {
         String response = SupabaseClient.delete("tender_items", tenderId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -99,7 +99,7 @@ public class TenderItemDAO {
      */
     public boolean delete(String tenderItemId) throws Exception {
         String response = SupabaseClient.delete("tender_items", tenderItemId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

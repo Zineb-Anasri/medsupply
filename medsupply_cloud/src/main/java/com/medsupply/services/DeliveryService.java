@@ -131,7 +131,22 @@ public class DeliveryService {
         if (delivery == null) {
             throw new Exception("Delivery not found");
         }
+        enrichClientId(delivery);
         return delivery;
+    }
+
+    /**
+     * Populate the (non-persisted) clientId on a delivery by resolving its order.
+     * The deliveries table has no client_id column, but the CLIENT ownership check on
+     * GET /api/deliveries/{id} and confirm receipt keys off the owning client/user id.
+     */
+    private void enrichClientId(Delivery delivery) throws Exception {
+        if (delivery != null && delivery.getClientId() == null && delivery.getOrderId() != null) {
+            Order order = orderDAO.findById(delivery.getOrderId());
+            if (order != null) {
+                delivery.setClientId(order.getClientId());
+            }
+        }
     }
 
     /**

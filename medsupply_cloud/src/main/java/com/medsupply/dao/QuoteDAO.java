@@ -21,7 +21,7 @@ public class QuoteDAO {
      * @return Quote object if found, null otherwise
      */
     public Quote findById(String quoteId) throws Exception {
-        String filters = "id=eq." + quoteId;
+        String filters = "id=eq." + SupabaseClient.enc(quoteId);
         String response = SupabaseClient.get("quotes", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -52,7 +52,7 @@ public class QuoteDAO {
      * @return List of quotes for the client
      */
     public List<Quote> findByClientId(String clientId) throws Exception {
-        String filters = "client_id=eq." + clientId + "&order=created_at.desc";
+        String filters = "client_id=eq." + SupabaseClient.enc(clientId) + "&order=created_at.desc";
         String response = SupabaseClient.get("quotes", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -69,7 +69,7 @@ public class QuoteDAO {
      * @return List of quotes with the status
      */
     public List<Quote> findByStatus(String status) throws Exception {
-        String filters = "status=eq." + status + "&order=created_at.desc";
+        String filters = "status=eq." + SupabaseClient.enc(status) + "&order=created_at.desc";
         String response = SupabaseClient.get("quotes", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -116,9 +116,9 @@ public class QuoteDAO {
         body.addProperty("status", status);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + quoteId;
+        String filters = "id=eq." + SupabaseClient.enc(quoteId);
         String response = SupabaseClient.patchWithFilters("quotes", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -132,9 +132,9 @@ public class QuoteDAO {
         body.addProperty("total_amount", totalAmount);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + quoteId;
+        String filters = "id=eq." + SupabaseClient.enc(quoteId);
         String response = SupabaseClient.patchWithFilters("quotes", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -143,9 +143,9 @@ public class QuoteDAO {
      * @return true if deletion successful
      */
     public boolean delete(String quoteId) throws Exception {
-        String filters = "id=eq." + quoteId;
+        String filters = "id=eq." + SupabaseClient.enc(quoteId);
         String response = SupabaseClient.delete("quotes", quoteId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

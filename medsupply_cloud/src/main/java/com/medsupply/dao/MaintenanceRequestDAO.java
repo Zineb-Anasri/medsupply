@@ -20,7 +20,7 @@ public class MaintenanceRequestDAO {
      * @return MaintenanceRequest object if found, null otherwise
      */
     public MaintenanceRequest findById(String requestId) throws Exception {
-        String filters = "request_id=eq." + requestId;
+        String filters = "request_id=eq." + SupabaseClient.enc(requestId);
         String response = SupabaseClient.get("maintenance_requests", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -36,7 +36,7 @@ public class MaintenanceRequestDAO {
      * @return List of requests for the contract
      */
     public List<MaintenanceRequest> findByContractId(String contractId) throws Exception {
-        String filters = "contract_id=eq." + contractId + "&order=request_date.desc";
+        String filters = "contract_id=eq." + SupabaseClient.enc(contractId) + "&order=request_date.desc";
         String response = SupabaseClient.get("maintenance_requests", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -53,7 +53,7 @@ public class MaintenanceRequestDAO {
      * @return List of requests for the client
      */
     public List<MaintenanceRequest> findByClientId(String clientId) throws Exception {
-        String filters = "client_id=eq." + clientId + "&order=request_date.desc";
+        String filters = "client_id=eq." + SupabaseClient.enc(clientId) + "&order=request_date.desc";
         String response = SupabaseClient.get("maintenance_requests", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -70,7 +70,7 @@ public class MaintenanceRequestDAO {
      * @return List of requests for the product
      */
     public List<MaintenanceRequest> findByProductId(String productId) throws Exception {
-        String filters = "product_id=eq." + productId + "&order=request_date.desc";
+        String filters = "product_id=eq." + SupabaseClient.enc(productId) + "&order=request_date.desc";
         String response = SupabaseClient.get("maintenance_requests", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -87,7 +87,7 @@ public class MaintenanceRequestDAO {
      * @return List of requests with the status
      */
     public List<MaintenanceRequest> findByStatus(String status) throws Exception {
-        String filters = "status=eq." + status + "&order=request_date.desc";
+        String filters = "status=eq." + SupabaseClient.enc(status) + "&order=request_date.desc";
         String response = SupabaseClient.get("maintenance_requests", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -104,7 +104,7 @@ public class MaintenanceRequestDAO {
      * @return List of requests with the priority
      */
     public List<MaintenanceRequest> findByPriority(String priority) throws Exception {
-        String filters = "priority=eq." + priority + "&order=request_date.desc";
+        String filters = "priority=eq." + SupabaseClient.enc(priority) + "&order=request_date.desc";
         String response = SupabaseClient.get("maintenance_requests", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -170,9 +170,9 @@ public class MaintenanceRequestDAO {
         body.addProperty("status", status);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "request_id=eq." + requestId;
+        String filters = "request_id=eq." + SupabaseClient.enc(requestId);
         String response = SupabaseClient.patchWithFilters("maintenance_requests", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -186,9 +186,9 @@ public class MaintenanceRequestDAO {
         body.addProperty("priority", priority);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "request_id=eq." + requestId;
+        String filters = "request_id=eq." + SupabaseClient.enc(requestId);
         String response = SupabaseClient.patchWithFilters("maintenance_requests", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -197,8 +197,10 @@ public class MaintenanceRequestDAO {
      * @return true if deletion successful
      */
     public boolean delete(String requestId) throws Exception {
-        String response = SupabaseClient.delete("maintenance_requests", requestId);
-        return !response.isEmpty();
+        // PK column for maintenance_requests is request_id (not id)
+        String response = SupabaseClient.deleteWithFilters("maintenance_requests",
+            "request_id=eq." + SupabaseClient.enc(requestId));
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

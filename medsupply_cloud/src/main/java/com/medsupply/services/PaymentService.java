@@ -92,6 +92,7 @@ public class PaymentService {
         if (payment == null) {
             throw new Exception("Payment not found");
         }
+        enrichClientId(payment);
 
         // Validate payment status
         if ("PAID".equals(payment.getStatus()) || "CANCELLED".equals(payment.getStatus())) {
@@ -153,7 +154,22 @@ public class PaymentService {
         if (payment == null) {
             throw new Exception("Payment not found");
         }
+        enrichClientId(payment);
         return payment;
+    }
+
+    /**
+     * Populate the (non-persisted) clientId on a payment by resolving its order.
+     * The payments table has no client_id column, but ownership checks and credit
+     * rules key off the owning client (== the order's client/user id).
+     */
+    private void enrichClientId(Payment payment) throws Exception {
+        if (payment != null && payment.getClientId() == null && payment.getOrderId() != null) {
+            Order order = orderDAO.findById(payment.getOrderId());
+            if (order != null) {
+                payment.setClientId(order.getClientId());
+            }
+        }
     }
 
     /**

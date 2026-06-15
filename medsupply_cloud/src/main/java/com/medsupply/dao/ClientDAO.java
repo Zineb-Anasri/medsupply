@@ -19,7 +19,7 @@ public class ClientDAO {
      * @return Client object if found, null otherwise
      */
     public Client findByUserId(String userId) throws Exception {
-        String filters = "user_id=eq." + userId;
+        String filters = "user_id=eq." + SupabaseClient.enc(userId);
         String response = SupabaseClient.get("clients", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -44,7 +44,7 @@ public class ClientDAO {
      * @return Client object if found, null otherwise
      */
     public Client findById(String clientId) throws Exception {
-        String filters = "client_id=eq." + clientId;
+        String filters = "client_id=eq." + SupabaseClient.enc(clientId);
         String response = SupabaseClient.get("clients", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -141,7 +141,7 @@ public class ClientDAO {
         body.addProperty("credit_days", client.getCreditDays());
         
         String response = SupabaseClient.patch("clients", client.getClientId().toString(), body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -151,7 +151,7 @@ public class ClientDAO {
      */
     public boolean delete(String clientId) throws Exception {
         String response = SupabaseClient.delete("clients", clientId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

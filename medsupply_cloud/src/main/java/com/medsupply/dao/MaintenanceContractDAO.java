@@ -21,7 +21,7 @@ public class MaintenanceContractDAO {
      * @return MaintenanceContract object if found, null otherwise
      */
     public MaintenanceContract findById(String contractId) throws Exception {
-        String filters = "id=eq." + contractId;
+        String filters = "id=eq." + SupabaseClient.enc(contractId);
         String response = SupabaseClient.get("maintenance_contracts", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -37,7 +37,7 @@ public class MaintenanceContractDAO {
      * @return List of contracts for the client
      */
     public List<MaintenanceContract> findByClientId(String clientId) throws Exception {
-        String filters = "client_id=eq." + clientId + "&order=created_at.desc";
+        String filters = "client_id=eq." + SupabaseClient.enc(clientId) + "&order=created_at.desc";
         String response = SupabaseClient.get("maintenance_contracts", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -54,7 +54,7 @@ public class MaintenanceContractDAO {
      * @return List of contracts for the product
      */
     public List<MaintenanceContract> findByProductId(String productId) throws Exception {
-        String filters = "product_id=eq." + productId + "&order=created_at.desc";
+        String filters = "product_id=eq." + SupabaseClient.enc(productId) + "&order=created_at.desc";
         String response = SupabaseClient.get("maintenance_contracts", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -71,7 +71,7 @@ public class MaintenanceContractDAO {
      * @return List of contracts with the status
      */
     public List<MaintenanceContract> findByStatus(String status) throws Exception {
-        String filters = "status=eq." + status + "&order=created_at.desc";
+        String filters = "status=eq." + SupabaseClient.enc(status) + "&order=created_at.desc";
         String response = SupabaseClient.get("maintenance_contracts", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -87,7 +87,7 @@ public class MaintenanceContractDAO {
      * @return List of active contracts
      */
     public List<MaintenanceContract> findActive() throws Exception {
-        String filters = "status=eq.ACTIVE&(end_date=is.null|end_date=gte." + LocalDate.now().toString() + ")&order=created_at.desc";
+        String filters = "status=eq.ACTIVE&or=(end_date.is.null,end_date.gte." + LocalDate.now().toString() + ")&order=created_at.desc";
         String response = SupabaseClient.get("maintenance_contracts", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -153,9 +153,9 @@ public class MaintenanceContractDAO {
         body.addProperty("status", status);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + contractId;
+        String filters = "id=eq." + SupabaseClient.enc(contractId);
         String response = SupabaseClient.patchWithFilters("maintenance_contracts", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -169,9 +169,9 @@ public class MaintenanceContractDAO {
         body.addProperty("end_date", endDate.toString());
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + contractId;
+        String filters = "id=eq." + SupabaseClient.enc(contractId);
         String response = SupabaseClient.patchWithFilters("maintenance_contracts", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -181,7 +181,7 @@ public class MaintenanceContractDAO {
      */
     public boolean delete(String contractId) throws Exception {
         String response = SupabaseClient.delete("maintenance_contracts", contractId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

@@ -46,6 +46,18 @@ public class LoginServlet extends HttpServlet {
             }
 
             JsonObject requestJson = gson.fromJson(requestBody.toString(), JsonObject.class);
+
+            // Validate required fields before use (avoids an NPE -> 500 on malformed bodies)
+            if (requestJson == null
+                    || !requestJson.has("email") || requestJson.get("email").isJsonNull()
+                    || !requestJson.has("password") || requestJson.get("password").isJsonNull()) {
+                response.addProperty("success", false);
+                response.addProperty("message", "Email and password are required");
+                resp.setStatus(400);
+                resp.getWriter().print(gson.toJson(response));
+                return;
+            }
+
             String email = requestJson.get("email").getAsString();
             String password = requestJson.get("password").getAsString();
 

@@ -94,7 +94,7 @@ public class AdminDashboardDAO {
             double orderTotal = order.get("total_amount").getAsDouble();
             
             // Get payments for this order
-            String paymentFilters = "order_id=eq." + orderId;
+            String paymentFilters = "order_id=eq." + SupabaseClient.enc(orderId);
             String paymentsResponse = SupabaseClient.get("payments", paymentFilters);
             JsonArray paymentsArray = SupabaseClient.parseJsonArray(paymentsResponse);
             
@@ -169,7 +169,7 @@ public class AdminDashboardDAO {
                 double orderTotal = order.get("total_amount").getAsDouble();
                 
                 // Get payments for this order
-                String paymentFilters = "order_id=eq." + orderId;
+                String paymentFilters = "order_id=eq." + SupabaseClient.enc(orderId);
                 String paymentsResponse = SupabaseClient.get("payments", paymentFilters);
                 JsonArray paymentsArray = SupabaseClient.parseJsonArray(paymentsResponse);
                 
@@ -447,7 +447,7 @@ public class AdminDashboardDAO {
             Integer clientId = order.get("client_id").getAsInt();
             
             // Get client info
-            String clientFilters = "client_id=eq." + clientId;
+            String clientFilters = "client_id=eq." + SupabaseClient.enc(String.valueOf(clientId));
             String clientResponse = SupabaseClient.get("clients", clientFilters);
             JsonArray clientsArray = SupabaseClient.parseJsonArray(clientResponse);
             
@@ -483,7 +483,7 @@ public class AdminDashboardDAO {
             Integer clientId = payment.get("client_id").getAsInt();
             
             // Get client info
-            String clientFilters = "client_id=eq." + clientId;
+            String clientFilters = "client_id=eq." + SupabaseClient.enc(String.valueOf(clientId));
             String clientResponse = SupabaseClient.get("clients", clientFilters);
             JsonArray clientsArray = SupabaseClient.parseJsonArray(clientResponse);
             

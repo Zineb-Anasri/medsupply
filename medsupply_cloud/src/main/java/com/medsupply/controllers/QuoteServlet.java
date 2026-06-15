@@ -65,9 +65,10 @@ public class QuoteServlet extends HttpServlet {
                 String quoteId = pathInfo.substring(1);
                 
                 Quote quote = quoteService.getQuoteWithItems(quoteId);
-                
-                // CLIENT can only view their own quotes
-                if ("CLIENT".equals(role) && !quote.getClientId().equals(userId)) {
+
+                // SUPPLIER has no access; CLIENT can only view their own quotes.
+                if ("SUPPLIER".equals(role)
+                        || ("CLIENT".equals(role) && !quote.getClientId().equals(userId))) {
                     response.addProperty("success", false);
                     response.addProperty("message", "Unauthorized - You can only view your own quotes");
                     resp.setStatus(403);
@@ -186,6 +187,7 @@ public class QuoteServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
+            String userId = (String) session.getAttribute("userId");
 
             // Extract quote ID and action from path
             String pathInfo = req.getPathInfo();
@@ -253,6 +255,16 @@ public class QuoteServlet extends HttpServlet {
                     return;
                 }
 
+                // Ownership: a client may only accept its own quote.
+                Quote acceptQuote = quoteService.getQuoteWithItems(quoteId);
+                if (!acceptQuote.getClientId().equals(userId)) {
+                    response.addProperty("success", false);
+                    response.addProperty("message", "Unauthorized - You can only accept your own quotes");
+                    resp.setStatus(403);
+                    resp.getWriter().print(gson.toJson(response));
+                    return;
+                }
+
                 boolean accepted = quoteService.acceptQuote(quoteId);
 
                 if (accepted) {
@@ -270,6 +282,16 @@ public class QuoteServlet extends HttpServlet {
                 if (!"CLIENT".equals(role)) {
                     response.addProperty("success", false);
                     response.addProperty("message", "Unauthorized - Only clients can reject quotes");
+                    resp.setStatus(403);
+                    resp.getWriter().print(gson.toJson(response));
+                    return;
+                }
+
+                // Ownership: a client may only reject its own quote.
+                Quote rejectQuote = quoteService.getQuoteWithItems(quoteId);
+                if (!rejectQuote.getClientId().equals(userId)) {
+                    response.addProperty("success", false);
+                    response.addProperty("message", "Unauthorized - You can only reject your own quotes");
                     resp.setStatus(403);
                     resp.getWriter().print(gson.toJson(response));
                     return;

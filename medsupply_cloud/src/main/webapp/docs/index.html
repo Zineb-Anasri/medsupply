@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MedSupply Cloud API — Swagger UI</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui.css" />
+  <style>
+    html, body { margin: 0; background: #fafafa; }
+    .topbar { display: none; }
+    #brand {
+      background: #0A2647; color: #fff; padding: 14px 22px;
+      font: 600 18px/1.2 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    #brand small { display:block; font-weight:400; opacity:.8; font-size:12px; margin-top:4px; }
+  </style>
+</head>
+<body>
+  <div id="brand">
+    MedSupply Cloud — API Reference
+    <small>Session-cookie auth · base path <code>/medsupply-cloud/api</code></small>
+  </div>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-bundle.js" crossorigin></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5.17.14/swagger-ui-standalone-preset.js" crossorigin></script>
+  <script>
+    window.onload = function () {
+      window.ui = SwaggerUIBundle({
+        url: "./openapi.json",
+        dom_id: "#swagger-ui",
+        deepLinking: true,
+        docExpansion: "none",
+        defaultModelsExpandDepth: 1,
+        filter: true,
+        tryItOutEnabled: true,
+        // Send the JSESSIONID cookie on "Try it out" calls (same-origin)
+        requestInterceptor: function (req) { req.credentials = "include"; return req; },
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+        layout: "StandaloneLayout"
+      });
+    };
+  </script>
+</body>
+</html>

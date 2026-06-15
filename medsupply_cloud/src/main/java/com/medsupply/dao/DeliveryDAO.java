@@ -20,7 +20,7 @@ public class DeliveryDAO {
      * @return Delivery object if found, null otherwise
      */
     public Delivery findById(String deliveryId) throws Exception {
-        String filters = "id=eq." + deliveryId;
+        String filters = "id=eq." + SupabaseClient.enc(deliveryId);
         String response = SupabaseClient.get("deliveries", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -36,7 +36,7 @@ public class DeliveryDAO {
      * @return Delivery object if found, null otherwise
      */
     public Delivery findByOrderId(String orderId) throws Exception {
-        String filters = "order_id=eq." + orderId;
+        String filters = "order_id=eq." + SupabaseClient.enc(orderId);
         String response = SupabaseClient.get("deliveries", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -67,14 +67,29 @@ public class DeliveryDAO {
      * @return List of deliveries for the client
      */
     public List<Delivery> findByClientId(String clientId) throws Exception {
-        // Deliveries don't have client_id in schema, need to join with orders
-        String filters = "order_id=in.(select id from orders where client_id=eq." + clientId + ")&order=created_at.desc";
-        String response = SupabaseClient.get("deliveries", filters);
-        
-        JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
+        // Deliveries have no client_id column; PostgREST does not support SQL subqueries,
+        // so resolve the client's order ids first, then filter by order_id=in.(...).
         List<Delivery> deliveries = new ArrayList<>();
+        String ordersResp = SupabaseClient.get("orders",
+            "client_id=eq." + SupabaseClient.enc(clientId) + "&select=id");
+        JsonArray orderRows = SupabaseClient.parseJsonArray(ordersResp);
+        if (orderRows == null || orderRows.size() == 0) {
+            return deliveries;
+        }
+        StringBuilder ids = new StringBuilder();
+        for (int i = 0; i < orderRows.size(); i++) {
+            if (i > 0) ids.append(",");
+            ids.append(SupabaseClient.enc(orderRows.get(i).getAsJsonObject().get("id").getAsString()));
+        }
+
+        String filters = "order_id=in.(" + ids + ")&order=created_at.desc";
+        String response = SupabaseClient.get("deliveries", filters);
+
+        JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
         for (int i = 0; i < jsonArray.size(); i++) {
-            deliveries.add(mapJsonToDelivery(jsonArray.get(i).getAsJsonObject()));
+            Delivery delivery = mapJsonToDelivery(jsonArray.get(i).getAsJsonObject());
+            delivery.setClientId(clientId);
+            deliveries.add(delivery);
         }
         return deliveries;
     }
@@ -85,7 +100,7 @@ public class DeliveryDAO {
      * @return List of deliveries with the status
      */
     public List<Delivery> findByStatus(String status) throws Exception {
-        String filters = "status=eq." + status + "&order=created_at.desc";
+        String filters = "status=eq." + SupabaseClient.enc(status) + "&order=created_at.desc";
         String response = SupabaseClient.get("deliveries", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -157,9 +172,9 @@ public class DeliveryDAO {
         body.addProperty("status", status);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + deliveryId;
+        String filters = "id=eq." + SupabaseClient.enc(deliveryId);
         String response = SupabaseClient.patchWithFilters("deliveries", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -176,9 +191,9 @@ public class DeliveryDAO {
         body.addProperty("last_location_update", LocalDateTime.now().toString());
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + deliveryId;
+        String filters = "id=eq." + SupabaseClient.enc(deliveryId);
         String response = SupabaseClient.patchWithFilters("deliveries", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -199,9 +214,9 @@ public class DeliveryDAO {
         body.addProperty("estimated_delivery_date", estimatedDeliveryDate != null ? estimatedDeliveryDate.toString() : null);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + deliveryId;
+        String filters = "id=eq." + SupabaseClient.enc(deliveryId);
         String response = SupabaseClient.patchWithFilters("deliveries", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -219,9 +234,9 @@ public class DeliveryDAO {
         body.addProperty("delivery_notes", deliveryNotes);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + deliveryId;
+        String filters = "id=eq." + SupabaseClient.enc(deliveryId);
         String response = SupabaseClient.patchWithFilters("deliveries", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

@@ -12,7 +12,7 @@ import com.medsupply.utils.SupabaseClient;
 public class ProductDAO {
 
     public Product findById(String productId) throws Exception {
-        String response = SupabaseClient.get("products", "id=eq." + productId);
+        String response = SupabaseClient.get("products", "id=eq." + SupabaseClient.enc(productId));
         JsonArray arr = SupabaseClient.parseJsonArray(response);
         if (arr.size() > 0) return mapJsonToProduct(arr.get(0).getAsJsonObject());
         return null;
@@ -29,7 +29,7 @@ public class ProductDAO {
     }
 
     public List<Product> findByCategory(String categoryId) throws Exception {
-        String response = SupabaseClient.get("products", "category_id=eq." + categoryId + "&is_active=eq.true");
+        String response = SupabaseClient.get("products", "category_id=eq." + SupabaseClient.enc(categoryId) + "&is_active=eq.true");
         JsonArray arr = SupabaseClient.parseJsonArray(response);
         List<Product> list = new ArrayList<>();
         for (int i = 0; i < arr.size(); i++) {
@@ -39,7 +39,7 @@ public class ProductDAO {
     }
 
     public List<Product> findByBrand(String brandId) throws Exception {
-        String response = SupabaseClient.get("products", "brand_id=eq." + brandId + "&is_active=eq.true");
+        String response = SupabaseClient.get("products", "brand_id=eq." + SupabaseClient.enc(brandId) + "&is_active=eq.true");
         JsonArray arr = SupabaseClient.parseJsonArray(response);
         List<Product> list = new ArrayList<>();
         for (int i = 0; i < arr.size(); i++) {
@@ -49,7 +49,7 @@ public class ProductDAO {
     }
 
     public List<Product> findBySupplier(String supplierId) throws Exception {
-        String response = SupabaseClient.get("products", "supplier_id=eq." + supplierId + "&is_active=eq.true");
+        String response = SupabaseClient.get("products", "supplier_id=eq." + SupabaseClient.enc(supplierId) + "&is_active=eq.true");
         JsonArray arr = SupabaseClient.parseJsonArray(response);
         List<Product> list = new ArrayList<>();
         for (int i = 0; i < arr.size(); i++) {
@@ -88,14 +88,14 @@ public class ProductDAO {
         body.addProperty("brand_id", product.getBrandId());
         body.addProperty("supplier_id", product.getSupplierId());
         String response = SupabaseClient.patch("products", product.getId(), body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     public boolean delete(String productId) throws Exception {
         JsonObject body = new JsonObject();
         body.addProperty("is_active", false);
         String response = SupabaseClient.patch("products", productId, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     private Product mapJsonToProduct(JsonObject json) {

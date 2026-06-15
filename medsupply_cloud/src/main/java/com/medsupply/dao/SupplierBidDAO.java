@@ -21,7 +21,7 @@ public class SupplierBidDAO {
      * @return SupplierBid object if found, null otherwise
      */
     public SupplierBid findById(String bidId) throws Exception {
-        String filters = "bid_id=eq." + bidId;
+        String filters = "bid_id=eq." + SupabaseClient.enc(bidId);
         String response = SupabaseClient.get("supplier_bids", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -37,7 +37,7 @@ public class SupplierBidDAO {
      * @return List of bids for the tender
      */
     public List<SupplierBid> findByTenderId(String tenderId) throws Exception {
-        String filters = "tender_id=eq." + tenderId + "&order=price.asc,created_at.asc";
+        String filters = "tender_id=eq." + SupabaseClient.enc(tenderId) + "&order=price.asc,created_at.asc";
         String response = SupabaseClient.get("supplier_bids", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -54,7 +54,7 @@ public class SupplierBidDAO {
      * @return List of bids from the supplier
      */
     public List<SupplierBid> findBySupplierId(String supplierId) throws Exception {
-        String filters = "supplier_id=eq." + supplierId + "&order=created_at.desc";
+        String filters = "supplier_id=eq." + SupabaseClient.enc(supplierId) + "&order=created_at.desc";
         String response = SupabaseClient.get("supplier_bids", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -71,7 +71,7 @@ public class SupplierBidDAO {
      * @return Best bid if found, null otherwise
      */
     public SupplierBid findBestBid(String tenderId) throws Exception {
-        String filters = "tender_id=eq." + tenderId + "&order=price.asc&limit=1";
+        String filters = "tender_id=eq." + SupabaseClient.enc(tenderId) + "&order=price.asc&limit=1";
         String response = SupabaseClient.get("supplier_bids", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -88,7 +88,7 @@ public class SupplierBidDAO {
      * @return Latest bid if found, null otherwise
      */
     public SupplierBid findLatestBid(String tenderId, String supplierId) throws Exception {
-        String filters = "tender_id=eq." + tenderId + "&supplier_id=eq." + supplierId + "&order=created_at.desc&limit=1";
+        String filters = "tender_id=eq." + SupabaseClient.enc(tenderId) + "&supplier_id=eq." + SupabaseClient.enc(supplierId) + "&order=created_at.desc&limit=1";
         String response = SupabaseClient.get("supplier_bids", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -127,7 +127,7 @@ public class SupplierBidDAO {
      */
     public boolean delete(String bidId) throws Exception {
         String response = SupabaseClient.delete("supplier_bids", bidId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -137,7 +137,7 @@ public class SupplierBidDAO {
      */
     public boolean deleteByTenderId(String tenderId) throws Exception {
         String response = SupabaseClient.delete("supplier_bids", tenderId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -146,7 +146,7 @@ public class SupplierBidDAO {
      * @return Number of bids
      */
     public int countByTenderId(String tenderId) throws Exception {
-        String filters = "tender_id=eq." + tenderId;
+        String filters = "tender_id=eq." + SupabaseClient.enc(tenderId);
         String response = SupabaseClient.get("supplier_bids", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);

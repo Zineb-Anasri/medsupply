@@ -21,7 +21,7 @@ public class OrderDAO {
      * @return Order object if found, null otherwise
      */
     public Order findById(String orderId) throws Exception {
-        String filters = "id=eq." + orderId;
+        String filters = "id=eq." + SupabaseClient.enc(orderId);
         String response = SupabaseClient.get("orders", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -37,7 +37,7 @@ public class OrderDAO {
      * @return Order object if found, null otherwise
      */
     public Order findByQuoteId(String quoteId) throws Exception {
-        String filters = "quote_id=eq." + quoteId;
+        String filters = "quote_id=eq." + SupabaseClient.enc(quoteId);
         String response = SupabaseClient.get("orders", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -68,7 +68,7 @@ public class OrderDAO {
      * @return List of orders for the client
      */
     public List<Order> findByClientId(String clientId) throws Exception {
-        String filters = "client_id=eq." + clientId + "&order=created_at.desc";
+        String filters = "client_id=eq." + SupabaseClient.enc(clientId) + "&order=created_at.desc";
         String response = SupabaseClient.get("orders", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -85,7 +85,7 @@ public class OrderDAO {
      * @return List of orders with the status
      */
     public List<Order> findByStatus(String status) throws Exception {
-        String filters = "status=eq." + status + "&order=created_at.desc";
+        String filters = "status=eq." + SupabaseClient.enc(status) + "&order=created_at.desc";
         String response = SupabaseClient.get("orders", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -133,9 +133,9 @@ public class OrderDAO {
         body.addProperty("status", status);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + orderId;
+        String filters = "id=eq." + SupabaseClient.enc(orderId);
         String response = SupabaseClient.patchWithFilters("orders", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -149,9 +149,9 @@ public class OrderDAO {
         body.addProperty("total_amount", totalAmount);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + orderId;
+        String filters = "id=eq." + SupabaseClient.enc(orderId);
         String response = SupabaseClient.patchWithFilters("orders", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

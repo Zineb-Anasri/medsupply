@@ -79,9 +79,10 @@ public class PaymentServlet extends HttpServlet {
                 String paymentId = pathInfo.substring(1);
                 
                 Payment payment = paymentService.getPayment(paymentId);
-                
-                // CLIENT can only view their own payments
-                if ("CLIENT".equals(role) && !payment.getClientId().equals(userId)) {
+
+                // SUPPLIER has no access; CLIENT can only view their own payments.
+                if ("SUPPLIER".equals(role)
+                        || ("CLIENT".equals(role) && !payment.getClientId().equals(userId))) {
                     response.addProperty("success", false);
                     response.addProperty("message", "Unauthorized - You can only view your own payments");
                     resp.setStatus(403);
@@ -146,6 +147,7 @@ public class PaymentServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
+            String userId = (String) session.getAttribute("userId");
 
             // Extract payment ID and action from path
             String pathInfo = req.getPathInfo();
@@ -203,6 +205,16 @@ public class PaymentServlet extends HttpServlet {
                 }
 
                 String paymentId = pathParts[1];
+
+                // Ownership: a client may only process its own payment.
+                Payment ownPayment = paymentService.getPayment(paymentId);
+                if (!userId.equals(ownPayment.getClientId())) {
+                    response.addProperty("success", false);
+                    response.addProperty("message", "Unauthorized - You can only process your own payments");
+                    resp.setStatus(403);
+                    resp.getWriter().print(gson.toJson(response));
+                    return;
+                }
 
                 // Read request body
                 StringBuilder requestBody = new StringBuilder();

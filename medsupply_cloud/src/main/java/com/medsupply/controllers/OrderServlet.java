@@ -60,9 +60,10 @@ public class OrderServlet extends HttpServlet {
                 String orderId = pathInfo.substring(1);
                 
                 Order order = orderService.getOrderWithItems(orderId);
-                
-                // CLIENT can only view their own orders
-                if ("CLIENT".equals(role) && !order.getClientId().equals(userId)) {
+
+                // SUPPLIER has no access; CLIENT can only view their own orders.
+                if ("SUPPLIER".equals(role)
+                        || ("CLIENT".equals(role) && !order.getClientId().equals(userId))) {
                     response.addProperty("success", false);
                     response.addProperty("message", "Unauthorized - You can only view your own orders");
                     resp.setStatus(403);

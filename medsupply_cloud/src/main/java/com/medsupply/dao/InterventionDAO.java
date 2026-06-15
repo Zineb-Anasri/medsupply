@@ -21,7 +21,7 @@ public class InterventionDAO {
      * @return Intervention object if found, null otherwise
      */
     public Intervention findById(String interventionId) throws Exception {
-        String filters = "id=eq." + interventionId;
+        String filters = "id=eq." + SupabaseClient.enc(interventionId);
         String response = SupabaseClient.get("maintenance_interventions", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -37,7 +37,7 @@ public class InterventionDAO {
      * @return List of interventions for the request
      */
     public List<Intervention> findByRequestId(String requestId) throws Exception {
-        String filters = "contract_id=eq." + requestId + "&order=intervention_date.desc";
+        String filters = "contract_id=eq." + SupabaseClient.enc(requestId) + "&order=intervention_date.desc";
         String response = SupabaseClient.get("maintenance_interventions", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -54,7 +54,7 @@ public class InterventionDAO {
      * @return List of interventions with the status
      */
     public List<Intervention> findByCompletionStatus(String completionStatus) throws Exception {
-        String filters = "completion_status=eq." + completionStatus + "&order=intervention_date.desc";
+        String filters = "completion_status=eq." + SupabaseClient.enc(completionStatus) + "&order=intervention_date.desc";
         String response = SupabaseClient.get("maintenance_interventions", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -122,9 +122,9 @@ public class InterventionDAO {
         body.addProperty("completion_status", completionStatus);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + interventionId;
+        String filters = "id=eq." + SupabaseClient.enc(interventionId);
         String response = SupabaseClient.patchWithFilters("maintenance_interventions", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -145,9 +145,9 @@ public class InterventionDAO {
         body.addProperty("notes", notes);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + interventionId;
+        String filters = "id=eq." + SupabaseClient.enc(interventionId);
         String response = SupabaseClient.patchWithFilters("maintenance_interventions", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -157,7 +157,7 @@ public class InterventionDAO {
      */
     public boolean delete(String interventionId) throws Exception {
         String response = SupabaseClient.delete("maintenance_interventions", interventionId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

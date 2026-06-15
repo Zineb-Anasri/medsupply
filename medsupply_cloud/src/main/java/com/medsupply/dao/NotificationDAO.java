@@ -20,7 +20,7 @@ public class NotificationDAO {
      * @return Notification object if found, null otherwise
      */
     public Notification findById(String notificationId) throws Exception {
-        String filters = "id=eq." + notificationId;
+        String filters = "id=eq." + SupabaseClient.enc(notificationId);
         String response = SupabaseClient.get("notifications", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -36,7 +36,7 @@ public class NotificationDAO {
      * @return List of notifications for the user
      */
     public List<Notification> findByUserId(String userId) throws Exception {
-        String filters = "user_id=eq." + userId + "&order=created_at.desc";
+        String filters = "user_id=eq." + SupabaseClient.enc(userId) + "&order=created_at.desc";
         String response = SupabaseClient.get("notifications", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -53,7 +53,7 @@ public class NotificationDAO {
      * @return List of unread notifications for the user
      */
     public List<Notification> findUnreadByUserId(String userId) throws Exception {
-        String filters = "user_id=eq." + userId + "&is_read=eq.false&order=created_at.desc";
+        String filters = "user_id=eq." + SupabaseClient.enc(userId) + "&is_read=eq.false&order=created_at.desc";
         String response = SupabaseClient.get("notifications", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -70,7 +70,7 @@ public class NotificationDAO {
      * @return List of notifications with the type
      */
     public List<Notification> findByType(String type) throws Exception {
-        String filters = "type=eq." + type + "&order=created_at.desc";
+        String filters = "type=eq." + SupabaseClient.enc(type) + "&order=created_at.desc";
         String response = SupabaseClient.get("notifications", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -129,9 +129,9 @@ public class NotificationDAO {
         JsonObject body = new JsonObject();
         body.addProperty("is_read", true);
         
-        String filters = "id=eq." + notificationId;
+        String filters = "id=eq." + SupabaseClient.enc(notificationId);
         String response = SupabaseClient.patchWithFilters("notifications", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -142,10 +142,10 @@ public class NotificationDAO {
     public boolean markAllAsRead(String userId) throws Exception {
         JsonObject body = new JsonObject();
         body.addProperty("is_read", true);
-        
-        String filters = "user_id=eq." + userId + "&is_read=eq.false";
+
+        String filters = "user_id=eq." + SupabaseClient.enc(userId) + "&is_read=eq.false";
         String response = SupabaseClient.patchWithFilters("notifications", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -155,7 +155,7 @@ public class NotificationDAO {
      */
     public boolean delete(String notificationId) throws Exception {
         String response = SupabaseClient.delete("notifications", notificationId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -164,7 +164,7 @@ public class NotificationDAO {
      * @return Number of unread notifications
      */
     public int getUnreadCount(String userId) throws Exception {
-        String filters = "user_id=eq." + userId + "&is_read=eq.false";
+        String filters = "user_id=eq." + SupabaseClient.enc(userId) + "&is_read=eq.false";
         String response = SupabaseClient.get("notifications", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);

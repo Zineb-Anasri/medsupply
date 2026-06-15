@@ -22,7 +22,7 @@ public class PaymentDAO {
      * @return Payment object if found, null otherwise
      */
     public Payment findById(String paymentId) throws Exception {
-        String filters = "id=eq." + paymentId;
+        String filters = "id=eq." + SupabaseClient.enc(paymentId);
         String response = SupabaseClient.get("payments", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -38,7 +38,7 @@ public class PaymentDAO {
      * @return Payment object if found, null otherwise
      */
     public Payment findByOrderId(String orderId) throws Exception {
-        String filters = "order_id=eq." + orderId;
+        String filters = "order_id=eq." + SupabaseClient.enc(orderId);
         String response = SupabaseClient.get("payments", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -69,14 +69,29 @@ public class PaymentDAO {
      * @return List of payments for the client
      */
     public List<Payment> findByClientId(String clientId) throws Exception {
-        // Payments don't have client_id in schema, need to join with orders
-        String filters = "order_id=in.(select id from orders where client_id=eq." + clientId + ")&order=created_at.desc";
-        String response = SupabaseClient.get("payments", filters);
-        
-        JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
+        // Payments have no client_id column; PostgREST does not support SQL subqueries,
+        // so resolve the client's order ids first, then filter payments by order_id=in.(...).
         List<Payment> payments = new ArrayList<>();
+        String ordersResp = SupabaseClient.get("orders",
+            "client_id=eq." + SupabaseClient.enc(clientId) + "&select=id");
+        JsonArray orderRows = SupabaseClient.parseJsonArray(ordersResp);
+        if (orderRows == null || orderRows.size() == 0) {
+            return payments;
+        }
+        StringBuilder ids = new StringBuilder();
+        for (int i = 0; i < orderRows.size(); i++) {
+            if (i > 0) ids.append(",");
+            ids.append(SupabaseClient.enc(orderRows.get(i).getAsJsonObject().get("id").getAsString()));
+        }
+
+        String filters = "order_id=in.(" + ids + ")&order=created_at.desc";
+        String response = SupabaseClient.get("payments", filters);
+
+        JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
         for (int i = 0; i < jsonArray.size(); i++) {
-            payments.add(mapJsonToPayment(jsonArray.get(i).getAsJsonObject()));
+            Payment payment = mapJsonToPayment(jsonArray.get(i).getAsJsonObject());
+            payment.setClientId(clientId);
+            payments.add(payment);
         }
         return payments;
     }
@@ -87,7 +102,7 @@ public class PaymentDAO {
      * @return List of payments with the status
      */
     public List<Payment> findByStatus(String status) throws Exception {
-        String filters = "status=eq." + status + "&order=created_at.desc";
+        String filters = "status=eq." + SupabaseClient.enc(status) + "&order=created_at.desc";
         String response = SupabaseClient.get("payments", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -154,9 +169,9 @@ public class PaymentDAO {
         body.addProperty("status", status);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + paymentId;
+        String filters = "id=eq." + SupabaseClient.enc(paymentId);
         String response = SupabaseClient.patchWithFilters("payments", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -170,9 +185,9 @@ public class PaymentDAO {
         body.addProperty("paid_amount", paidAmount);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + paymentId;
+        String filters = "id=eq." + SupabaseClient.enc(paymentId);
         String response = SupabaseClient.patchWithFilters("payments", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -188,9 +203,9 @@ public class PaymentDAO {
         body.addProperty("transaction_reference", transactionReference);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + paymentId;
+        String filters = "id=eq." + SupabaseClient.enc(paymentId);
         String response = SupabaseClient.patchWithFilters("payments", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

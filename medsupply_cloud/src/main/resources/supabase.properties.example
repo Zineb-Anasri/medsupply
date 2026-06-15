@@ -1,0 +1,8 @@
+# Copy this file to supabase.properties (git-ignored) and fill in real values,
+# OR provide the same values via environment variables / JVM system properties:
+#   SUPABASE_URL / SUPABASE_ANON_KEY            (environment variables)
+#   -Dsupabase.url=... -Dsupabase.anon.key=...  (JVM system properties)
+#
+# The bare project URL is fine; "/rest/v1" is appended automatically if absent.
+supabase.url=https://YOUR-PROJECT-ref.supabase.co
+supabase.anon.key=YOUR-SUPABASE-ANON-KEY

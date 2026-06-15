@@ -55,10 +55,15 @@ public class QuoteService {
                 throw new Exception("Quantity must be positive for product: " + item.getProductId());
             }
 
-            // Set quote ID and proposed price (from product catalog)
+            // Set quote ID and proposed price (from product catalog).
+            // Items arrive deserialized from client JSON (via Gson), which bypasses the
+            // model constructor, so generate the primary key if it was not provided.
             item.setQuoteId(createdQuote.getQuoteId());
+            if (item.getItemId() == null) {
+                item.setItemId(java.util.UUID.randomUUID().toString());
+            }
             item.setProposedPrice(product.getUnitPrice());
-            
+
             // Calculate item total
             BigDecimal itemTotal = product.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
             totalAmount = totalAmount.add(itemTotal);
@@ -67,8 +72,9 @@ public class QuoteService {
             quoteItemDAO.create(item);
         }
 
-        // Update quote total amount
+        // Update quote total amount (and reflect it on the returned object)
         quoteDAO.updateTotalAmount(createdQuote.getQuoteId(), totalAmount);
+        createdQuote.setTotalAmount(totalAmount);
 
         return createdQuote;
     }

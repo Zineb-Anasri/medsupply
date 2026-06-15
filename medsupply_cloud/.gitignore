@@ -1,5 +1,7 @@
 # ⚠️ Fichiers sensibles — ne jamais committer
 src/main/resources/db.properties
+src/main/resources/supabase.properties
+src/main/resources/email.properties
 
 # Build
 target/

@@ -57,6 +57,13 @@ public class AuthService {
      * @return Created user object
      */
     public User register(String email, String password, String role, Object profileData) throws Exception {
+        // Self-registration is restricted to CLIENT and SUPPLIER. ADMIN accounts must be
+        // provisioned out-of-band; accepting a client-supplied "ADMIN" role would be a
+        // privilege-escalation hole.
+        if (!"CLIENT".equals(role) && !"SUPPLIER".equals(role)) {
+            throw new IllegalArgumentException("Invalid role. Allowed values: CLIENT, SUPPLIER");
+        }
+
         // Check if email already exists
         User existingUser = userDAO.findByEmail(email);
         if (existingUser != null) {

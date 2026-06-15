@@ -93,10 +93,22 @@ public class RegisterServlet extends HttpServlet {
             response.addProperty("role", user.getRole());
             resp.setStatus(201);
 
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            // Validation errors (e.g. invalid/disallowed role)
             response.addProperty("success", false);
-            response.addProperty("message", "Registration failed: " + e.getMessage());
-            resp.setStatus(500);
+            response.addProperty("message", e.getMessage());
+            resp.setStatus(400);
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            if (msg != null && msg.contains("already registered")) {
+                response.addProperty("success", false);
+                response.addProperty("message", "Email already registered");
+                resp.setStatus(409);
+            } else {
+                response.addProperty("success", false);
+                response.addProperty("message", "Registration failed");
+                resp.setStatus(500);
+            }
         }
 
         resp.getWriter().print(gson.toJson(response));

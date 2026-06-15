@@ -127,7 +127,6 @@ public class AdminDashboardServlet extends HttpServlet {
             response.addProperty("success", false);
             response.addProperty("message", "Server error: " + e.getMessage());
             resp.setStatus(500);
-            resp.getWriter().print(gson.toJson(response));
         }
 
         resp.getWriter().print(gson.toJson(response));

@@ -79,8 +79,9 @@ public class OrderService {
             totalAmount = totalAmount.add(itemTotal);
         }
 
-        // Update order total amount
+        // Update order total amount (and reflect it on the returned object)
         orderDAO.updateTotalAmount(createdOrder.getOrderId(), totalAmount);
+        createdOrder.setTotalAmount(totalAmount);
 
         // Update quote status to CONVERTED
         quoteDAO.updateStatus(quoteId, "CONVERTED");

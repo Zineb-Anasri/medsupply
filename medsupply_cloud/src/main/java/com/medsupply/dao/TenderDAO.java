@@ -21,7 +21,7 @@ public class TenderDAO {
      * @return Tender object if found, null otherwise
      */
     public Tender findById(String tenderId) throws Exception {
-        String filters = "tender_id=eq." + tenderId;
+        String filters = "tender_id=eq." + SupabaseClient.enc(tenderId);
         String response = SupabaseClient.get("tenders", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -37,7 +37,7 @@ public class TenderDAO {
      * @return List of tenders for the client
      */
     public List<Tender> findByClientId(String clientId) throws Exception {
-        String filters = "client_id=eq." + clientId + "&order=created_at.desc";
+        String filters = "client_id=eq." + SupabaseClient.enc(clientId) + "&order=created_at.desc";
         String response = SupabaseClient.get("tenders", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -54,7 +54,7 @@ public class TenderDAO {
      * @return List of tenders with the status
      */
     public List<Tender> findByStatus(String status) throws Exception {
-        String filters = "status=eq." + status + "&order=created_at.desc";
+        String filters = "status=eq." + SupabaseClient.enc(status) + "&order=created_at.desc";
         String response = SupabaseClient.get("tenders", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -133,9 +133,9 @@ public class TenderDAO {
         body.addProperty("status", status);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "tender_id=eq." + tenderId;
+        String filters = "tender_id=eq." + SupabaseClient.enc(tenderId);
         String response = SupabaseClient.patchWithFilters("tenders", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -152,9 +152,9 @@ public class TenderDAO {
         body.addProperty("status", tender.getStatus());
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "tender_id=eq." + tender.getTenderId();
+        String filters = "tender_id=eq." + SupabaseClient.enc(tender.getTenderId());
         String response = SupabaseClient.patchWithFilters("tenders", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -163,9 +163,9 @@ public class TenderDAO {
      * @return true if deletion successful
      */
     public boolean delete(String tenderId) throws Exception {
-        String filters = "tender_id=eq." + tenderId;
-        String response = SupabaseClient.delete("tenders", tenderId);
-        return !response.isEmpty();
+        String response = SupabaseClient.deleteWithFilters("tenders",
+            "tender_id=eq." + SupabaseClient.enc(tenderId));
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**

@@ -82,9 +82,10 @@ public class DeliveryServlet extends HttpServlet {
                 String deliveryId = pathInfo.substring(1);
                 
                 Delivery delivery = deliveryService.getDelivery(deliveryId);
-                
-                // CLIENT can only view their own deliveries
-                if ("CLIENT".equals(role) && !delivery.getClientId().equals(userId)) {
+
+                // SUPPLIER has no access; CLIENT can only view their own deliveries.
+                if ("SUPPLIER".equals(role)
+                        || ("CLIENT".equals(role) && !delivery.getClientId().equals(userId))) {
                     response.addProperty("success", false);
                     response.addProperty("message", "Unauthorized - You can only view your own deliveries");
                     resp.setStatus(403);
@@ -149,6 +150,7 @@ public class DeliveryServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             String role = (String) session.getAttribute("role");
+            String userId = (String) session.getAttribute("userId");
 
             // Extract delivery ID and action from path
             String pathInfo = req.getPathInfo();
@@ -292,6 +294,16 @@ public class DeliveryServlet extends HttpServlet {
                 }
 
                 String deliveryId = pathParts[1];
+
+                // Ownership: a client may only confirm receipt of its own delivery.
+                Delivery confirmDelivery = deliveryService.getDelivery(deliveryId);
+                if (!confirmDelivery.getClientId().equals(userId)) {
+                    response.addProperty("success", false);
+                    response.addProperty("message", "Unauthorized - You can only confirm your own deliveries");
+                    resp.setStatus(403);
+                    resp.getWriter().print(gson.toJson(response));
+                    return;
+                }
 
                 boolean confirmed = deliveryService.confirmDeliveryReceipt(deliveryId);
 

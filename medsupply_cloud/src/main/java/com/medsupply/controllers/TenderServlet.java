@@ -83,6 +83,16 @@ public class TenderServlet extends HttpServlet {
             // GET /api/tenders/{id}/items - Get tender items
             else if (pathInfo != null && pathInfo.matches("/[^/]+/items")) {
                 String tenderId = pathInfo.substring(1, pathInfo.indexOf("/items"));
+                // A non-owning CLIENT must not read another client's tender items.
+                // ADMIN and SUPPLIER (who need the items to bid) are allowed.
+                Tender itemsTender = tenderService.getTender(tenderId);
+                if ("CLIENT".equals(role) && !itemsTender.getClientId().equals(userId)) {
+                    response.addProperty("success", false);
+                    response.addProperty("message", "Unauthorized - You can only view your own tender items");
+                    resp.setStatus(403);
+                    resp.getWriter().print(gson.toJson(response));
+                    return;
+                }
                 List<TenderItem> items = tenderService.getTenderItems(tenderId);
                 response.addProperty("success", true);
                 response.addProperty("count", items.size());
@@ -92,6 +102,15 @@ public class TenderServlet extends HttpServlet {
             // GET /api/tenders/{id}/bids - Get bids for tender
             else if (pathInfo != null && pathInfo.matches("/[^/]+/bids")) {
                 String tenderId = pathInfo.substring(1, pathInfo.indexOf("/bids"));
+                // Bids are competitive: only the owning CLIENT or an ADMIN may read them.
+                Tender bidsTender = tenderService.getTender(tenderId);
+                if (!"ADMIN".equals(role) && !("CLIENT".equals(role) && bidsTender.getClientId().equals(userId))) {
+                    response.addProperty("success", false);
+                    response.addProperty("message", "Unauthorized - Only the tender owner or an admin can view bids");
+                    resp.setStatus(403);
+                    resp.getWriter().print(gson.toJson(response));
+                    return;
+                }
                 List<SupplierBid> bids = tenderService.getBidsByTender(tenderId);
                 response.addProperty("success", true);
                 response.addProperty("count", bids.size());
@@ -101,6 +120,15 @@ public class TenderServlet extends HttpServlet {
             // GET /api/tenders/{id}/best-bid - Get best bid for tender
             else if (pathInfo != null && pathInfo.matches("/[^/]+/best-bid")) {
                 String tenderId = pathInfo.substring(1, pathInfo.indexOf("/best-bid"));
+                // Best bid is competitive: only the owning CLIENT or an ADMIN may read it.
+                Tender bestBidTender = tenderService.getTender(tenderId);
+                if (!"ADMIN".equals(role) && !("CLIENT".equals(role) && bestBidTender.getClientId().equals(userId))) {
+                    response.addProperty("success", false);
+                    response.addProperty("message", "Unauthorized - Only the tender owner or an admin can view the best bid");
+                    resp.setStatus(403);
+                    resp.getWriter().print(gson.toJson(response));
+                    return;
+                }
                 SupplierBid bestBid = tenderService.getBestBid(tenderId);
                 response.addProperty("success", true);
                 if (bestBid != null) {
@@ -154,19 +182,16 @@ public class TenderServlet extends HttpServlet {
                 response.addProperty("success", false);
                 response.addProperty("message", "Invalid request path");
                 resp.setStatus(400);
-                resp.getWriter().print(gson.toJson(response));
             }
 
         } catch (IllegalArgumentException e) {
             response.addProperty("success", false);
             response.addProperty("message", "Invalid UUID format");
             resp.setStatus(400);
-            resp.getWriter().print(gson.toJson(response));
         } catch (Exception e) {
             response.addProperty("success", false);
             response.addProperty("message", "Server error: " + e.getMessage());
             resp.setStatus(500);
-            resp.getWriter().print(gson.toJson(response));
         }
 
         resp.getWriter().print(gson.toJson(response));
@@ -253,19 +278,16 @@ public class TenderServlet extends HttpServlet {
                 response.addProperty("success", false);
                 response.addProperty("message", "Invalid request path");
                 resp.setStatus(400);
-                resp.getWriter().print(gson.toJson(response));
             }
 
         } catch (IllegalArgumentException e) {
             response.addProperty("success", false);
             response.addProperty("message", "Invalid request format");
             resp.setStatus(400);
-            resp.getWriter().print(gson.toJson(response));
         } catch (Exception e) {
             response.addProperty("success", false);
             response.addProperty("message", "Server error: " + e.getMessage());
             resp.setStatus(500);
-            resp.getWriter().print(gson.toJson(response));
         }
 
         resp.getWriter().print(gson.toJson(response));
@@ -363,19 +385,16 @@ public class TenderServlet extends HttpServlet {
                 response.addProperty("success", false);
                 response.addProperty("message", "Invalid request path. Use /api/tenders/{id}/close or /api/tenders/{id}/award");
                 resp.setStatus(400);
-                resp.getWriter().print(gson.toJson(response));
             }
 
         } catch (IllegalArgumentException e) {
             response.addProperty("success", false);
             response.addProperty("message", "Invalid UUID format");
             resp.setStatus(400);
-            resp.getWriter().print(gson.toJson(response));
         } catch (Exception e) {
             response.addProperty("success", false);
             response.addProperty("message", "Server error: " + e.getMessage());
             resp.setStatus(500);
-            resp.getWriter().print(gson.toJson(response));
         }
 
         resp.getWriter().print(gson.toJson(response));

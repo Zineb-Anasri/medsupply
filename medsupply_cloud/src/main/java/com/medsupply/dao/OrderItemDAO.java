@@ -21,7 +21,7 @@ public class OrderItemDAO {
      * @return OrderItem object if found, null otherwise
      */
     public OrderItem findById(String itemId) throws Exception {
-        String filters = "id=eq." + itemId;
+        String filters = "id=eq." + SupabaseClient.enc(itemId);
         String response = SupabaseClient.get("order_items", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -37,7 +37,7 @@ public class OrderItemDAO {
      * @return List of order items
      */
     public List<OrderItem> findByOrderId(String orderId) throws Exception {
-        String filters = "order_id=eq." + orderId + "&order=created_at.asc";
+        String filters = "order_id=eq." + SupabaseClient.enc(orderId) + "&order=created_at.asc";
         String response = SupabaseClient.get("order_items", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -86,9 +86,9 @@ public class OrderItemDAO {
         body.addProperty("quantity", quantity);
         body.addProperty("updated_at", LocalDateTime.now().toString());
         
-        String filters = "id=eq." + itemId;
+        String filters = "id=eq." + SupabaseClient.enc(itemId);
         String response = SupabaseClient.patchWithFilters("order_items", filters, body.toString());
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -98,7 +98,7 @@ public class OrderItemDAO {
      */
     public boolean delete(String itemId) throws Exception {
         String response = SupabaseClient.delete("order_items", itemId);
-        return !response.isEmpty();
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
@@ -107,8 +107,9 @@ public class OrderItemDAO {
      * @return true if deletion successful
      */
     public boolean deleteByOrderId(String orderId) throws Exception {
-        String response = SupabaseClient.delete("order_items", orderId);
-        return !response.isEmpty();
+        String response = SupabaseClient.deleteWithFilters("order_items",
+            "order_id=eq." + SupabaseClient.enc(orderId));
+        return SupabaseClient.affectedRows(response) > 0;
     }
 
     /**
