@@ -23,7 +23,7 @@ public class TestConnectionServlet extends HttpServlet {
 
             resp.setStatus(200);
             PrintWriter out = resp.getWriter();
-            out.print("{\"status\":\"SUCCESS\",\"message\":\"Connexion Supabase etablie\",\"base_de_donnees\":\"MedSupply Cloud V1.0\"}");
+            out.print("{\"status\":\"SUCCESS\",\"message\":\"Connexion Supabase etablie\",\"base_de_donnees\":\"MedSupply Cloud V1.0\",\"build\":\"2026-06-16-jsonutil-datefix\"}");
             out.flush();
 
         } catch (Exception e) {
