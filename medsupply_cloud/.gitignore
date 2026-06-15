@@ -1,7 +1,10 @@
 # ⚠️ Fichiers sensibles — ne jamais committer
 src/main/resources/db.properties
-src/main/resources/supabase.properties
 src/main/resources/email.properties
+# NOTE: supabase.properties is intentionally committed so the project runs
+# after a plain clone. It holds the Supabase *anon* key (public-by-design,
+# access governed by Row Level Security). Override per-environment with the
+# SUPABASE_URL / SUPABASE_ANON_KEY env vars or -Dsupabase.* system properties.
 
 # Build
 target/
