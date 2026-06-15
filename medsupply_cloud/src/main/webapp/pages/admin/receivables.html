@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créances en Retard - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .row-overdue { background-color: #FEF2F2; }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col ml-72">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm mb-6">
+          <a href="payments.html" class="text-textSecondary hover:text-accent">Paiements</a>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+          <span class="text-textPrimary font-medium">Créances en retard</span>
+        </nav>
+
+        <!-- Alert Banner -->
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+            <div>
+              <p class="text-red-800 font-medium" id="alert-message">Chargement...</p>
+            </div>
+          </div>
+          <button onclick="exportCSV()" class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Exporter créances</span>
+          </button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-4 mb-6">
+          <div class="flex flex-wrap items-center gap-4">
+            <select id="client-type-filter" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+              <option value="">Tous les types de clients</option>
+              <option value="HOSPITAL">Hôpital</option>
+              <option value="LABORATORY">Laboratoire</option>
+              <option value="CLINIC">Clinique</option>
+              <option value="DOCTOR">Médecin</option>
+              <option value="MEDICAL_OFFICE">Cabinet</option>
+              <option value="RESELLER">Revendeur</option>
+            </select>
+            <div class="flex items-center gap-2">
+              <input type="number" id="min-amount" placeholder="Montant minimum (MAD)" min="0"
+                class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="number" id="min-days" placeholder="Retard > X jours" min="0"
+                class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            </div>
+            <button onclick="applyFilters()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
+              Filtrer
+            </button>
+            <button onclick="resetFilters()" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+              Réinitialiser
+            </button>
+          </div>
+        </div>
+
+        <!-- Receivables Table -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-border">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Client</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">N° Commande</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Montant total</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Déjà payé</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Reste à payer</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Échéance</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Jours de retard</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="receivables-body" class="divide-y divide-border">
+                <tr>
+                  <td colspan="8" class="px-6 py-12 text-center text-textSecondary">Chargement...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="px-6 py-4 border-t border-border flex items-center justify-between">
+            <p class="text-sm text-textSecondary">
+              Affichage de <span id="showing-from">0</span> à <span id="showing-to">0</span> sur <span id="total-records">0</span> créances
+            </p>
+            <div class="flex items-center gap-2">
+              <button onclick="previousPage()" id="prev-btn" class="px-3 py-1 border border-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <span class="px-3 py-1 bg-primary text-white rounded" id="current-page">1</span>
+              <button onclick="nextPage()" id="next-btn" class="px-3 py-1 border border-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Payment Registration Modal -->
+  <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-surface rounded-xl shadow-lg border border-border p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold text-textPrimary mb-4">Enregistrer un paiement</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Montant (MAD)</label>
+          <input type="number" id="payment-amount" min="0" step="0.01"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Mode de paiement</label>
+          <select id="payment-method" class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            <option value="TRANSFER">Virement</option>
+            <option value="CHECK">Chèque</option>
+            <option value="CASH">Espèces</option>
+            <option value="CARD">Carte bancaire</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Référence</label>
+          <input type="text" id="payment-reference"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Date</label>
+          <input type="date" id="payment-date"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Notes</label>
+          <textarea id="payment-notes" rows="2"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button onclick="hidePaymentModal()" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+          Annuler
+        </button>
+        <button onclick="submitPayment()" class="bg-success hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>
+    requireAuth(["ADMIN"]);
+    const currentUser = getCurrentUser();
+  </script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
+  <script src="../../js/utils/format.js"></script>
+  <script>
+    initPage("ADMIN");
+
+    let currentPage = 1;
+    const pageSize = 20;
+    let totalRecords = 0;
+    let currentOrderId = null;
+
+    async function loadReceivables() {
+      try {
+        const clientType = document.getElementById('client-type-filter').value;
+        const minAmount = document.getElementById('min-amount').value;
+        const minDays = document.getElementById('min-days').value;
+
+        const response = await apiFetch(`/admin/payments/receivables?clientType=${clientType}&minAmount=${minAmount}&minDays=${minDays}&page=${currentPage}&size=${pageSize}`);
+        const data = response.data;
+
+        // Update alert banner
+        document.getElementById('alert-message').textContent = 
+          `${data.overdueCount} clients ont des créances en retard — Total: ${formatCurrency(data.totalOverdue)}`;
+
+        // Update table
+        const tbody = document.getElementById('receivables-body');
+        if (data.receivables.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-textSecondary">Aucune créance en retard trouvée</td></tr>`;
+        } else {
+          tbody.innerHTML = data.receivables.map(receivable => {
+            const remaining = receivable.totalAmount - receivable.paidAmount;
+            const percentage = receivable.totalAmount > 0 ? Math.round((receivable.paidAmount / receivable.totalAmount) * 100) : 0;
+            const daysOverdue = receivable.daysOverdue || 0;
+
+            return `
+              <tr class="hover:bg-gray-50 row-overdue">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <p class="font-medium text-textPrimary">${receivable.clientName}</p>
+                    ${renderClientTypeBadge(receivable.clientType)}
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="font-mono text-textPrimary">${receivable.orderRef}</span>
+                </td>
+                <td class="px-6 py-4 text-textPrimary">${formatCurrency(receivable.totalAmount)}</td>
+                <td class="px-6 py-4">
+                  <div class="w-32">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-success">${formatCurrency(receivable.paidAmount)}</span>
+                      <span class="text-textSecondary">${percentage}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="bg-success h-2 rounded-full" style="width: ${percentage}%"></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-danger font-bold">${formatCurrency(remaining)}</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800">
+                    ${formatDate(receivable.dueDate)}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-danger font-medium">+${daysOverdue} jours</td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <button onclick="showPaymentModal('${receivable.orderId}')" class="p-2 hover:bg-green-100 rounded transition-colors" title="Enregistrer paiement">
+                      <i data-lucide="credit-card" class="w-4 h-4 text-green-600"></i>
+                    </button>
+                    <button onclick="sendReminder('${receivable.orderId}')" class="p-2 hover:bg-blue-100 rounded transition-colors" title="Envoyer rappel">
+                      <i data-lucide="mail" class="w-4 h-4 text-blue-600"></i>
+                    </button>
+                    <button onclick="viewOrder('${receivable.orderId}')" class="p-2 hover:bg-gray-100 rounded transition-colors" title="Voir commande">
+                      <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        // Update pagination
+        totalRecords = data.total;
+        document.getElementById("showing-from").textContent = (currentPage - 1) * pageSize + 1;
+        document.getElementById("showing-to").textContent = Math.min(currentPage * pageSize, totalRecords);
+        document.getElementById("total-records").textContent = totalRecords;
+        document.getElementById("current-page").textContent = currentPage;
+
+        document.getElementById("prev-btn").disabled = currentPage === 1;
+        document.getElementById("next-btn").disabled = currentPage * pageSize >= totalRecords;
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load receivables:", error);
+      }
+    }
+
+    function renderClientTypeBadge(type) {
+      const colors = {
+        HOSPITAL: "bg-blue-100 text-blue-800",
+        LABORATORY: "bg-purple-100 text-purple-800",
+        CLINIC: "bg-teal-100 text-teal-800",
+        DOCTOR: "bg-green-100 text-green-800",
+        MEDICAL_OFFICE: "bg-orange-100 text-orange-800",
+        RESELLER: "bg-slate-100 text-slate-800"
+      };
+      const labels = {
+        HOSPITAL: "Hôpital",
+        LABORATORY: "Laboratoire",
+        CLINIC: "Clinique",
+        DOCTOR: "Médecin",
+        MEDICAL_OFFICE: "Cabinet",
+        RESELLER: "Revendeur"
+      };
+      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[type] || 'bg-gray-100 text-gray-800'}">${labels[type] || type}</span>`;
+    }
+
+    function applyFilters() {
+      currentPage = 1;
+      loadReceivables();
+    }
+
+    function resetFilters() {
+      document.getElementById('client-type-filter').value = '';
+      document.getElementById('min-amount').value = '';
+      document.getElementById('min-days').value = '';
+      currentPage = 1;
+      loadReceivables();
+    }
+
+    function previousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        loadReceivables();
+      }
+    }
+
+    function nextPage() {
+      if (currentPage * pageSize < totalRecords) {
+        currentPage++;
+        loadReceivables();
+      }
+    }
+
+    function viewOrder(orderId) {
+      window.location.href = `order-detail.html?id=${orderId}`;
+    }
+
+    function showPaymentModal(orderId) {
+      currentOrderId = orderId;
+      document.getElementById('payment-modal').classList.remove('hidden');
+      document.getElementById('payment-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    function hidePaymentModal() {
+      document.getElementById('payment-modal').classList.add('hidden');
+      document.getElementById('payment-amount').value = '';
+      document.getElementById('payment-reference').value = '';
+      document.getElementById('payment-notes').value = '';
+      currentOrderId = null;
+    }
+
+    async function submitPayment() {
+      const amount = document.getElementById('payment-amount').value;
+      const method = document.getElementById('payment-method').value;
+      const reference = document.getElementById('payment-reference').value;
+      const date = document.getElementById('payment-date').value;
+      const notes = document.getElementById('payment-notes').value;
+
+      if (!amount || parseFloat(amount) <= 0) {
+        alert('Veuillez entrer un montant valide');
+        return;
+      }
+
+      try {
+        await apiFetch(`/admin/orders/${currentOrderId}/payments`, {
+          method: 'POST',
+          body: JSON.stringify({
+            amount: parseFloat(amount),
+            method,
+            reference,
+            date,
+            notes
+          })
+        });
+        hidePaymentModal();
+        loadReceivables();
+      } catch (error) {
+        console.error("Failed to submit payment:", error);
+        alert('Erreur lors de l\'enregistrement du paiement');
+      }
+    }
+
+    async function sendReminder(orderId) {
+      if (confirm('Envoyer un rappel de paiement au client ?')) {
+        try {
+          await apiFetch(`/admin/orders/${orderId}/reminder`, { method: 'POST' });
+          alert('Rappel envoyé avec succès');
+        } catch (error) {
+          console.error("Failed to send reminder:", error);
+          alert('Erreur lors de l\'envoi du rappel');
+        }
+      }
+    }
+
+    async function exportCSV() {
+      try {
+        const response = await apiFetch('/admin/payments/receivables/export', {
+          method: 'GET'
+        });
+        
+        // Create download link
+        const blob = new Blob([response.data], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `creances_en_retard_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error("Failed to export CSV:", error);
+        alert('Erreur lors de l\'export CSV');
+      }
+    }
+
+    // Load receivables on page load
+    loadReceivables();
+  </script>
+</body>
+</html>

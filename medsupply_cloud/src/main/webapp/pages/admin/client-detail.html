@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détail Client - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tab-btn.active { border-color: #2C74B3; color: #2C74B3; }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col ml-72">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm mb-6">
+          <a href="clients.html" class="text-textSecondary hover:text-accent">Clients</a>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+          <span class="text-textPrimary font-medium" id="breadcrumb-org">Chargement...</span>
+        </nav>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+          <!-- Left Panel: Client Card -->
+          <div class="w-full lg:w-1/3">
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6 sticky top-6">
+              <!-- Avatar -->
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 bg-primary bg-opacity-10 rounded-xl flex items-center justify-center">
+                  <span class="text-2xl font-bold text-primary" id="client-initials">--</span>
+                </div>
+                <div class="flex-1">
+                  <h2 class="text-xl font-bold text-textPrimary" id="client-name">Chargement...</h2>
+                  <span id="client-type-badge" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">--</span>
+                </div>
+              </div>
+
+              <!-- Verified Badge -->
+              <div class="flex items-center gap-2 mb-6 p-3 bg-green-50 rounded-lg">
+                <i data-lucide="shield-check" class="w-5 h-5 text-green-600"></i>
+                <span class="text-sm text-green-800 font-medium">Compte vérifié</span>
+              </div>
+
+              <!-- Contact Info -->
+              <div class="space-y-4 mb-6">
+                <div>
+                  <p class="text-xs text-textSecondary uppercase tracking-wider mb-1">Contact</p>
+                  <p class="text-textPrimary font-medium" id="contact-name">--</p>
+                  <p class="text-sm text-textSecondary" id="contact-phone">--</p>
+                  <p class="text-sm text-textSecondary" id="contact-email">--</p>
+                </div>
+                <div>
+                  <p class="text-xs text-textSecondary uppercase tracking-wider mb-1">Adresse</p>
+                  <p class="text-sm text-textPrimary" id="client-address">--</p>
+                  <p class="text-sm text-textPrimary" id="client-city">--</p>
+                </div>
+                <div>
+                  <p class="text-xs text-textSecondary uppercase tracking-wider mb-1">ICE</p>
+                  <p class="text-sm text-textPrimary" id="client-ice">--</p>
+                </div>
+                <div>
+                  <p class="text-xs text-textSecondary uppercase tracking-wider mb-1">Crédit</p>
+                  <span id="credit-badge" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">--</span>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="space-y-2">
+                <button onclick="editClient()" class="w-full bg-gray-100 hover:bg-gray-200 text-textPrimary font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2">
+                  <i data-lucide="edit" class="w-4 h-4"></i>
+                  <span>Modifier</span>
+                </button>
+                <button id="activate-btn" onclick="activateClient()" class="w-full bg-green-100 hover:bg-green-200 text-green-800 font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2 hidden">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                  <span>Activer</span>
+                </button>
+                <button id="suspend-btn" onclick="suspendClient()" class="w-full bg-red-100 hover:bg-red-200 text-red-800 font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2 hidden">
+                  <i data-lucide="ban" class="w-4 h-4"></i>
+                  <span>Suspendre</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Panel: Tabs -->
+          <div class="w-full lg:w-2/3">
+            <div class="bg-surface rounded-xl shadow-sm border border-border">
+              <!-- Tab Navigation -->
+              <div class="border-b border-border">
+                <nav class="flex">
+                  <button class="tab-btn active px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-accent transition-colors" data-tab="orders">
+                    Commandes
+                  </button>
+                  <button class="tab-btn px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-accent transition-colors" data-tab="quotes">
+                    Devis
+                  </button>
+                  <button class="tab-btn px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-accent transition-colors" data-tab="payments">
+                    Paiements
+                  </button>
+                  <button class="tab-btn px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-accent transition-colors" data-tab="receivables">
+                    Créances
+                  </button>
+                  <button class="tab-btn px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-accent transition-colors" data-tab="maintenance">
+                    Maintenance
+                  </button>
+                </nav>
+              </div>
+
+              <!-- Tab Content -->
+              <div class="p-6">
+                <!-- Orders Tab -->
+                <div class="tab-content active" data-tab="orders">
+                  <div class="overflow-x-auto">
+                    <table class="w-full">
+                      <thead class="bg-gray-50 border-b border-border">
+                        <tr>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Réf</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Date</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Montant</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Statut</th>
+                        </tr>
+                      </thead>
+                      <tbody id="orders-table-body" class="divide-y divide-border">
+                        <tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Chargement...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Quotes Tab -->
+                <div class="tab-content" data-tab="quotes">
+                  <div class="overflow-x-auto">
+                    <table class="w-full">
+                      <thead class="bg-gray-50 border-b border-border">
+                        <tr>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Réf</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Date</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Montant</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Statut</th>
+                        </tr>
+                      </thead>
+                      <tbody id="quotes-table-body" class="divide-y divide-border">
+                        <tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Chargement...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Payments Tab -->
+                <div class="tab-content" data-tab="payments">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <p class="text-sm text-green-800">Total payé</p>
+                      <p class="text-2xl font-bold text-green-900" id="total-paid">0 DH</p>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <p class="text-sm text-yellow-800">Reste à payer</p>
+                      <p class="text-2xl font-bold text-yellow-900" id="remaining-balance">0 DH</p>
+                    </div>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="w-full">
+                      <thead class="bg-gray-50 border-b border-border">
+                        <tr>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Réf</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Date</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Montant</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Méthode</th>
+                        </tr>
+                      </thead>
+                      <tbody id="payments-table-body" class="divide-y divide-border">
+                        <tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Chargement...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Receivables Tab -->
+                <div class="tab-content" data-tab="receivables">
+                  <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-sm text-red-800">Solde impayé</p>
+                        <p class="text-2xl font-bold text-red-900" id="outstanding-balance">0 DH</p>
+                      </div>
+                      <div id="overdue-alert" class="hidden">
+                        <div class="flex items-center gap-2 text-red-700">
+                          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                          <span class="font-medium">Échéance dépassée</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="w-full">
+                      <thead class="bg-gray-50 border-b border-border">
+                        <tr>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Commande</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Montant</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Échéance</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Statut</th>
+                        </tr>
+                      </thead>
+                      <tbody id="receivables-table-body" class="divide-y divide-border">
+                        <tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Chargement...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Maintenance Tab -->
+                <div class="tab-content" data-tab="maintenance">
+                  <div class="overflow-x-auto">
+                    <table class="w-full">
+                      <thead class="bg-gray-50 border-b border-border">
+                        <tr>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Produit</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Début</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Fin</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Statut</th>
+                        </tr>
+                      </thead>
+                      <tbody id="maintenance-table-body" class="divide-y divide-border">
+                        <tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Chargement...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>
+    requireAuth(["ADMIN"]);
+    const currentUser = getCurrentUser();
+  </script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
+  <script src="../../js/utils/format.js"></script>
+  <script>
+    initPage("ADMIN");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('id');
+
+    async function loadClientDetail() {
+      try {
+        const response = await apiFetch(`/admin/clients/${clientId}`);
+        const client = response.data;
+
+        // Update breadcrumb
+        document.getElementById('breadcrumb-org').textContent = client.organizationName;
+
+        // Update client card
+        document.getElementById('client-initials').textContent = client.organizationName.substring(0, 2).toUpperCase();
+        document.getElementById('client-name').textContent = client.organizationName;
+        document.getElementById('client-type-badge').textContent = getClientTypeLabel(client.clientType);
+        document.getElementById('client-type-badge').className = `inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getClientTypeColor(client.clientType)}`;
+        
+        document.getElementById('contact-name').textContent = client.contactName;
+        document.getElementById('contact-phone').textContent = client.phone;
+        document.getElementById('contact-email').textContent = client.email;
+        document.getElementById('client-address').textContent = client.address;
+        document.getElementById('client-city').textContent = client.city;
+        document.getElementById('client-ice').textContent = client.ice || 'Non renseigné';
+        
+        const creditBadge = document.getElementById('credit-badge');
+        if (client.clientType === 'HOSPITAL' || client.clientType === 'LABORATORY') {
+          creditBadge.textContent = '60 jours';
+          creditBadge.className = 'inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800';
+        } else {
+          creditBadge.textContent = 'Paiement immédiat';
+          creditBadge.className = 'inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800';
+        }
+
+        // Show/hide action buttons based on status
+        const activateBtn = document.getElementById('activate-btn');
+        const suspendBtn = document.getElementById('suspend-btn');
+        
+        if (client.status === 'PENDING') {
+          activateBtn.classList.remove('hidden');
+        } else if (client.status === 'ACTIVE') {
+          suspendBtn.classList.remove('hidden');
+        }
+
+        // Load tab data
+        loadOrders();
+        loadQuotes();
+        loadPayments();
+        loadReceivables();
+        loadMaintenance();
+
+      } catch (error) {
+        console.error("Failed to load client detail:", error);
+      }
+    }
+
+    function getClientTypeLabel(type) {
+      const labels = {
+        HOSPITAL: "Hôpital",
+        LABORATORY: "Laboratoire",
+        CLINIC: "Clinique",
+        DOCTOR: "Médecin",
+        MEDICAL_OFFICE: "Cabinet",
+        RESELLER: "Revendeur"
+      };
+      return labels[type] || type;
+    }
+
+    function getClientTypeColor(type) {
+      const colors = {
+        HOSPITAL: "bg-blue-100 text-blue-800",
+        LABORATORY: "bg-purple-100 text-purple-800",
+        CLINIC: "bg-teal-100 text-teal-800",
+        DOCTOR: "bg-green-100 text-green-800",
+        MEDICAL_OFFICE: "bg-orange-100 text-orange-800",
+        RESELLER: "bg-slate-100 text-slate-800"
+      };
+      return colors[type] || 'bg-gray-100 text-gray-800';
+    }
+
+    async function loadOrders() {
+      try {
+        const response = await apiFetch(`/admin/clients/${clientId}/orders`);
+        const orders = response.data || [];
+        const tbody = document.getElementById('orders-table-body');
+        
+        if (orders.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Aucune commande</td></tr>`;
+        } else {
+          tbody.innerHTML = orders.map(order => `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 text-textPrimary font-medium">${order.orderRef}</td>
+              <td class="px-4 py-3 text-textSecondary">${formatDate(order.orderDate)}</td>
+              <td class="px-4 py-3 text-textPrimary">${formatCurrency(order.totalAmount)}</td>
+              <td class="px-4 py-3">${renderStatusBadge(order.status)}</td>
+            </tr>
+          `).join('');
+        }
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load orders:", error);
+      }
+    }
+
+    async function loadQuotes() {
+      try {
+        const response = await apiFetch(`/admin/clients/${clientId}/quotes`);
+        const quotes = response.data || [];
+        const tbody = document.getElementById('quotes-table-body');
+        
+        if (quotes.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Aucun devis</td></tr>`;
+        } else {
+          tbody.innerHTML = quotes.map(quote => `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 text-textPrimary font-medium">${quote.quoteRef}</td>
+              <td class="px-4 py-3 text-textSecondary">${formatDate(quote.quoteDate)}</td>
+              <td class="px-4 py-3 text-textPrimary">${formatCurrency(quote.totalAmount)}</td>
+              <td class="px-4 py-3">${renderStatusBadge(quote.status)}</td>
+            </tr>
+          `).join('');
+        }
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load quotes:", error);
+      }
+    }
+
+    async function loadPayments() {
+      try {
+        const response = await apiFetch(`/admin/clients/${clientId}/payments`);
+        const payments = response.data || [];
+        const tbody = document.getElementById('payments-table-body');
+        
+        document.getElementById('total-paid').textContent = formatCurrency(response.totalPaid || 0);
+        document.getElementById('remaining-balance').textContent = formatCurrency(response.remainingBalance || 0);
+        
+        if (payments.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Aucun paiement</td></tr>`;
+        } else {
+          tbody.innerHTML = payments.map(payment => `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 text-textPrimary font-medium">${payment.paymentRef}</td>
+              <td class="px-4 py-3 text-textSecondary">${formatDate(payment.paymentDate)}</td>
+              <td class="px-4 py-3 text-textPrimary">${formatCurrency(payment.amount)}</td>
+              <td class="px-4 py-3 text-textSecondary">${payment.method}</td>
+            </tr>
+          `).join('');
+        }
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load payments:", error);
+      }
+    }
+
+    async function loadReceivables() {
+      try {
+        const response = await apiFetch(`/admin/clients/${clientId}/receivables`);
+        const receivables = response.data || [];
+        const tbody = document.getElementById('receivables-table-body');
+        
+        document.getElementById('outstanding-balance').textContent = formatCurrency(response.outstandingBalance || 0);
+        
+        if (response.hasOverdue) {
+          document.getElementById('overdue-alert').classList.remove('hidden');
+        }
+        
+        if (receivables.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Aucune créance</td></tr>`;
+        } else {
+          tbody.innerHTML = receivables.map(receivable => `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 text-textPrimary font-medium">${receivable.orderRef}</td>
+              <td class="px-4 py-3 text-textPrimary">${formatCurrency(receivable.amount)}</td>
+              <td class="px-4 py-3 text-textSecondary">${formatDate(receivable.dueDate)}</td>
+              <td class="px-4 py-3">
+                ${receivable.isOverdue 
+                  ? '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800">En retard</span>'
+                  : '<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800">En cours</span>'
+                }
+              </td>
+            </tr>
+          `).join('');
+        }
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load receivables:", error);
+      }
+    }
+
+    async function loadMaintenance() {
+      try {
+        const response = await apiFetch(`/admin/clients/${clientId}/maintenance`);
+        const contracts = response.data || [];
+        const tbody = document.getElementById('maintenance-table-body');
+        
+        if (contracts.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Aucun contrat de maintenance</td></tr>`;
+        } else {
+          tbody.innerHTML = contracts.map(contract => `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 text-textPrimary font-medium">${contract.productName}</td>
+              <td class="px-4 py-3 text-textSecondary">${formatDate(contract.startDate)}</td>
+              <td class="px-4 py-3 text-textSecondary">${formatDate(contract.endDate)}</td>
+              <td class="px-4 py-3">${renderStatusBadge(contract.status)}</td>
+            </tr>
+          `).join('');
+        }
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load maintenance:", error);
+      }
+    }
+
+    function renderStatusBadge(status) {
+      const colors = {
+        PENDING: "bg-yellow-100 text-yellow-800",
+        CONFIRMED: "bg-blue-100 text-blue-800",
+        DELIVERED: "bg-green-100 text-green-800",
+        CANCELLED: "bg-red-100 text-red-800",
+        PAID: "bg-green-100 text-green-800",
+        PARTIALLY_PAID: "bg-yellow-100 text-yellow-800",
+        ACTIVE: "bg-green-100 text-green-800",
+        EXPIRED: "bg-red-100 text-red-800"
+      };
+      const labels = {
+        PENDING: "En attente",
+        CONFIRMED: "Confirmé",
+        DELIVERED: "Livré",
+        CANCELLED: "Annulé",
+        PAID: "Payé",
+        PARTIALLY_PAID: "Partiellement payé",
+        ACTIVE: "Actif",
+        EXPIRED: "Expiré"
+      };
+      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
+    }
+
+    // Tab navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tab = this.dataset.tab;
+        
+        // Update active tab button
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update active tab content
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelector(`.tab-content[data-tab="${tab}"]`).classList.add('active');
+      });
+    });
+
+    function editClient() {
+      // TODO: Implement edit client functionality
+      alert("Modification du client - Fonctionnalité à venir");
+    }
+
+    async function activateClient() {
+      if (confirm("Êtes-vous sûr de vouloir activer ce client ?")) {
+        try {
+          await apiFetch(`/admin/clients/${clientId}/activate`, { method: "PUT" });
+          loadClientDetail();
+        } catch (error) {
+          console.error("Failed to activate client:", error);
+        }
+      }
+    }
+
+    async function suspendClient() {
+      if (confirm("Êtes-vous sûr de vouloir suspendre ce client ?")) {
+        try {
+          await apiFetch(`/admin/clients/${clientId}/suspend`, { method: "PUT" });
+          loadClientDetail();
+        } catch (error) {
+          console.error("Failed to suspend client:", error);
+        }
+      }
+    }
+
+    // Load client detail on page load
+    if (clientId) {
+      loadClientDetail();
+    } else {
+      window.location.href = '/medsupply-cloud/pages/clients.html';
+    }
+  </script>
+</body>
+</html>

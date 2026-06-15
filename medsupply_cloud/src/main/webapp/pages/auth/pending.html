@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compte en attente - MedSupply Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0A2647",
+              secondary: "#144272",
+              accent: "#2C74B3",
+              success: "#16A34A",
+              warning: "#D97706",
+              danger: "#DC2626",
+              background: "#F8FAFC",
+              surface: "#FFFFFF",
+              border: "#E2E8F0",
+              textPrimary: "#0F172A",
+              textSecondary: "#64748B",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-background min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-lg">
+      <div
+        class="bg-surface rounded-xl shadow-sm border border-border p-10 text-center"
+      >
+        <!-- Illustration -->
+        <div
+          class="w-32 h-32 bg-primary bg-opacity-5 rounded-full flex items-center justify-center mx-auto mb-8"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 100 100"
+            fill="none"
+            class="w-20 h-20"
+          >
+            <!-- Medical cross -->
+            <path
+              d="M30 35 L50 25 L70 35 L70 65 L50 75 L30 65 Z"
+              stroke="#0A2647"
+              stroke-width="2"
+              fill="none"
+            />
+            <path
+              d="M30 35 L50 45 L70 35"
+              stroke="#0A2647"
+              stroke-width="2"
+              fill="none"
+            />
+            <path
+              d="M50 45 L50 75"
+              stroke="#0A2647"
+              stroke-width="2"
+              fill="none"
+            />
+            <circle cx="50" cy="50" r="6" fill="#2C74B3" />
+            <!-- Clock icon -->
+            <circle
+              cx="75"
+              cy="25"
+              r="12"
+              stroke="#D97706"
+              stroke-width="2"
+              fill="white"
+            />
+            <path
+              d="M75 25 L75 18"
+              stroke="#D97706"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <path
+              d="M75 25 L80 28"
+              stroke="#D97706"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+
+        <h1 class="text-3xl font-bold text-textPrimary mb-3">
+          Votre compte est en cours de validation
+        </h1>
+        <p class="text-textSecondary text-lg mb-8 leading-relaxed">
+          Notre équipe examine votre dossier. Vous recevrez une confirmation par
+          email sous 24-48h.
+        </p>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+          <div class="flex items-start gap-4">
+            <div
+              class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+            >
+              <i data-lucide="mail" class="w-5 h-5 text-blue-600"></i>
+            </div>
+            <div class="text-left">
+              <p class="text-sm text-blue-800 font-medium mb-1">
+                Email de confirmation
+              </p>
+              <p class="text-sm text-blue-700" id="user-email">
+                votre@email.com
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3 mb-8">
+          <div class="flex items-center gap-3 text-left">
+            <div
+              class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0"
+            >
+              <i data-lucide="check" class="w-4 h-4 text-green-600"></i>
+            </div>
+            <p class="text-sm text-textPrimary">
+              Vérification de vos informations
+            </p>
+          </div>
+          <div class="flex items-center gap-3 text-left">
+            <div
+              class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0"
+            >
+              <i data-lucide="clock" class="w-4 h-4 text-yellow-600"></i>
+            </div>
+            <p class="text-sm text-textPrimary">
+              Validation par l'administrateur
+            </p>
+          </div>
+          <div class="flex items-center gap-3 text-left">
+            <div
+              class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0"
+            >
+              <i data-lucide="mail" class="w-4 h-4 text-gray-400"></i>
+            </div>
+            <p class="text-sm text-textSecondary">Email de confirmation</p>
+          </div>
+        </div>
+
+        <button
+          onclick="
+            window.location.href = '/medsupply-cloud/pages/auth/login.html'
+          "
+          class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors"
+        >
+          Retour à l'accueil
+        </button>
+      </div>
+
+      <p class="text-center text-textSecondary text-sm mt-6">
+        © 2026 MedSupply Cloud. Tous droits réservés.
+      </p>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/router.js"></script>
+    <script src="../../js/components/toast.js"></script>
+    <script>
+      lucide.createIcons();
+
+      // Display email from localStorage if available
+      const email = localStorage.getItem("registration_email");
+      if (email) {
+        document.getElementById("user-email").textContent = email;
+      }
+    </script>
+  </body>
+</html>

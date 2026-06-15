@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détail Contrat Maintenance - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col ml-72">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm mb-6">
+          <a href="maintenance.html" class="text-textSecondary hover:text-accent">Maintenance</a>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+          <span class="text-textPrimary font-medium" id="breadcrumb-ref">Chargement...</span>
+        </nav>
+
+        <!-- Two-Panel Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Left Panel: Contract Info -->
+          <div class="space-y-6">
+            <!-- Client Card -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <h3 class="font-semibold text-textPrimary mb-4">Client</h3>
+              <div class="space-y-3">
+                <div>
+                  <p class="text-sm text-textSecondary">Organisation</p>
+                  <p class="text-textPrimary font-medium" id="client-name">--</p>
+                </div>
+                <div>
+                  <p class="text-sm text-textSecondary">Type</p>
+                  <span id="client-type-badge" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">--</span>
+                </div>
+                <div>
+                  <p class="text-sm text-textSecondary">Contact</p>
+                  <p class="text-textPrimary" id="client-contact">--</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Card -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <h3 class="font-semibold text-textPrimary mb-4">Produit</h3>
+              <div class="flex items-center gap-4">
+                <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <img id="product-image" src="" alt="" class="w-full h-full object-cover hidden">
+                  <div id="product-image-placeholder" class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
+                    <i data-lucide="package" class="w-8 h-8 text-primary"></i>
+                  </div>
+                </div>
+                <div>
+                  <p class="font-medium text-textPrimary" id="product-name">--</p>
+                  <p class="text-sm text-textSecondary font-mono" id="product-reference">--</p>
+                  <p class="text-sm text-textSecondary" id="product-category">--</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contract Info -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <h3 class="font-semibold text-textPrimary mb-4">Informations Contrat</h3>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-textSecondary">N° Contrat</span>
+                  <span class="font-mono text-textPrimary font-medium" id="contract-ref">--</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-textSecondary">Date début</span>
+                  <span class="text-textPrimary" id="start-date">--</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-textSecondary">Date fin</span>
+                  <span class="text-textPrimary" id="end-date">--</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-textSecondary">Statut</span>
+                  <span id="contract-status" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium">--</span>
+                </div>
+                <div class="pt-3">
+                  <p class="text-sm text-textSecondary mb-2">Durée du contrat</p>
+                  <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="duration-progress" class="bg-accent h-3 rounded-full transition-all" style="width: 0%"></div>
+                  </div>
+                  <p class="text-xs text-textSecondary mt-1" id="duration-text">--</p>
+                </div>
+              </div>
+              <div class="flex gap-2 mt-4">
+                <button onclick="renewContract()" id="btn-renew" class="flex-1 bg-success hover:bg-green-700 text-white font-medium py-2 rounded-lg transition-colors">
+                  Renouveler le contrat
+                </button>
+                <button onclick="suspendContract()" id="btn-suspend" class="flex-1 bg-warning hover:bg-amber-700 text-white font-medium py-2 rounded-lg transition-colors">
+                  Suspendre
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Panel: Interventions History -->
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-textPrimary">Historique des interventions</h3>
+              <button onclick="showAddInterventionModal()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Ajouter</span>
+              </button>
+            </div>
+            <div class="space-y-4 max-h-[600px] overflow-y-auto" id="interventions-timeline">
+              <!-- Interventions will be loaded dynamically -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Intervention Modal -->
+  <div id="intervention-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-surface rounded-xl shadow-lg border border-border p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold text-textPrimary mb-4">Ajouter une intervention</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Date</label>
+          <input type="date" id="intervention-date"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Technicien</label>
+          <input type="text" id="intervention-technician"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+            placeholder="Nom du technicien">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Description des travaux</label>
+          <textarea id="intervention-description" rows="3"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"
+            placeholder="Décrivez les travaux effectués..."></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Résultat</label>
+          <textarea id="intervention-result" rows="2"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"
+            placeholder="Résultat de l'intervention..."></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button onclick="hideAddInterventionModal()" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+          Annuler
+        </button>
+        <button onclick="submitIntervention()" class="bg-success hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>
+    requireAuth(["ADMIN"]);
+    const currentUser = getCurrentUser();
+  </script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
+  <script src="../../js/utils/format.js"></script>
+  <script>
+    initPage("ADMIN");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const contractId = urlParams.get('id');
+
+    async function loadContract() {
+      try {
+        const response = await apiFetch(`/admin/maintenance/${contractId}`);
+        const contract = response.data;
+
+        // Update breadcrumb
+        document.getElementById('breadcrumb-ref').textContent = contract.contractRef;
+
+        // Update client info
+        document.getElementById('client-name').textContent = contract.clientName;
+        document.getElementById('client-type-badge').textContent = getClientTypeLabel(contract.clientType);
+        document.getElementById('client-type-badge').className = `inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getClientTypeColor(contract.clientType)}`;
+        document.getElementById('client-contact').textContent = `${contract.contactName} · ${contract.clientPhone}`;
+
+        // Update product info
+        if (contract.productImageUrl) {
+          document.getElementById('product-image').src = contract.productImageUrl;
+          document.getElementById('product-image').classList.remove('hidden');
+          document.getElementById('product-image-placeholder').classList.add('hidden');
+        }
+        document.getElementById('product-name').textContent = contract.productName;
+        document.getElementById('product-reference').textContent = contract.productReference;
+        document.getElementById('product-category').textContent = contract.productCategory;
+
+        // Update contract info
+        document.getElementById('contract-ref').textContent = contract.contractRef;
+        document.getElementById('start-date').textContent = formatDate(contract.startDate);
+        document.getElementById('end-date').textContent = formatDate(contract.endDate);
+        document.getElementById('contract-status').textContent = getStatusLabel(contract.status);
+        document.getElementById('contract-status').className = `inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getStatusColor(contract.status)}`;
+
+        // Update duration progress
+        const startDate = new Date(contract.startDate);
+        const endDate = new Date(contract.endDate);
+        const now = new Date();
+        const totalDuration = endDate - startDate;
+        const elapsed = now - startDate;
+        const progressPercent = Math.max(0, Math.min(100, (elapsed / totalDuration) * 100));
+        
+        document.getElementById('duration-progress').style.width = `${progressPercent}%`;
+        document.getElementById('duration-text').textContent = `${progressPercent.toFixed(0)}% écoulé`;
+
+        // Update action buttons
+        updateActionButtons(contract.status);
+
+        // Update interventions timeline
+        updateInterventionsTimeline(contract.interventions);
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load contract:", error);
+      }
+    }
+
+    function updateInterventionsTimeline(interventions) {
+      const container = document.getElementById('interventions-timeline');
+      
+      if (!interventions || interventions.length === 0) {
+        container.innerHTML = `<p class="text-textSecondary text-sm text-center py-8">Aucune intervention enregistrée</p>`;
+        return;
+      }
+
+      container.innerHTML = interventions.slice().reverse().map((intervention, index) => `
+        <div class="flex gap-3">
+          <div class="flex flex-col items-center">
+            <div class="w-3 h-3 rounded-full ${index === 0 ? 'bg-accent' : 'bg-gray-300'}"></div>
+            ${index < interventions.length - 1 ? '<div class="w-0.5 h-8 bg-gray-200"></div>' : ''}
+          </div>
+          <div class="flex-1 pb-4">
+            <p class="text-sm font-medium text-textPrimary">${formatDate(intervention.date)}</p>
+            <p class="text-xs text-textSecondary">Technicien: ${intervention.technician}</p>
+            <p class="text-sm text-textPrimary mt-1">${intervention.description}</p>
+            ${intervention.result ? `<p class="text-sm text-textSecondary mt-1">Résultat: ${intervention.result}</p>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateActionButtons(status) {
+      const btnRenew = document.getElementById('btn-renew');
+      const btnSuspend = document.getElementById('btn-suspend');
+
+      btnRenew.classList.add('hidden');
+      btnSuspend.classList.add('hidden');
+
+      if (status === 'ACTIVE') {
+        btnRenew.classList.remove('hidden');
+        btnSuspend.classList.remove('hidden');
+      }
+    }
+
+    function showAddInterventionModal() {
+      document.getElementById('intervention-modal').classList.remove('hidden');
+      document.getElementById('intervention-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    function hideAddInterventionModal() {
+      document.getElementById('intervention-modal').classList.add('hidden');
+      document.getElementById('intervention-technician').value = '';
+      document.getElementById('intervention-description').value = '';
+      document.getElementById('intervention-result').value = '';
+    }
+
+    async function submitIntervention() {
+      const date = document.getElementById('intervention-date').value;
+      const technician = document.getElementById('intervention-technician').value;
+      const description = document.getElementById('intervention-description').value;
+      const result = document.getElementById('intervention-result').value;
+
+      if (!date || !technician || !description) {
+        alert('Veuillez remplir tous les champs obligatoires');
+        return;
+      }
+
+      try {
+        await apiFetch(`/admin/maintenance/${contractId}/interventions`, {
+          method: 'POST',
+          body: JSON.stringify({
+            date,
+            technician,
+            description,
+            result
+          })
+        });
+        hideAddInterventionModal();
+        loadContract();
+      } catch (error) {
+        console.error("Failed to submit intervention:", error);
+        alert('Erreur lors de l\'enregistrement de l\'intervention');
+      }
+    }
+
+    async function renewContract() {
+      if (confirm('Voulez-vous renouveler ce contrat ?')) {
+        try {
+          await apiFetch(`/admin/maintenance/${contractId}/renew`, { method: 'POST' });
+          loadContract();
+        } catch (error) {
+          console.error("Failed to renew contract:", error);
+          alert('Erreur lors du renouvellement du contrat');
+        }
+      }
+    }
+
+    async function suspendContract() {
+      if (confirm('Voulez-vous suspendre ce contrat ?')) {
+        try {
+          await apiFetch(`/admin/maintenance/${contractId}/suspend`, { method: 'POST' });
+          loadContract();
+        } catch (error) {
+          console.error("Failed to suspend contract:", error);
+          alert('Erreur lors de la suspension du contrat');
+        }
+      }
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        ACTIVE: "Actif",
+        EXPIRED: "Expiré",
+        SUSPENDED: "Suspendu"
+      };
+      return labels[status] || status;
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        ACTIVE: "bg-green-100 text-green-800",
+        EXPIRED: "bg-red-100 text-red-800",
+        SUSPENDED: "bg-orange-100 text-orange-800"
+      };
+      return colors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    function getClientTypeLabel(type) {
+      const labels = {
+        HOSPITAL: "Hôpital",
+        LABORATORY: "Laboratoire",
+        CLINIC: "Clinique",
+        DOCTOR: "Médecin",
+        MEDICAL_OFFICE: "Cabinet",
+        RESELLER: "Revendeur"
+      };
+      return labels[type] || type;
+    }
+
+    function getClientTypeColor(type) {
+      const colors = {
+        HOSPITAL: "bg-blue-100 text-blue-800",
+        LABORATORY: "bg-purple-100 text-purple-800",
+        CLINIC: "bg-teal-100 text-teal-800",
+        DOCTOR: "bg-green-100 text-green-800",
+        MEDICAL_OFFICE: "bg-orange-100 text-orange-800",
+        RESELLER: "bg-slate-100 text-slate-800"
+      };
+      return colors[type] || 'bg-gray-100 text-gray-800';
+    }
+
+    // Load contract on page load
+    if (contractId) {
+      loadContract();
+    } else {
+      window.location.href = '/medsupply-cloud/pages/maintenance.html';
+    }
+  </script>
+</body>
+</html>

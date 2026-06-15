@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Détail Produit - MedSupply Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0A2647",
+              secondary: "#144272",
+              accent: "#2C74B3",
+              success: "#16A34A",
+              warning: "#D97706",
+              danger: "#DC2626",
+              background: "#F8FAFC",
+              surface: "#FFFFFF",
+              border: "#E2E8F0",
+              textPrimary: "#0F172A",
+              textSecondary: "#64748B",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-textPrimary">
+    <!-- Navbar will be inserted here -->
+
+    <!-- Breadcrumb -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex items-center gap-2 text-sm text-textSecondary">
+        <a href="/medsupply-cloud/" class="hover:text-accent">Accueil</a>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <a href="/medsupply-cloud/pages/products.html" class="hover:text-accent"
+          >Produits</a
+        >
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <span id="product-category">Catégorie</span>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+      <div id="product-container" class="bg-white rounded-lg shadow-md p-8">
+        <div class="grid md:grid-cols-2 gap-12">
+          <!-- Product Image -->
+          <div>
+            <div
+              class="bg-background rounded-lg mb-4 overflow-hidden h-96 flex items-center justify-center"
+            >
+              <img
+                id="product-image"
+                src=""
+                alt="Product"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="grid grid-cols-4 gap-4">
+              <img
+                id="thumb-1"
+                src=""
+                alt="Thumb"
+                class="w-full aspect-square object-cover rounded-lg cursor-pointer border-2 border-border hover:border-accent transition"
+                onclick="changeImage(this.src)"
+              />
+              <img
+                id="thumb-2"
+                src=""
+                alt="Thumb"
+                class="w-full aspect-square object-cover rounded-lg cursor-pointer border-2 border-border hover:border-accent transition"
+                onclick="changeImage(this.src)"
+              />
+              <img
+                id="thumb-3"
+                src=""
+                alt="Thumb"
+                class="w-full aspect-square object-cover rounded-lg cursor-pointer border-2 border-border hover:border-accent transition"
+                onclick="changeImage(this.src)"
+              />
+              <img
+                id="thumb-4"
+                src=""
+                alt="Thumb"
+                class="w-full aspect-square object-cover rounded-lg cursor-pointer border-2 border-border hover:border-accent transition"
+                onclick="changeImage(this.src)"
+              />
+            </div>
+          </div>
+
+          <!-- Product Details -->
+          <div>
+            <div id="badges" class="flex gap-2 mb-4">
+              <!-- Badges will be inserted here -->
+            </div>
+
+            <h1
+              id="product-name"
+              class="text-4xl font-bold mb-4 text-textPrimary"
+            ></h1>
+
+            <!-- Rating -->
+            <div class="flex items-center gap-3 mb-6">
+              <div class="flex text-warning">
+                <i data-lucide="star" class="w-5 h-5 fill-warning"></i>
+                <i data-lucide="star" class="w-5 h-5 fill-warning"></i>
+                <i data-lucide="star" class="w-5 h-5 fill-warning"></i>
+                <i data-lucide="star" class="w-5 h-5 fill-warning"></i>
+                <i data-lucide="star" class="w-5 h-5 fill-warning"></i>
+              </div>
+              <span id="rating-info" class="text-textSecondary">(0 avis)</span>
+            </div>
+
+            <!-- Price -->
+            <div class="mb-6 p-6 bg-background rounded-lg">
+              <div class="flex items-baseline gap-4 mb-2">
+                <span id="final-price" class="text-4xl font-bold text-primary"
+                  >0€</span
+                >
+                <span
+                  id="original-price"
+                  class="text-xl text-textSecondary line-through hidden"
+                  >0€</span
+                >
+                <span
+                  id="discount-badge"
+                  class="bg-danger text-white px-3 py-1 rounded-full text-sm font-bold hidden"
+                  >-0%</span
+                >
+              </div>
+              <p id="price-note" class="text-sm text-textSecondary">
+                TVA incluse. Livraison rapide disponible.
+              </p>
+            </div>
+
+            <!-- Stock Status -->
+            <div
+              id="stock-status"
+              class="mb-6 p-4 rounded-lg bg-success bg-opacity-10 border border-success"
+            >
+              <div class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-5 h-5 text-success"></i>
+                <span id="stock-text" class="text-success font-medium"
+                  >En Stock</span
+                >
+              </div>
+            </div>
+
+            <!-- Quantity Selector -->
+            <div class="mb-6 flex items-center gap-4">
+              <label class="font-medium">Quantité:</label>
+              <div class="flex items-center border border-border rounded-lg">
+                <button
+                  onclick="decreaseQuantity()"
+                  class="px-4 py-2 text-textSecondary hover:text-primary transition"
+                >
+                  <i data-lucide="minus" class="w-5 h-5"></i>
+                </button>
+                <input
+                  type="number"
+                  id="quantity"
+                  value="1"
+                  min="1"
+                  class="w-16 text-center border-0 outline-none"
+                />
+                <button
+                  onclick="increaseQuantity()"
+                  class="px-4 py-2 text-textSecondary hover:text-primary transition"
+                >
+                  <i data-lucide="plus" class="w-5 h-5"></i>
+                </button>
+              </div>
+              <span id="max-quantity" class="text-sm text-textSecondary"
+                >(max: 0)</span
+              >
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button
+              onclick="addProductToCart()"
+              class="w-full bg-accent hover:bg-secondary text-white py-4 rounded-lg font-bold text-lg mb-4 transition-colors flex items-center justify-center gap-2"
+            >
+              <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+              Ajouter au Panier
+            </button>
+
+            <!-- Wishlist Button -->
+            <button
+              class="w-full border-2 border-accent text-accent hover:bg-background py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
+            >
+              <i data-lucide="heart" class="w-5 h-5"></i>
+              Ajouter à la Liste de Souhaits
+            </button>
+
+            <!-- Product Info -->
+            <div class="mt-8 pt-8 border-t border-border space-y-4">
+              <div class="flex gap-4">
+                <i
+                  data-lucide="truck"
+                  class="w-6 h-6 text-accent flex-shrink-0"
+                ></i>
+                <div>
+                  <h4 class="font-bold mb-1">Livraison Rapide</h4>
+                  <p class="text-sm text-textSecondary">
+                    Livraison sous 48-72h partout en France
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <i
+                  data-lucide="shield-check"
+                  class="w-6 h-6 text-accent flex-shrink-0"
+                ></i>
+                <div>
+                  <h4 class="font-bold mb-1">100% Sécurisé</h4>
+                  <p class="text-sm text-textSecondary">
+                    Tous les paiements sont chiffrés et sécurisés
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-4">
+                <i
+                  data-lucide="undo-2"
+                  class="w-6 h-6 text-accent flex-shrink-0"
+                ></i>
+                <div>
+                  <h4 class="font-bold mb-1">Retour Facile</h4>
+                  <p class="text-sm text-textSecondary">
+                    Retours gratuits pendant 30 jours après achat
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description Tabs -->
+      <div class="mt-12 bg-white rounded-lg shadow-md p-8">
+        <div class="flex gap-8 border-b border-border mb-8">
+          <button
+            onclick="showTab('description')"
+            class="tab-button pb-4 font-bold text-accent border-b-2 border-accent"
+          >
+            Description
+          </button>
+          <button
+            onclick="showTab('specifications')"
+            class="tab-button pb-4 font-bold text-textSecondary"
+          >
+            Spécifications
+          </button>
+          <button
+            onclick="showTab('reviews')"
+            class="tab-button pb-4 font-bold text-textSecondary"
+          >
+            Avis
+          </button>
+        </div>
+
+        <div id="description" class="tab-content">
+          <h3 class="text-2xl font-bold mb-4">Description du Produit</h3>
+          <p class="text-textSecondary mb-6" id="product-description"></p>
+        </div>
+
+        <div id="specifications" class="tab-content hidden">
+          <h3 class="text-2xl font-bold mb-6">Spécifications</h3>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <h4 class="font-bold mb-3">Caractéristiques Techniques</h4>
+              <dl class="space-y-3">
+                <div class="flex justify-between">
+                  <dt class="text-textSecondary">Catégorie:</dt>
+                  <dd id="spec-category" class="font-medium"></dd>
+                </div>
+                <div class="flex justify-between">
+                  <dt class="text-textSecondary">Stock Disponible:</dt>
+                  <dd id="spec-stock" class="font-medium"></dd>
+                </div>
+                <div class="flex justify-between">
+                  <dt class="text-textSecondary">Rating:</dt>
+                  <dd id="spec-rating" class="font-medium"></dd>
+                </div>
+                <div class="flex justify-between">
+                  <dt class="text-textSecondary">Avis Clients:</dt>
+                  <dd id="spec-reviews" class="font-medium"></dd>
+                </div>
+              </dl>
+            </div>
+            <div>
+              <h4 class="font-bold mb-3">Informations Complémentaires</h4>
+              <p class="text-textSecondary text-sm">
+                Ce produit est certifié et conforme aux normes de qualité
+                médicales. Livré en emballage d'origine sécurisé.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div id="reviews" class="tab-content hidden">
+          <h3 class="text-2xl font-bold mb-6">Avis Clients</h3>
+          <div class="space-y-6">
+            <div class="flex gap-4 pb-6 border-b border-border">
+              <img
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=48&h=48&fit=crop"
+                alt="User"
+                class="w-12 h-12 rounded-full"
+              />
+              <div class="flex-1">
+                <div class="flex justify-between items-start mb-2">
+                  <h4 class="font-bold">Dr. Jean Dupont</h4>
+                  <div class="flex text-warning text-sm">
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                  </div>
+                </div>
+                <p class="text-textSecondary text-sm mb-2">
+                  Excellent produit, correspond parfaitement à mes attentes.
+                  Livraison rapide et bien emballé.
+                </p>
+                <span class="text-xs text-textSecondary"
+                  >Il y a 2 semaines</span
+                >
+              </div>
+            </div>
+
+            <div class="flex gap-4 pb-6 border-b border-border">
+              <img
+                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=48&h=48&fit=crop"
+                alt="User"
+                class="w-12 h-12 rounded-full"
+              />
+              <div class="flex-1">
+                <div class="flex justify-between items-start mb-2">
+                  <h4 class="font-bold">Marie Martin</h4>
+                  <div class="flex text-warning text-sm">
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                    <i data-lucide="star" class="w-4 h-4 fill-warning"></i>
+                  </div>
+                </div>
+                <p class="text-textSecondary text-sm mb-2">
+                  Très satisfaite de cet achat. Rapport qualité-prix excellent.
+                </p>
+                <span class="text-xs text-textSecondary">Il y a 1 mois</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Products -->
+      <section class="mt-16">
+        <h2 class="text-3xl font-bold mb-8">Produits Similaires</h2>
+        <div id="related-products" class="grid md:grid-cols-4 gap-6">
+          <!-- Will be loaded here -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/mock-data.js"></script>
+    <script src="../js/components/toast.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script>
+      let currentProduct = null;
+
+      function getProductId() {
+        const params = new URLSearchParams(window.location.search);
+        return parseInt(params.get("id"));
+      }
+
+      function loadProduct() {
+        const productId = getProductId();
+        currentProduct = getProductById(productId);
+
+        if (!currentProduct) {
+          document.getElementById("product-container").innerHTML = `
+          <div class="text-center py-12">
+            <i data-lucide="inbox" class="w-16 h-16 text-textSecondary mx-auto mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">Produit non trouvé</h3>
+            <a href="/medsupply-cloud/pages/products.html" class="text-accent hover:text-secondary font-semibold">Retourner aux produits</a>
+          </div>
+        `;
+          return;
+        }
+
+        const finalPrice =
+          currentProduct.price * (1 - (currentProduct.discount || 0) / 100);
+
+        // Update basic info
+        document.getElementById("product-name").textContent =
+          currentProduct.name;
+        document.getElementById("product-description").textContent =
+          currentProduct.description;
+        document.getElementById("product-image").src = currentProduct.image;
+        document.getElementById("rating-info").textContent =
+          `(${currentProduct.reviews} avis)`;
+        document.getElementById("product-category").textContent =
+          currentProduct.category;
+        document.getElementById("max-quantity").textContent =
+          `(max: ${currentProduct.stock})`;
+
+        // Update price
+        document.getElementById("final-price").textContent =
+          `${finalPrice.toFixed(2)}€`;
+        if (currentProduct.discount) {
+          document.getElementById("original-price").classList.remove("hidden");
+          document.getElementById("original-price").textContent =
+            `${currentProduct.price.toFixed(2)}€`;
+          document.getElementById("discount-badge").classList.remove("hidden");
+          document.getElementById("discount-badge").textContent =
+            `-${currentProduct.discount}%`;
+        }
+
+        // Update stock status
+        if (currentProduct.stock === 0) {
+          document.getElementById("stock-status").innerHTML = `
+          <div class="flex items-center gap-2">
+            <i data-lucide="x-circle" class="w-5 h-5 text-danger"></i>
+            <span class="text-danger font-medium">Rupture de Stock</span>
+          </div>
+        `;
+          document.getElementById("stock-status").className =
+            "mb-6 p-4 rounded-lg bg-danger bg-opacity-10 border border-danger";
+        } else if (currentProduct.stock < 10) {
+          document.getElementById("stock-status").innerHTML = `
+          <div class="flex items-center gap-2">
+            <i data-lucide="alert-circle" class="w-5 h-5 text-warning"></i>
+            <span class="text-warning font-medium">${currentProduct.stock} articles restants</span>
+          </div>
+        `;
+          document.getElementById("stock-status").className =
+            "mb-6 p-4 rounded-lg bg-warning bg-opacity-10 border border-warning";
+        }
+
+        // Update badges
+        let badgesHTML = "";
+        if (currentProduct.badge) {
+          badgesHTML += `<span class="bg-accent text-white text-xs font-bold px-4 py-1 rounded-full">${currentProduct.badge}</span>`;
+        }
+        if (currentProduct.discount) {
+          badgesHTML += `<span class="bg-danger text-white text-xs font-bold px-4 py-1 rounded-full">-${currentProduct.discount}%</span>`;
+        }
+        document.getElementById("badges").innerHTML = badgesHTML;
+
+        // Update specs
+        document.getElementById("spec-category").textContent =
+          currentProduct.category;
+        document.getElementById("spec-stock").textContent =
+          `${currentProduct.stock} unités`;
+        document.getElementById("spec-rating").textContent =
+          `${currentProduct.rating}/5`;
+        document.getElementById("spec-reviews").textContent =
+          currentProduct.reviews;
+
+        // Update thumbnails (same image for all)
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById(`thumb-${i}`).src = currentProduct.image;
+        }
+
+        // Load related products
+        loadRelatedProducts();
+        lucide.createIcons();
+      }
+
+      function changeImage(src) {
+        document.getElementById("product-image").src = src;
+      }
+
+      function increaseQuantity() {
+        const input = document.getElementById("quantity");
+        const max = currentProduct.stock;
+        if (parseInt(input.value) < max) {
+          input.value = parseInt(input.value) + 1;
+        }
+      }
+
+      function decreaseQuantity() {
+        const input = document.getElementById("quantity");
+        if (parseInt(input.value) > 1) {
+          input.value = parseInt(input.value) - 1;
+        }
+      }
+
+      function addProductToCart() {
+        const quantity = parseInt(document.getElementById("quantity").value);
+        addToCart(currentProduct.id, quantity);
+        showToast(
+          `${quantity} x ${currentProduct.name} ajouté au panier!`,
+          "success",
+        );
+        document.getElementById("quantity").value = 1;
+      }
+
+      function showTab(tabName) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.add("hidden"));
+        document.querySelectorAll(".tab-button").forEach((el) => {
+          el.classList.remove("text-accent", "border-b-2", "border-accent");
+          el.classList.add("text-textSecondary");
+        });
+
+        document.getElementById(tabName).classList.remove("hidden");
+        event.target.classList.add(
+          "text-accent",
+          "border-b-2",
+          "border-accent",
+        );
+        event.target.classList.remove("text-textSecondary");
+      }
+
+      function loadRelatedProducts() {
+        const related = MOCK_PRODUCTS.filter(
+          (p) =>
+            p.category === currentProduct.category &&
+            p.id !== currentProduct.id,
+        ).slice(0, 4);
+        const container = document.getElementById("related-products");
+        container.innerHTML = related.map((p) => createProductCard(p)).join("");
+        lucide.createIcons();
+      }
+
+      document.addEventListener("DOMContentLoaded", loadProduct);
+    </script>
+  </body>
+</html>

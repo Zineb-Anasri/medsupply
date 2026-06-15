@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catalogue - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Page Header -->
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-textPrimary">Catalogue</h1>
+          <p class="text-textSecondary">Parcourez notre catalogue de produits médicaux</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+          <!-- Filters Sidebar -->
+          <div class="w-full lg:w-64 flex-shrink-0">
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6 sticky top-6">
+              <!-- Search -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-textPrimary mb-2">Recherche</label>
+                <div class="relative">
+                  <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                  <input type="text" id="search-input" placeholder="Nom, référence..."
+                    class="w-full pl-10 pr-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all text-sm">
+                </div>
+              </div>
+
+              <!-- Categories -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-textPrimary mb-2">Catégories</label>
+                <div class="space-y-2" id="category-filters">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="category-checkbox w-4 h-4 text-accent border-border rounded focus:ring-accent" value="all" checked>
+                    <span class="text-sm text-textPrimary">Toutes</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="category-checkbox w-4 h-4 text-accent border-border rounded focus:ring-accent" value="Imagerie médicale">
+                    <span class="text-sm text-textPrimary">Imagerie médicale</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="category-checkbox w-4 h-4 text-accent border-border rounded focus:ring-accent" value="Équipement chirurgical">
+                    <span class="text-sm text-textPrimary">Équipement chirurgical</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="category-checkbox w-4 h-4 text-accent border-border rounded focus:ring-accent" value="Laboratoire">
+                    <span class="text-sm text-textPrimary">Laboratoire</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="category-checkbox w-4 h-4 text-accent border-border rounded focus:ring-accent" value="Diagnostic">
+                    <span class="text-sm text-textPrimary">Diagnostic</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="category-checkbox w-4 h-4 text-accent border-border rounded focus:ring-accent" value="Mobiliers médicaux">
+                    <span class="text-sm text-textPrimary">Mobiliers médicaux</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="category-checkbox w-4 h-4 text-accent border-border rounded focus:ring-accent" value="Consommables">
+                    <span class="text-sm text-textPrimary">Consommables</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Brands -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-textPrimary mb-2">Marques</label>
+                <div class="space-y-2 max-h-40 overflow-y-auto" id="brand-filters">
+                  <!-- Brands will be loaded dynamically -->
+                </div>
+              </div>
+
+              <!-- Price Range -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-textPrimary mb-2">Prix</label>
+                <div class="space-y-2">
+                  <input type="number" id="price-min" placeholder="Min"
+                    class="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all text-sm">
+                  <input type="number" id="price-max" placeholder="Max"
+                    class="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all text-sm">
+                </div>
+              </div>
+
+              <!-- Stock Status -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-textPrimary mb-2">Disponibilité</label>
+                <select id="stock-filter" class="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all text-sm">
+                  <option value="">Tous</option>
+                  <option value="in-stock">En stock</option>
+                  <option value="low-stock">Stock limité</option>
+                </select>
+              </div>
+
+              <button onclick="applyFilters()" class="w-full bg-accent hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors">
+                Appliquer les filtres
+              </button>
+              <button onclick="resetFilters()" class="w-full bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium py-2 rounded-lg transition-colors mt-2">
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+
+          <!-- Products Grid -->
+          <div class="flex-1">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="products-grid">
+              <!-- Products will be loaded dynamically -->
+            </div>
+
+            <!-- Load More -->
+            <div class="text-center mt-8" id="load-more-container">
+              <button onclick="loadMore()" id="load-more-btn" class="bg-primary hover:bg-secondary text-white font-medium px-6 py-2 rounded-lg transition-colors">
+                Charger plus
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    requireAuth(["CLIENT"]);
+  </script>
+  <script src="/js/router.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/header.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/utils/format.js"></script>
+  <script>
+    initPage("CLIENT");
+    const role = getCurrentRole();
+    if (role) {
+      renderSidebar(role.toLowerCase());
+    }
+    renderHeader();
+
+    let currentPage = 1;
+    const pageSize = 12;
+    let hasMore = true;
+    let selectedCategories = [];
+    let selectedBrands = [];
+
+    async function loadProducts(append = false) {
+      try {
+        const search = document.getElementById('search-input').value;
+        const priceMin = document.getElementById('price-min').value;
+        const priceMax = document.getElementById('price-max').value;
+        const stockFilter = document.getElementById('stock-filter').value;
+
+        const response = await apiFetch(`/products?search=${search}&categoryId=${selectedCategories.join(',')}&brandId=${selectedBrands.join(',')}`);
+        const data = response?.data || {};
+
+        if (!append) {
+          document.getElementById('products-grid').innerHTML = '';
+        }
+
+        const products = data.products || [];
+        if (products.length === 0 && !append) {
+          document.getElementById('products-grid').innerHTML = `
+            <div class="col-span-full text-center py-12">
+              <i data-lucide="package" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+              <p class="text-textSecondary">Aucun produit trouvé</p>
+            </div>
+          `;
+        } else {
+          const productsHtml = products.map(product => `
+            <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onclick="viewProduct('${product.productId}')">
+              <div class="aspect-[4/3] bg-gray-100 relative">
+                ${product.imageUrl 
+                  ? `<img src="${product.imageUrl}" alt="${product.name}" class="w-full h-full object-cover">`
+                  : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
+                      <i data-lucide="package" class="w-12 h-12 text-primary"></i>
+                    </div>`
+                }
+                <span class="absolute top-3 left-3 bg-white bg-opacity-90 px-2 py-1 rounded-md text-xs font-medium text-textPrimary">${product.category}</span>
+              </div>
+              <div class="p-4">
+                <h3 class="font-semibold text-textPrimary mb-1">${product.name}</h3>
+                <p class="text-sm text-textSecondary mb-2">${product.brand} · <span class="font-mono text-xs">${product.reference}</span></p>
+                <p class="text-xl font-bold text-accent mb-2">${formatCurrency(product.unitPrice)}</p>
+                ${renderStockBadge(product.quantity, product.minQuantity)}
+                <p class="text-xs text-textSecondary mt-2">Garantie ${product.warrantyMonths} mois</p>
+                <button class="w-full mt-3 bg-primary hover:bg-secondary text-white font-medium py-2 rounded-lg transition-colors text-sm">
+                  Demander un devis
+                </button>
+              </div>
+            </div>
+          `).join('');
+
+          if (append) {
+            document.getElementById('products-grid').innerHTML += productsHtml;
+          } else {
+            document.getElementById('products-grid').innerHTML = productsHtml;
+          }
+        }
+
+        hasMore = data.hasMore || false;
+        document.getElementById('load-more-btn').style.display = hasMore ? 'inline-block' : 'none';
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load products:", error);
+      }
+    }
+
+    async function loadFilters() {
+      try {
+        const response = await apiFetch('/client/catalog/filters');
+        const data = response?.data || {};
+
+        // Load brands
+        const brandFilters = document.getElementById('brand-filters');
+        const brands = data.brands || [];
+        brandFilters.innerHTML = brands.map(brand => `
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" class="brand-checkbox w-4 h-4 text-accent border-border rounded focus:ring-accent" value="${brand}">
+            <span class="text-sm text-textPrimary">${brand}</span>
+          </label>
+        `).join('');
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load filters:", error);
+      }
+    }
+
+    function renderStockBadge(quantity, minQuantity) {
+      if (quantity === 0) {
+        return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800">Rupture</span>`;
+      } else if (quantity <= minQuantity) {
+        return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-yellow-100 text-yellow-800">Stock limité</span>`;
+      } else {
+        return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">En stock</span>`;
+      }
+    }
+
+    function applyFilters() {
+      selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked:not([value="all"])')).map(cb => cb.value);
+      selectedBrands = Array.from(document.querySelectorAll('.brand-checkbox:checked')).map(cb => cb.value);
+      currentPage = 1;
+      loadProducts();
+    }
+
+    function resetFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('price-min').value = '';
+      document.getElementById('price-max').value = '';
+      document.getElementById('stock-filter').value = '';
+      
+      document.querySelectorAll('.category-checkbox').forEach(cb => cb.checked = false);
+      document.querySelector('.category-checkbox[value="all"]').checked = true;
+      
+      document.querySelectorAll('.brand-checkbox').forEach(cb => cb.checked = false);
+      
+      selectedCategories = [];
+      selectedBrands = [];
+      currentPage = 1;
+      loadProducts();
+    }
+
+    function loadMore() {
+      currentPage++;
+      loadProducts(true);
+    }
+
+    function viewProduct(productId) {
+      window.location.href = `product-detail.html?id=${productId}`;
+    }
+
+    // Category checkbox handling
+    document.querySelectorAll('.category-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        if (this.value === 'all') {
+          if (this.checked) {
+            document.querySelectorAll('.category-checkbox:not([value="all"])').forEach(cb => cb.checked = false);
+          }
+        } else {
+          document.querySelector('.category-checkbox[value="all"]').checked = false;
+        }
+      });
+    });
+
+    // Initialize
+    loadFilters();
+    loadProducts();
+  </script>
+</body>
+</html>

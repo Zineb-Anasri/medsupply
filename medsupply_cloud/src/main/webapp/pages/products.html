@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tous les Produits - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  </style>
+</head>
+<body class="bg-background text-textPrimary">
+  <!-- Navbar will be inserted here -->
+
+  <!-- Page Header -->
+  <section class="bg-gradient-to-r from-primary to-secondary text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-4xl font-bold mb-2">Nos Produits</h1>
+      <p class="text-white text-opacity-90">Parcourez notre large sélection de fournitures médicales professionnelles</p>
+    </div>
+  </section>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid md:grid-cols-4 gap-8">
+      <!-- Sidebar Filters -->
+      <div class="md:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+          <!-- Category Filter -->
+          <div class="mb-8">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <i data-lucide="list" class="w-5 h-5"></i>
+              Catégories
+            </h3>
+            <div class="space-y-3">
+              <label class="flex items-center cursor-pointer">
+                <input type="radio" name="category" value="" onchange="applyFilters()" checked class="mr-3">
+                <span class="text-textPrimary">Tous les Produits</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="radio" name="category" value="equipements-medicaux" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">🏥 Équipements Médicaux</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="radio" name="category" value="appareils-diagnostic" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">🔬 Appareils Diagnostic</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="radio" name="category" value="fournitures-medicales" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">💊 Fournitures</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="radio" name="category" value="equipement-chirurgical" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">✂️ Équipement Chirurgical</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Price Filter -->
+          <div class="mb-8">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <i data-lucide="tag" class="w-5 h-5"></i>
+              Prix
+            </h3>
+            <div class="space-y-3">
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" name="price" value="0-500" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">0€ - 500€</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" name="price" value="500-2000" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">500€ - 2000€</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" name="price" value="2000-5000" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">2000€ - 5000€</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" name="price" value="5000+" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">5000€+</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Rating Filter -->
+          <div>
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <i data-lucide="star" class="w-5 h-5"></i>
+              Note
+            </h3>
+            <div class="space-y-3">
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" name="rating" value="4.5" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">⭐ 4.5+ étoiles</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" name="rating" value="4" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">⭐ 4+ étoiles</span>
+              </label>
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" name="rating" value="3" onchange="applyFilters()" class="mr-3">
+                <span class="text-textPrimary">⭐ 3+ étoiles</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Section -->
+      <div class="md:col-span-3">
+        <!-- Toolbar -->
+        <div class="flex justify-between items-center mb-8">
+          <div class="text-textSecondary">
+            Affichage <span id="product-count">0</span> résultats
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-textSecondary font-medium">Trier par:</label>
+            <select id="sort-select" onchange="applyFilters()" class="border border-border rounded-lg px-4 py-2 text-textPrimary">
+              <option value="popular">Populaires</option>
+              <option value="price-low">Prix: Bas à Haut</option>
+              <option value="price-high">Prix: Haut à Bas</option>
+              <option value="rating">Meilleures Notes</option>
+              <option value="newest">Nouveaux</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="products-grid" class="grid md:grid-cols-3 gap-6">
+          <!-- Products will be loaded here -->
+        </div>
+
+        <!-- No Results -->
+        <div id="no-results" class="hidden text-center py-12">
+          <i data-lucide="inbox" class="w-16 h-16 text-textSecondary mx-auto mb-4"></i>
+          <h3 class="text-xl font-bold mb-2">Aucun produit trouvé</h3>
+          <p class="text-textSecondary">Essayez de modifier vos filtres</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/mock-data.js"></script>
+  <script src="../js/components/toast.js"></script>
+  <script src="../js/components/navbar.js"></script>
+  <script>
+    function applyFilters() {
+      const selectedCategory = document.querySelector('input[name="category"]:checked').value;
+      const selectedPrices = Array.from(document.querySelectorAll('input[name="price"]:checked')).map(el => el.value);
+      const selectedRatings = Array.from(document.querySelectorAll('input[name="rating"]:checked')).map(el => parseFloat(el.value));
+      const sortBy = document.getElementById("sort-select").value;
+      const searchParams = new URLSearchParams(window.location.search);
+      const searchTerm = searchParams.get("search")?.toLowerCase() || "";
+
+      let filtered = MOCK_PRODUCTS.filter(product => {
+        // Category filter
+        const categoryMatch = !selectedCategory || product.category.toLowerCase().includes(selectedCategory.replace(/-/g, " "));
+        
+        // Search filter
+        const searchMatch = !searchTerm || product.name.toLowerCase().includes(searchTerm) || product.description.toLowerCase().includes(searchTerm);
+        
+        // Price filter
+        let priceMatch = selectedPrices.length === 0;
+        if (selectedPrices.length > 0) {
+          priceMatch = selectedPrices.some(range => {
+            if (range === "0-500") return product.price <= 500;
+            if (range === "500-2000") return product.price > 500 && product.price <= 2000;
+            if (range === "2000-5000") return product.price > 2000 && product.price <= 5000;
+            if (range === "5000+") return product.price > 5000;
+          });
+        }
+        
+        // Rating filter
+        let ratingMatch = selectedRatings.length === 0;
+        if (selectedRatings.length > 0) {
+          ratingMatch = selectedRatings.some(rating => product.rating >= rating);
+        }
+        
+        return categoryMatch && searchMatch && priceMatch && ratingMatch;
+      });
+
+      // Apply sorting
+      if (sortBy === "price-low") {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (sortBy === "price-high") {
+        filtered.sort((a, b) => b.price - a.price);
+      } else if (sortBy === "rating") {
+        filtered.sort((a, b) => b.rating - a.rating);
+      } else if (sortBy === "newest") {
+        filtered = filtered.reverse();
+      }
+
+      // Display products
+      const grid = document.getElementById("products-grid");
+      const noResults = document.getElementById("no-results");
+
+      if (filtered.length === 0) {
+        grid.innerHTML = "";
+        noResults.classList.remove("hidden");
+      } else {
+        grid.innerHTML = filtered.map(product => createProductCard(product)).join("");
+        noResults.classList.add("hidden");
+      }
+
+      document.getElementById("product-count").textContent = filtered.length;
+      lucide.createIcons();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Set category from URL if exists
+      const searchParams = new URLSearchParams(window.location.search);
+      const category = searchParams.get("category");
+      if (category) {
+        const radio = document.querySelector(`input[name="category"][value="${category}"]`);
+        if (radio) radio.checked = true;
+      }
+      
+      applyFilters();
+    });
+  </script>
+</body>
+</html>

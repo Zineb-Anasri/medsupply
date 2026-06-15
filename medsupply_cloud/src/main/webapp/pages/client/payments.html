@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mes Paiements - MedSupply Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0A2647",
+              secondary: "#144272",
+              accent: "#2C74B3",
+              success: "#16A34A",
+              warning: "#D97706",
+              danger: "#DC2626",
+              background: "#F8FAFC",
+              surface: "#FFFFFF",
+              border: "#E2E8F0",
+              textPrimary: "#0F172A",
+              textSecondary: "#64748B",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-background">
+    <div class="flex h-screen">
+      <aside
+        id="sidebar"
+        class="bg-white border-r border-gray-200 flex-shrink-0"
+      ></aside>
+      <div class="flex-1 flex flex-col ">
+        <header id="header"></header>
+        <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h1 class="text-2xl font-bold text-textPrimary">Mes Paiements</h1>
+              <p class="text-textSecondary">Historique de vos paiements</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div
+              class="bg-surface rounded-xl shadow-sm border border-border p-6"
+            >
+              <p class="text-textSecondary text-sm">Total payé</p>
+              <p class="text-2xl font-bold text-primary" id="stat-total-paid">
+                0,00 MAD
+              </p>
+            </div>
+            <div
+              class="bg-surface rounded-xl shadow-sm border border-border p-6"
+            >
+              <p class="text-textSecondary text-sm">En attente</p>
+              <p class="text-2xl font-bold text-warning" id="stat-pending">
+                0,00 MAD
+              </p>
+            </div>
+            <div
+              class="bg-surface rounded-xl shadow-sm border border-border p-6"
+            >
+              <p class="text-textSecondary text-sm">Transactions</p>
+              <p class="text-2xl font-bold text-accent" id="stat-count">0</p>
+            </div>
+          </div>
+
+          <div
+            class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden"
+          >
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 border-b border-border">
+                  <tr>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
+                    >
+                      N° Paiement
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
+                    >
+                      Commande
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
+                    >
+                      Montant
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
+                    >
+                      Méthode
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
+                    >
+                      Statut
+                    </th>
+                    <th
+                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
+                    >
+                      Date
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="payments-body" class="divide-y divide-border">
+                  <tr>
+                    <td
+                      colspan="6"
+                      class="px-6 py-12 text-center text-textSecondary"
+                    >
+                      Chargement...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script>
+      requireAuth(["CLIENT"]);
+    </script>
+    <script src="../../js/router.js"></script>
+    <script src="../../js/components/sidebar.js"></script>
+    <script src="../../js/components/header.js"></script>
+    <script src="../../js/components/badge.js"></script>
+    <script src="../../js/components/toast.js"></script>
+    <script src="../../js/utils/format.js"></script>
+    <script>
+      initPage("CLIENT");
+      const role = getCurrentRole();
+      if (role) {
+        renderSidebar(role.toLowerCase());
+      }
+      renderHeader();
+
+      async function loadPayments() {
+        try {
+          const response = await apiFetch("/payments");
+          const payments = response?.data?.payments || MOCK_PAYMENTS;
+
+          const totalPaid = payments
+            .filter((p) => p.status === "Terminé")
+            .reduce((s, p) => s + p.amount, 0);
+          const totalPending = payments
+            .filter((p) => p.status === "En attente" || p.status === "En cours")
+            .reduce((s, p) => s + p.amount, 0);
+
+          document.getElementById("stat-total-paid").textContent =
+            formatCurrency(totalPaid);
+          document.getElementById("stat-pending").textContent =
+            formatCurrency(totalPending);
+          document.getElementById("stat-count").textContent = payments.length;
+
+          const tbody = document.getElementById("payments-body");
+          if (payments.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="6" class="px-6 py-12 text-center text-textSecondary">Aucun paiement trouvé</td></tr>';
+          } else {
+            tbody.innerHTML = payments
+              .map(
+                (p) => `
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 font-mono text-sm font-medium">${p.paymentId}</td>
+                <td class="px-6 py-4 text-sm">${p.orderId}</td>
+                <td class="px-6 py-4 text-sm font-medium">${formatCurrency(p.amount)}</td>
+                <td class="px-6 py-4 text-sm">${p.method}</td>
+                <td class="px-6 py-4">${renderBadge(p.status === "Terminé" ? "PAID" : p.status === "En attente" ? "UNPAID" : "PENDING")}</td>
+                <td class="px-6 py-4 text-sm text-textSecondary">${formatDate(p.date)}</td>
+              </tr>
+            `,
+              )
+              .join("");
+          }
+          lucide.createIcons();
+        } catch (error) {
+          console.error("Failed to load payments:", error);
+        }
+      }
+      loadPayments();
+    </script>
+  </body>
+</html>

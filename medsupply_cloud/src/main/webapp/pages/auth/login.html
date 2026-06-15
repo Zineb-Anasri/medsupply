@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-background min-h-screen">
+  <div class="min-h-screen flex">
+    <!-- Left Brand Panel -->
+    <div class="hidden lg:flex lg:w-1/2 bg-primary flex-col justify-center items-center p-12">
+      <div class="text-center max-w-md">
+        <div class="flex items-center justify-center gap-3 mb-8">
+          <div class="w-16 h-16 bg-white bg-opacity-10 rounded-xl flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" class="w-10 h-10">
+              <path d="M30 35 L50 25 L70 35 L70 65 L50 75 L30 65 Z" stroke="white" stroke-width="3" fill="none"/>
+              <path d="M30 35 L50 45 L70 35" stroke="white" stroke-width="3" fill="none"/>
+              <path d="M50 45 L50 75" stroke="white" stroke-width="3" fill="none"/>
+              <circle cx="50" cy="50" r="8" fill="white"/>
+            </svg>
+          </div>
+          <div class="text-left">
+            <h1 class="text-3xl font-bold text-white">MedSupply</h1>
+            <p class="text-accent font-semibold">Cloud</p>
+          </div>
+        </div>
+        <p class="text-xl text-white text-opacity-90 leading-relaxed">
+          La plateforme de rÃ©fÃ©rence pour les professionnels de santÃ©
+        </p>
+        <div class="mt-12 grid grid-cols-3 gap-8">
+          <div class="text-center">
+            <div class="w-12 h-12 bg-white bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+            </div>
+            <p class="text-white text-sm font-medium">SÃ©curisÃ©</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-white bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+            </div>
+            <p class="text-white text-sm font-medium">Rapide</p>
+          </div>
+          <div class="text-center">
+            <div class="w-12 h-12 bg-white bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="users" class="w-6 h-6 text-white"></i>
+            </div>
+            <p class="text-white text-sm font-medium">Fiable</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Login Form -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div class="w-full max-w-md">
+        <!-- Mobile Logo -->
+        <div class="lg:hidden flex items-center gap-3 mb-8">
+          <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" class="w-7 h-7">
+              <path d="M30 35 L50 25 L70 35 L70 65 L50 75 L30 65 Z" stroke="white" stroke-width="3" fill="none"/>
+              <path d="M30 35 L50 45 L70 35" stroke="white" stroke-width="3" fill="none"/>
+              <path d="M50 45 L50 75" stroke="white" stroke-width="3" fill="none"/>
+              <circle cx="50" cy="50" r="8" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-primary">MedSupply</h1>
+            <p class="text-accent font-semibold text-sm">Cloud</p>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-textPrimary">Connexion</h2>
+          <p class="text-textSecondary mt-2">AccÃ©dez Ã  votre espace professionnel</p>
+        </div>
+
+        <form id="login-form" class="space-y-6">
+          <div>
+            <label for="email" class="block text-sm font-medium text-textPrimary mb-2">Email</label>
+            <input type="email" id="email" name="email" required
+              class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+              placeholder="votre@email.com">
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm font-medium text-textPrimary mb-2">Mot de passe</label>
+            <div class="relative">
+              <input type="password" id="password" name="password" required
+                class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all pr-12"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
+              <button type="button" id="toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <i data-lucide="eye" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <label class="flex items-center cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 text-accent border-border rounded focus:ring-accent">
+              <span class="ml-2 text-sm text-textSecondary">Se souvenir de moi</span>
+            </label>
+            <a href="#" class="text-sm text-accent hover:underline">Mot de passe oubliÃ© ?</a>
+          </div>
+
+          <div id="loginError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            Email ou mot de passe incorrect
+          </div>
+
+          <button type="submit" id="loginBtn"
+            class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+            <span>Se connecter</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <div class="mt-6 text-center">
+          <p class="text-textSecondary">Vous n'avez pas de compte ?</p>
+          <a href="/medsupply-cloud/pages/auth/register.html" class="text-accent font-medium hover:underline">S'inscrire</a>
+        </div>
+
+        <p class="text-center text-textSecondary text-xs mt-8">
+          Â© 2026 MedSupply Cloud. Tous droits rÃ©servÃ©s.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/toast.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      initAuthPage();
+      initIcons();
+
+      const togglePasswordBtn = document.getElementById("toggle-password");
+      if (togglePasswordBtn) {
+        togglePasswordBtn.addEventListener("click", function () {
+          const passwordInput = document.getElementById("password");
+          const icon = this.querySelector("i");
+          if (!passwordInput || !icon) return;
+
+          passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+          icon.setAttribute("data-lucide", passwordInput.type === "password" ? "eye" : "eye-off");
+          initIcons();
+        });
+      }
+
+      const loginForm = document.getElementById("login-form");
+      if (!loginForm) return;
+
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        hideLoginError();
+
+        const email = document.getElementById("email")?.value.trim();
+        const password = document.getElementById("password")?.value.trim();
+        if (!email || !password) {
+          showLoginError("Veuillez remplir tous les champs");
+          return;
+        }
+
+        const loginBtn = loginForm.querySelector('button[type="submit"]');
+        const originalText = loginBtn.innerHTML;
+        loginBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Connexion...</span>';
+        loginBtn.disabled = true;
+        initIcons();
+
+        try {
+          await login(email, password);
+        } finally {
+          loginBtn.innerHTML = originalText;
+          loginBtn.disabled = false;
+          initIcons();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

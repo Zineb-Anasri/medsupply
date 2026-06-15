@@ -1,0 +1,250 @@
+/* Custom CSS for MedSupply Cloud Frontend */
+
+:root {
+  --ms-primary: #0a2647;
+  --ms-secondary: #144272;
+  --ms-accent: #2c74b3;
+  --ms-border: #e2e8f0;
+  --ms-bg: #f8fafc;
+  --ms-text: #0f172a;
+  --ms-muted: #64748b;
+}
+
+html {
+  background: var(--ms-bg);
+}
+
+body {
+  color: var(--ms-text);
+  background: var(--ms-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-card,
+.erp-card {
+  background: #fff;
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.app-button,
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  border-radius: 8px;
+  padding: 0.625rem 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--ms-primary);
+}
+
+.app-button:hover,
+.btn-primary:hover {
+  background: var(--ms-secondary);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  border-radius: 8px;
+  padding: 0.625rem 1rem;
+  font-weight: 600;
+  color: var(--ms-text);
+  background: #fff;
+  border: 1px solid var(--ms-border);
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+}
+
+.form-control {
+  width: 100%;
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  padding: 0.75rem 0.875rem;
+  background: #fff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading spinner */
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2C74B3;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Toast animations */
+.toast-enter {
+  animation: slideInRight 0.3s ease;
+}
+
+.toast-exit {
+  animation: slideOutRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+/* Table row hover */
+table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Status badge pulse */
+.badge-pulse::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Focus styles */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(44, 116, 179, 0.1);
+}
+
+/* Button loading state */
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid transparent;
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Sidebar transition */
+#sidebar {
+  transition: width 0.3s ease;
+}
+
+/* Mobile menu */
+@media (max-width: 1024px) {
+  #sidebar {
+    position: fixed;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  
+  #sidebar.open {
+    transform: translateX(0);
+  }
+  
+  #main-content {
+    margin-left: 0 !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  #sidebar,
+  #header,
+  .no-print {
+    display: none !important;
+  }
+  
+  #main-content {
+    margin-left: 0 !important;
+  }
+}

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détail Appel d'Offres - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col ml-72">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm mb-6">
+          <a href="/medsupply-cloud/pages/supplier/marketplace.html" class="text-textSecondary hover:text-accent">Marketplace</a>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+          <span class="text-textPrimary font-medium" id="breadcrumb-title">Chargement...</span>
+        </nav>
+
+        <!-- Tender Details -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6">
+          <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+            <div class="flex-1">
+              <h1 class="text-2xl font-bold text-textPrimary mb-2" id="tender-title">--</h1>
+              <div class="flex items-center gap-2 mb-2">
+                <i data-lucide="building" class="w-4 h-4 text-textSecondary"></i>
+                <span class="text-sm text-textSecondary" id="client-name">--</span>
+                <span id="client-type-badge" class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">--</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="tender-status" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium">--</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="flex items-center gap-2">
+              <i data-lucide="wallet" class="w-4 h-4 text-accent"></i>
+              <span class="text-sm text-textSecondary">Budget max: <span class="font-medium text-textPrimary" id="tender-budget">--</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-textSecondary"></i>
+              <span class="text-sm text-textSecondary" id="deadline-countdown">--</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="file-text" class="w-4 h-4 text-textSecondary"></i>
+              <span class="text-sm text-textSecondary"><span id="offer-count">0</span> offre(s) reçue(s)</span>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="font-semibold text-textPrimary mb-2">Description</h3>
+            <p class="text-textSecondary" id="tender-description">--</p>
+          </div>
+
+          <div>
+            <h3 class="font-semibold text-textPrimary mb-4">Produits nécessaires</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 border-b border-border">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Produit</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Quantité</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Spécifications</th>
+                  </tr>
+                </thead>
+                <tbody id="products-table-body" class="divide-y divide-border">
+                  <tr><td colspan="3" class="px-4 py-8 text-center text-textSecondary">Chargement...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Offer Form / My Offer -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-6" id="offer-section">
+          <h3 class="font-semibold text-textPrimary mb-4" id="offer-section-title">Soumettre une offre</h3>
+          <div id="offer-form-container">
+            <!-- Form will be shown here if not yet submitted -->
+          </div>
+          <div id="my-offer-container" class="hidden">
+            <!-- My offer card will be shown here if already submitted -->
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>
+    requireAuth(["SUPPLIER"]);
+    const currentUser = getCurrentUser();
+  </script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
+  <script src="../../js/utils/format.js"></script>
+  <script>
+    initPage("SUPPLIER");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const tenderId = urlParams.get('id');
+    let countdownInterval = null;
+
+    async function loadTender() {
+      try {
+        const response = await apiFetch(`/supplier/marketplace/${tenderId}`);
+        const tender = response.data;
+
+        // Update breadcrumb
+        document.getElementById('breadcrumb-title').textContent = tender.title;
+
+        // Update tender details
+        document.getElementById('tender-title').textContent = tender.title;
+        document.getElementById('client-name').textContent = tender.clientName;
+        document.getElementById('client-type-badge').textContent = getClientTypeLabel(tender.clientType);
+        document.getElementById('client-type-badge').className = `inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${getClientTypeColor(tender.clientType)}`;
+        document.getElementById('tender-budget').textContent = tender.maxBudget ? formatCurrency(tender.maxBudget) : 'Non spécifié';
+        document.getElementById('offer-count').textContent = tender.offerCount;
+        document.getElementById('tender-description').textContent = tender.description;
+        
+        // Update status
+        document.getElementById('tender-status').textContent = getStatusLabel(tender.status);
+        document.getElementById('tender-status').className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(tender.status)}`;
+
+        // Start countdown
+        startCountdown(tender.deadline);
+
+        // Update products table
+        const productsBody = document.getElementById('products-table-body');
+        if (tender.products && tender.products.length > 0) {
+          productsBody.innerHTML = tender.products.map(product => `
+            <tr>
+              <td class="px-4 py-3 text-textPrimary font-medium">${product.productName}</td>
+              <td class="px-4 py-3 text-textPrimary">${product.quantity}</td>
+              <td class="px-4 py-3 text-textSecondary">${product.specifications || '--'}</td>
+            </tr>
+          `).join('');
+        } else {
+          productsBody.innerHTML = `<tr><td colspan="3" class="px-4 py-8 text-center text-textSecondary">Aucun produit spécifié</td></tr>`;
+        }
+
+        // Update offer section
+        if (tender.myOffer) {
+          showMyOffer(tender.myOffer);
+        } else {
+          showOfferForm(tender.status);
+        }
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load tender:", error);
+      }
+    }
+
+    function showOfferForm(status) {
+      const container = document.getElementById('offer-form-container');
+      const myOfferContainer = document.getElementById('my-offer-container');
+      const sectionTitle = document.getElementById('offer-section-title');
+
+      sectionTitle.textContent = 'Soumettre une offre';
+      container.classList.remove('hidden');
+      myOfferContainer.classList.add('hidden');
+
+      if (status !== 'OPEN') {
+        container.innerHTML = `<p class="text-textSecondary">Cet appel d'offres n'est plus ouvert aux soumissions.</p>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-textPrimary mb-2">Prix total proposé (MAD) *</label>
+            <input type="number" id="offer-price" min="0" step="0.01"
+              class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+              placeholder="Entrez votre prix proposé">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-textPrimary mb-2">Description / justification *</label>
+            <textarea id="offer-description" rows="4"
+              class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"
+              placeholder="Décrivez votre offre, les délais de livraison, les conditions, etc."></textarea>
+          </div>
+          <button onclick="submitOffer()" class="bg-accent hover:bg-secondary text-white font-medium px-6 py-3 rounded-lg transition-colors">
+            Soumettre l'offre
+          </button>
+        </div>
+      `;
+    }
+
+    function showMyOffer(offer) {
+      const container = document.getElementById('offer-form-container');
+      const myOfferContainer = document.getElementById('my-offer-container');
+      const sectionTitle = document.getElementById('offer-section-title');
+
+      sectionTitle.textContent = 'Mon offre';
+      container.classList.add('hidden');
+      myOfferContainer.classList.remove('hidden');
+
+      myOfferContainer.innerHTML = `
+        <div class="bg-gray-50 rounded-lg border border-border p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+              <p class="text-sm text-textSecondary">Prix proposé</p>
+              <p class="text-xl font-bold text-accent">${formatCurrency(offer.proposedPrice)}</p>
+            </div>
+            <div>
+              <p class="text-sm text-textSecondary">Date de soumission</p>
+              <p class="text-textPrimary">${formatDate(offer.submissionDate)}</p>
+            </div>
+            <div>
+              <p class="text-sm text-textSecondary">Statut</p>
+              ${renderOfferStatusBadge(offer.status)}
+            </div>
+          </div>
+          <div class="mb-4">
+            <p class="text-sm text-textSecondary mb-2">Description</p>
+            <p class="text-textPrimary">${offer.description || '--'}</p>
+          </div>
+          ${offer.status === 'ACCEPTED' ? `
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p class="text-green-800 font-medium">🎉 Félicitations ! Votre offre a été acceptée.</p>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    async function submitOffer() {
+      const price = document.getElementById('offer-price').value;
+      const description = document.getElementById('offer-description').value;
+
+      if (!price || !description) {
+        alert('Veuillez remplir tous les champs obligatoires');
+        return;
+      }
+
+      try {
+        await apiFetch(`/supplier/marketplace/${tenderId}/offers`, {
+          method: 'POST',
+          body: JSON.stringify({
+            proposedPrice: parseFloat(price),
+            description
+          })
+        });
+        loadTender();
+      } catch (error) {
+        console.error("Failed to submit offer:", error);
+        alert('Erreur lors de la soumission de l\'offre');
+      }
+    }
+
+    function startCountdown(deadline) {
+      const element = document.getElementById('deadline-countdown');
+      
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+
+      const updateCountdown = () => {
+        const now = new Date();
+        const deadlineDate = new Date(deadline);
+        const diffMs = deadlineDate - now;
+        
+        if (diffMs <= 0) {
+          element.textContent = 'Expiré';
+          element.className = 'text-sm text-red-600 font-medium';
+          clearInterval(countdownInterval);
+          return;
+        }
+
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        let text = '';
+        if (diffDays > 0) {
+          text = `Ferme dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+        } else if (diffHours > 0) {
+          text = `Ferme dans ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+        } else {
+          text = `Ferme dans ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+        }
+
+        element.textContent = text;
+        element.className = `text-sm ${getDeadlineUrgencyClass(deadline)}`;
+      };
+
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 60000);
+    }
+
+    function getDeadlineUrgencyClass(deadline) {
+      const now = new Date();
+      const deadlineDate = new Date(deadline);
+      const diffHours = (deadlineDate - now) / (1000 * 60 * 60);
+      
+      if (diffHours < 24) return 'text-red-600 font-medium';
+      if (diffHours < 168) return 'text-amber-600 font-medium';
+      return 'text-textSecondary';
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        OPEN: "Ouvert",
+        CLOSED: "Fermé",
+        AWARDED: "Attribué",
+        CANCELLED: "Annulé"
+      };
+      return labels[status] || status;
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        OPEN: "bg-green-100 text-green-800",
+        CLOSED: "bg-gray-100 text-gray-800",
+        AWARDED: "bg-blue-100 text-blue-800",
+        CANCELLED: "bg-red-100 text-red-800"
+      };
+      return colors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    function getClientTypeLabel(type) {
+      const labels = {
+        HOSPITAL: "Hôpital",
+        LABORATORY: "Laboratoire",
+        CLINIC: "Clinique",
+        DOCTOR: "Médecin",
+        MEDICAL_OFFICE: "Cabinet",
+        RESELLER: "Revendeur"
+      };
+      return labels[type] || type;
+    }
+
+    function getClientTypeColor(type) {
+      const colors = {
+        HOSPITAL: "bg-blue-100 text-blue-800",
+        LABORATORY: "bg-purple-100 text-purple-800",
+        CLINIC: "bg-teal-100 text-teal-800",
+        DOCTOR: "bg-green-100 text-green-800",
+        MEDICAL_OFFICE: "bg-orange-100 text-orange-800",
+        RESELLER: "bg-slate-100 text-slate-800"
+      };
+      return colors[type] || 'bg-gray-100 text-gray-800';
+    }
+
+    function renderOfferStatusBadge(status) {
+      const colors = {
+        PENDING: "bg-yellow-100 text-yellow-800",
+        ACCEPTED: "bg-green-100 text-green-800",
+        REJECTED: "bg-red-100 text-red-800"
+      };
+      const labels = {
+        PENDING: "En attente",
+        ACCEPTED: "Accepté",
+        REJECTED: "Rejeté"
+      };
+      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
+    }
+
+    // Load tender on page load
+    if (tenderId) {
+      loadTender();
+    } else {
+      window.location.href = '/medsupply-cloud/pages/marketplace.html';
+    }
+
+    // Cleanup interval on page unload
+    window.addEventListener('beforeunload', () => {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+    });
+  </script>
+</body>
+</html>

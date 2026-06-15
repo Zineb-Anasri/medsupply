@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Commandes - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .row-overdue { background-color: #FEF2F2; }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col ml-72">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Page Header -->
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-textPrimary">Gestion des Commandes</h1>
+          <p class="text-textSecondary">Gérez les commandes clients</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-textSecondary text-sm">Total commandes</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-total">0</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="shopping-cart" class="w-6 h-6 text-blue-600"></i>
+              </div>
+            </div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-textSecondary text-sm">En préparation</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-preparing">0</p>
+              </div>
+              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="package" class="w-6 h-6 text-yellow-600"></i>
+              </div>
+            </div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-textSecondary text-sm">Expédiées</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-shipped">0</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="truck" class="w-6 h-6 text-blue-600"></i>
+              </div>
+            </div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-textSecondary text-sm">Livrées</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-delivered">0</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+              </div>
+            </div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-textSecondary text-sm">Paiement en retard</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-overdue">0</p>
+              </div>
+              <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-4 mb-6">
+          <div class="flex flex-wrap items-center gap-4">
+            <select id="status-filter" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+              <option value="">Tous les statuts</option>
+              <option value="PENDING">En attente</option>
+              <option value="CONFIRMED">Confirmée</option>
+              <option value="PREPARING">En préparation</option>
+              <option value="SHIPPED">Expédiée</option>
+              <option value="IN_TRANSIT">En transit</option>
+              <option value="DELIVERED">Livrée</option>
+              <option value="CANCELLED">Annulée</option>
+            </select>
+            <select id="payment-filter" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+              <option value="">Tous les paiements</option>
+              <option value="UNPAID">Non payé</option>
+              <option value="PARTIAL">Partiel</option>
+              <option value="PAID">Payé</option>
+              <option value="OVERDUE">En retard</option>
+            </select>
+            <select id="client-filter" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+              <option value="">Tous les clients</option>
+            </select>
+            <div class="flex items-center gap-2">
+              <input type="date" id="date-from" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+              <span class="text-textSecondary">à</span>
+              <input type="date" id="date-to" class="px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            </div>
+            <button onclick="applyFilters()" class="bg-accent hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
+              Filtrer
+            </button>
+            <button onclick="resetFilters()" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+              Réinitialiser
+            </button>
+          </div>
+        </div>
+
+        <!-- Order Table -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-border">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">N° Commande</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Client</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Montant total</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Statut</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Paiement</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Échéance</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Date création</th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body" class="divide-y divide-border">
+                <tr>
+                  <td colspan="8" class="px-6 py-12 text-center text-textSecondary">Chargement...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="px-6 py-4 border-t border-border flex items-center justify-between">
+            <p class="text-sm text-textSecondary">
+              Affichage de <span id="showing-from">0</span> à <span id="showing-to">0</span> sur <span id="total-records">0</span> commandes
+            </p>
+            <div class="flex items-center gap-2">
+              <button onclick="previousPage()" id="prev-btn" class="px-3 py-1 border border-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <span class="px-3 py-1 bg-primary text-white rounded" id="current-page">1</span>
+              <button onclick="nextPage()" id="next-btn" class="px-3 py-1 border border-border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Payment Registration Modal -->
+  <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-surface rounded-xl shadow-lg border border-border p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold text-textPrimary mb-4">Enregistrer un paiement</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Montant (MAD)</label>
+          <input type="number" id="payment-amount" min="0" step="0.01"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Mode de paiement</label>
+          <select id="payment-method" class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+            <option value="TRANSFER">Virement</option>
+            <option value="CHECK">Chèque</option>
+            <option value="CASH">Espèces</option>
+            <option value="CARD">Carte bancaire</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Référence</label>
+          <input type="text" id="payment-reference"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Date</label>
+          <input type="date" id="payment-date"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-textPrimary mb-2">Notes</label>
+          <textarea id="payment-notes" rows="2"
+            class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-6">
+        <button onclick="hidePaymentModal()" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+          Annuler
+        </button>
+        <button onclick="submitPayment()" class="bg-success hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition-colors">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>
+    requireAuth(["ADMIN"]);
+    const currentUser = getCurrentUser();
+  </script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
+  <script src="../../js/components/toast.js"></script>
+  <script src="../../js/components/skeleton.js"></script>
+  <script src="../../js/utils/format.js"></script>
+  <script>
+    initPage("ADMIN");
+    const role = getCurrentRole();
+    if (role) {
+      renderSidebar(role.toLowerCase());
+    }
+    renderHeader();
+
+    let currentPage = 1;
+    const pageSize = 20;
+    let totalRecords = 0;
+    let currentOrderId = null;
+
+    async function loadOrders() {
+      try {
+        // Show skeleton while loading
+        showSkeleton('orders-table-body', 'table', { rows: 5, columns: 8 });
+
+        const status = document.getElementById('status-filter').value;
+        const paymentStatus = document.getElementById('payment-filter').value;
+        const client = document.getElementById('client-filter').value;
+        const dateFrom = document.getElementById('date-from').value;
+        const dateTo = document.getElementById('date-to').value;
+
+        const response = await apiFetch(`/orders?status=${status}&page=${currentPage}&size=${pageSize}`);
+        const data = response?.data || {};
+
+        // Update stats
+        document.getElementById("stat-total").textContent = data.stats?.total || 0;
+        document.getElementById("stat-preparing").textContent = data.stats?.preparing || 0;
+        document.getElementById("stat-shipped").textContent = data.stats?.shipped || 0;
+        document.getElementById("stat-delivered").textContent = data.stats?.delivered || 0;
+        document.getElementById("stat-overdue").textContent = data.stats?.overdue || 0;
+
+        // Update client filter options
+        if (data.clients && data.clients.length > 0) {
+          const clientSelect = document.getElementById('client-filter');
+          clientSelect.innerHTML = '<option value="">Tous les clients</option>' +
+            data.clients.map(client => `<option value="${client.clientId}">${client.organizationName}</option>`).join('');
+        }
+
+        // Update table
+        const tbody = document.getElementById("orders-table-body");
+        const orders = data.orders || [];
+        if (orders.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-textSecondary">Aucune commande trouvée</td></tr>`;
+        } else {
+          tbody.innerHTML = orders.map(order => `
+            <tr class="hover:bg-gray-50 cursor-pointer ${order.paymentStatus === 'OVERDUE' ? 'row-overdue' : ''}" onclick="viewOrder('${order.orderId}')">
+              <td class="px-6 py-4">
+                <span class="font-mono text-textPrimary font-medium">${order.orderRef}</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <p class="font-medium text-textPrimary">${order.clientName}</p>
+                  ${renderClientTypeBadge(order.clientType)}
+                </div>
+              </td>
+              <td class="px-6 py-4 text-textPrimary font-medium">${formatCurrency(order.totalAmount)}</td>
+              <td class="px-6 py-4">
+                ${renderOrderStatusBadge(order.status)}
+              </td>
+              <td class="px-6 py-4">
+                ${renderPaymentStatusBadge(order.paymentStatus)}
+              </td>
+              <td class="px-6 py-4 ${isOverdue(order.dueDate) && order.paymentStatus !== 'PAID' ? 'text-red-600 font-medium' : 'text-textSecondary'}">
+                ${order.dueDate ? formatDate(order.dueDate) : '-'}
+                ${isOverdue(order.dueDate) && order.paymentStatus !== 'PAID' ? '<i data-lucide="alert-circle" class="w-4 h-4 inline ml-1"></i>' : ''}
+              </td>
+              <td class="px-6 py-4 text-textSecondary">${formatDate(order.createdAt)}</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2" onclick="event.stopPropagation()">
+                  <button onclick="viewOrder('${order.orderId}')" class="p-2 hover:bg-gray-100 rounded transition-colors" title="Voir">
+                    <i data-lucide="eye" class="w-4 h-4 text-gray-600"></i>
+                  </button>
+                  <button onclick="showStatusModal('${order.orderId}')" class="p-2 hover:bg-blue-100 rounded transition-colors" title="Changer statut">
+                    <i data-lucide="settings" class="w-4 h-4 text-blue-600"></i>
+                  </button>
+                  <button onclick="showPaymentModal('${order.orderId}')" class="p-2 hover:bg-green-100 rounded transition-colors" title="Enregistrer paiement">
+                    <i data-lucide="credit-card" class="w-4 h-4 text-green-600"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `).join("");
+        }
+
+        // Update pagination
+        totalRecords = data.total;
+        document.getElementById("showing-from").textContent = (currentPage - 1) * pageSize + 1;
+        document.getElementById("showing-to").textContent = Math.min(currentPage * pageSize, totalRecords);
+        document.getElementById("total-records").textContent = totalRecords;
+        document.getElementById("current-page").textContent = currentPage;
+
+        document.getElementById("prev-btn").disabled = currentPage === 1;
+        document.getElementById("next-btn").disabled = currentPage * pageSize >= totalRecords;
+
+        lucide.createIcons();
+
+        // Hide skeleton
+        hideSkeleton('orders-table-body');
+      } catch (error) {
+        console.error("Failed to load orders:", error);
+        showToast("Erreur lors du chargement des commandes", "error");
+      }
+    }
+
+    function renderClientTypeBadge(type) {
+      const colors = {
+        HOSPITAL: "bg-blue-100 text-blue-800",
+        LABORATORY: "bg-purple-100 text-purple-800",
+        CLINIC: "bg-teal-100 text-teal-800",
+        DOCTOR: "bg-green-100 text-green-800",
+        MEDICAL_OFFICE: "bg-orange-100 text-orange-800",
+        RESELLER: "bg-slate-100 text-slate-800"
+      };
+      const labels = {
+        HOSPITAL: "Hôpital",
+        LABORATORY: "Laboratoire",
+        CLINIC: "Clinique",
+        DOCTOR: "Médecin",
+        MEDICAL_OFFICE: "Cabinet",
+        RESELLER: "Revendeur"
+      };
+      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[type] || 'bg-gray-100 text-gray-800'}">${labels[type] || type}</span>`;
+    }
+
+    function renderOrderStatusBadge(status) {
+      const colors = {
+        PENDING: "bg-gray-100 text-gray-800",
+        CONFIRMED: "bg-blue-100 text-blue-800",
+        PREPARING: "bg-yellow-100 text-yellow-800",
+        SHIPPED: "bg-purple-100 text-purple-800",
+        IN_TRANSIT: "bg-indigo-100 text-indigo-800",
+        DELIVERED: "bg-green-100 text-green-800",
+        CANCELLED: "bg-red-100 text-red-800"
+      };
+      const labels = {
+        PENDING: "En attente",
+        CONFIRMED: "Confirmée",
+        PREPARING: "En préparation",
+        SHIPPED: "Expédiée",
+        IN_TRANSIT: "En transit",
+        DELIVERED: "Livrée",
+        CANCELLED: "Annulée"
+      };
+      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
+    }
+
+    function renderPaymentStatusBadge(status) {
+      const colors = {
+        UNPAID: "bg-red-100 text-red-800",
+        PARTIAL: "bg-orange-100 text-orange-800",
+        PAID: "bg-green-100 text-green-800",
+        OVERDUE: "bg-red-900 text-red-50"
+      };
+      const labels = {
+        UNPAID: "Non payé",
+        PARTIAL: "Partiel",
+        PAID: "Payé",
+        OVERDUE: "En retard"
+      };
+      return `<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-800'}">${labels[status] || status}</span>`;
+    }
+
+    function isOverdue(dueDate) {
+      if (!dueDate) return false;
+      return new Date(dueDate) < new Date();
+    }
+
+    function applyFilters() {
+      currentPage = 1;
+      loadOrders();
+    }
+
+    function resetFilters() {
+      document.getElementById('status-filter').value = '';
+      document.getElementById('payment-filter').value = '';
+      document.getElementById('client-filter').value = '';
+      document.getElementById('date-from').value = '';
+      document.getElementById('date-to').value = '';
+      currentPage = 1;
+      loadOrders();
+    }
+
+    function previousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        loadOrders();
+      }
+    }
+
+    function nextPage() {
+      if (currentPage * pageSize < totalRecords) {
+        currentPage++;
+        loadOrders();
+      }
+    }
+
+    function viewOrder(orderId) {
+      window.location.href = `order-detail.html?id=${orderId}`;
+    }
+
+    function showStatusModal(orderId) {
+      window.location.href = `order-detail.html?id=${orderId}`;
+    }
+
+    function showPaymentModal(orderId) {
+      currentOrderId = orderId;
+      document.getElementById('payment-modal').classList.remove('hidden');
+      document.getElementById('payment-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    function hidePaymentModal() {
+      document.getElementById('payment-modal').classList.add('hidden');
+      document.getElementById('payment-amount').value = '';
+      document.getElementById('payment-reference').value = '';
+      document.getElementById('payment-notes').value = '';
+      currentOrderId = null;
+    }
+
+    async function submitPayment() {
+      const amount = document.getElementById('payment-amount').value;
+      const method = document.getElementById('payment-method').value;
+      const reference = document.getElementById('payment-reference').value;
+      const date = document.getElementById('payment-date').value;
+      const notes = document.getElementById('payment-notes').value;
+
+      if (!amount || parseFloat(amount) <= 0) {
+        alert('Veuillez entrer un montant valide');
+        return;
+      }
+
+      try {
+        await apiFetch(`/admin/orders/${currentOrderId}/payments`, {
+          method: 'POST',
+          body: JSON.stringify({
+            amount: parseFloat(amount),
+            method,
+            reference,
+            date,
+            notes
+          })
+        });
+        hidePaymentModal();
+        loadOrders();
+      } catch (error) {
+        console.error("Failed to submit payment:", error);
+        alert('Erreur lors de l\'enregistrement du paiement');
+      }
+    }
+
+    // Load orders on page load
+    loadOrders();
+  </script>
+</body>
+</html>

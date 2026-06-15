@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inscription - MedSupply Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0A2647",
+              secondary: "#144272",
+              accent: "#2C74B3",
+              success: "#16A34A",
+              warning: "#D97706",
+              danger: "#DC2626",
+              background: "#F8FAFC",
+              surface: "#FFFFFF",
+              border: "#E2E8F0",
+              textPrimary: "#0F172A",
+              textSecondary: "#64748B",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .step-content {
+        display: none;
+      }
+      .step-content.active {
+        display: block;
+      }
+      .client-type-card.selected {
+        border-color: #2c74b3;
+        background-color: #f0f7ff;
+      }
+    </style>
+  </head>
+  <body class="bg-background min-h-screen">
+    <div class="min-h-screen flex">
+      <!-- Left Brand Panel -->
+      <div
+        class="hidden lg:flex lg:w-1/2 bg-primary flex-col justify-center items-center p-12"
+      >
+        <div class="text-center max-w-md">
+          <div class="flex items-center justify-center gap-3 mb-8">
+            <div
+              class="w-16 h-16 bg-white bg-opacity-10 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 100 100"
+                fill="none"
+                class="w-10 h-10"
+              >
+                <path
+                  d="M30 35 L50 25 L70 35 L70 65 L50 75 L30 65 Z"
+                  stroke="white"
+                  stroke-width="3"
+                  fill="none"
+                />
+                <path
+                  d="M30 35 L50 45 L70 35"
+                  stroke="white"
+                  stroke-width="3"
+                  fill="none"
+                />
+                <path
+                  d="M50 45 L50 75"
+                  stroke="white"
+                  stroke-width="3"
+                  fill="none"
+                />
+                <circle cx="50" cy="50" r="8" fill="white" />
+              </svg>
+            </div>
+            <div class="text-left">
+              <h1 class="text-3xl font-bold text-white">MedSupply</h1>
+              <p class="text-accent font-semibold">Cloud</p>
+            </div>
+          </div>
+          <p class="text-xl text-white text-opacity-90 leading-relaxed">
+            Rejoignez la plateforme de référence pour les professionnels de
+            santé
+          </p>
+          <div class="mt-12 space-y-4">
+            <div class="flex items-center gap-4 text-white">
+              <i data-lucide="check-circle" class="w-6 h-6"></i>
+              <span class="text-sm"
+                >Accès à un catalogue complet de produits médicaux</span
+              >
+            </div>
+            <div class="flex items-center gap-4 text-white">
+              <i data-lucide="check-circle" class="w-6 h-6"></i>
+              <span class="text-sm">Devis personnalisés en quelques clics</span>
+            </div>
+            <div class="flex items-center gap-4 text-white">
+              <i data-lucide="check-circle" class="w-6 h-6"></i>
+              <span class="text-sm">Livraison rapide et traçable</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Registration Form -->
+      <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div class="w-full max-w-2xl">
+          <!-- Mobile Logo -->
+          <div class="lg:hidden flex items-center gap-3 mb-8">
+            <div
+              class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 100 100"
+                fill="none"
+                class="w-7 h-7"
+              >
+                <path
+                  d="M30 35 L50 25 L70 35 L70 65 L50 75 L30 65 Z"
+                  stroke="white"
+                  stroke-width="3"
+                  fill="none"
+                />
+                <path
+                  d="M30 35 L50 45 L70 35"
+                  stroke="white"
+                  stroke-width="3"
+                  fill="none"
+                />
+                <path
+                  d="M50 45 L50 75"
+                  stroke="white"
+                  stroke-width="3"
+                  fill="none"
+                />
+                <circle cx="50" cy="50" r="8" fill="white" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-primary">MedSupply</h1>
+              <p class="text-accent font-semibold text-sm">Cloud</p>
+            </div>
+          </div>
+
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-textPrimary">Créer un compte</h2>
+            <p class="text-textSecondary mt-2">
+              Rejoignez notre communauté de professionnels de santé
+            </p>
+          </div>
+
+          <!-- Progress Indicator -->
+          <div class="mb-8">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div
+                  class="step-indicator w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold"
+                  data-step="1"
+                >
+                  1
+                </div>
+                <span
+                  class="text-sm font-medium text-textPrimary hidden sm:inline"
+                  >Type de compte</span
+                >
+              </div>
+              <div class="flex-1 h-1 bg-gray-200 mx-4">
+                <div
+                  class="progress-bar h-full bg-primary transition-all duration-300"
+                  style="width: 33%"
+                ></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="step-indicator w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-bold"
+                  data-step="2"
+                >
+                  2
+                </div>
+                <span
+                  class="text-sm font-medium text-textSecondary hidden sm:inline"
+                  >Organisation</span
+                >
+              </div>
+              <div class="flex-1 h-1 bg-gray-200 mx-4">
+                <div
+                  class="progress-bar h-full bg-primary transition-all duration-300"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div
+                  class="step-indicator w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-bold"
+                  data-step="3"
+                >
+                  3
+                </div>
+                <span
+                  class="text-sm font-medium text-textSecondary hidden sm:inline"
+                  >Accès</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <form id="register-form">
+            <!-- Step 1: Account Type -->
+            <div class="step-content active" data-step="1">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <label
+                  class="client-type-card cursor-pointer border-2 border-border rounded-xl p-4 hover:border-accent transition-colors"
+                >
+                  <input
+                    type="radio"
+                    name="clientType"
+                    value="HOSPITAL"
+                    class="hidden"
+                  />
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i
+                        data-lucide="hospital"
+                        class="w-6 h-6 text-blue-600"
+                      ></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-textPrimary">Hôpital</p>
+                      <p class="text-sm text-textSecondary">
+                        Établissement de santé
+                      </p>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  class="client-type-card cursor-pointer border-2 border-border rounded-xl p-4 hover:border-accent transition-colors"
+                >
+                  <input
+                    type="radio"
+                    name="clientType"
+                    value="CLINIC"
+                    class="hidden"
+                  />
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i
+                        data-lucide="heart-pulse"
+                        class="w-6 h-6 text-teal-600"
+                      ></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-textPrimary">Clinique</p>
+                      <p class="text-sm text-textSecondary">Centre médical</p>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  class="client-type-card cursor-pointer border-2 border-border rounded-xl p-4 hover:border-accent transition-colors"
+                >
+                  <input
+                    type="radio"
+                    name="clientType"
+                    value="DOCTOR"
+                    class="hidden"
+                  />
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i
+                        data-lucide="stethoscope"
+                        class="w-6 h-6 text-green-600"
+                      ></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-textPrimary">Médecin</p>
+                      <p class="text-sm text-textSecondary">
+                        Praticien indépendant
+                      </p>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  class="client-type-card cursor-pointer border-2 border-border rounded-xl p-4 hover:border-accent transition-colors"
+                >
+                  <input
+                    type="radio"
+                    name="clientType"
+                    value="MEDICAL_OFFICE"
+                    class="hidden"
+                  />
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i
+                        data-lucide="building"
+                        class="w-6 h-6 text-orange-600"
+                      ></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-textPrimary">
+                        Cabinet Médical
+                      </p>
+                      <p class="text-sm text-textSecondary">
+                        Cabinet de groupe
+                      </p>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  class="client-type-card cursor-pointer border-2 border-border rounded-xl p-4 hover:border-accent transition-colors"
+                >
+                  <input
+                    type="radio"
+                    name="clientType"
+                    value="LABORATORY"
+                    class="hidden"
+                  />
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i
+                        data-lucide="flask-conical"
+                        class="w-6 h-6 text-purple-600"
+                      ></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-textPrimary">Laboratoire</p>
+                      <p class="text-sm text-textSecondary">
+                        Laboratoire d'analyses
+                      </p>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  class="client-type-card cursor-pointer border-2 border-border rounded-xl p-4 hover:border-accent transition-colors"
+                >
+                  <input
+                    type="radio"
+                    name="clientType"
+                    value="RESELLER"
+                    class="hidden"
+                  />
+                  <div class="flex items-center gap-4">
+                    <div
+                      class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0"
+                    >
+                      <i data-lucide="store" class="w-6 h-6 text-slate-600"></i>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-textPrimary">Revendeur</p>
+                      <p class="text-sm text-textSecondary">
+                        Distributeur pharmaceutique
+                      </p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="flex gap-4">
+                <button
+                  type="button"
+                  onclick="goToStep(2)"
+                  class="flex-1 bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors"
+                >
+                  Suivant
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 2: Organization Info -->
+            <div class="step-content" data-step="2">
+              <div class="space-y-4 mb-6">
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >Nom de l'organisation *</label
+                  >
+                  <input
+                    type="text"
+                    id="organizationName"
+                    required
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="Ex: Hôpital Central"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >Nom du contact *</label
+                  >
+                  <input
+                    type="text"
+                    id="contactName"
+                    required
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="Ex: Dr. Mohammed Benali"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >Téléphone *</label
+                  >
+                  <input
+                    type="tel"
+                    id="phone"
+                    required
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="+212 600 000 000"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >Adresse *</label
+                  >
+                  <input
+                    type="text"
+                    id="address"
+                    required
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="Ex: 123 Rue Mohammed V"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >Ville *</label
+                  >
+                  <input
+                    type="text"
+                    id="city"
+                    required
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="Ex: Casablanca"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >ICE (Identifiant Commun de l'Entreprise)</label
+                  >
+                  <input
+                    type="text"
+                    id="ice"
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="Optionnel"
+                  />
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <button
+                  type="button"
+                  onclick="goToStep(1)"
+                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium py-3 rounded-lg transition-colors"
+                >
+                  Précédent
+                </button>
+                <button
+                  type="button"
+                  onclick="goToStep(3)"
+                  class="flex-1 bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors"
+                >
+                  Suivant
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 3: Access -->
+            <div class="step-content" data-step="3">
+              <div class="space-y-4 mb-6">
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >Email *</label
+                  >
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="votre@email.com"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >Mot de passe *</label
+                  >
+                  <div class="relative">
+                    <input
+                      type="password"
+                      id="password"
+                      required
+                      minlength="8"
+                      class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all pr-12"
+                      placeholder="••••••••"
+                      oninput="checkPasswordStrength()"
+                    />
+                    <button
+                      type="button"
+                      id="toggle-password"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
+                  </div>
+                  <div class="mt-2">
+                    <div class="flex gap-1 mb-1">
+                      <div
+                        class="strength-bar h-1 flex-1 bg-gray-200 rounded"
+                      ></div>
+                      <div
+                        class="strength-bar h-1 flex-1 bg-gray-200 rounded"
+                      ></div>
+                      <div
+                        class="strength-bar h-1 flex-1 bg-gray-200 rounded"
+                      ></div>
+                      <div
+                        class="strength-bar h-1 flex-1 bg-gray-200 rounded"
+                      ></div>
+                    </div>
+                    <p id="strength-text" class="text-xs text-textSecondary">
+                      Minimum 8 caractères
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-2"
+                    >Confirmer le mot de passe *</label
+                  >
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    required
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <div class="flex items-start">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    required
+                    class="w-4 h-4 text-accent border-border rounded focus:ring-accent mt-1"
+                  />
+                  <label for="terms" class="ml-2 text-sm text-textSecondary">
+                    J'accepte les
+                    <a href="#" class="text-accent hover:underline"
+                      >conditions d'utilisation</a
+                    >
+                    et la
+                    <a href="#" class="text-accent hover:underline"
+                      >politique de confidentialité</a
+                    >
+                  </label>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <button
+                  type="button"
+                  onclick="goToStep(2)"
+                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium py-3 rounded-lg transition-colors"
+                >
+                  Précédent
+                </button>
+                <button
+                  type="submit"
+                  class="flex-1 bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg transition-colors"
+                >
+                  S'inscrire
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="mt-6 text-center">
+            <p class="text-textSecondary">Vous avez déjà un compte ?</p>
+            <a
+              href="/medsupply-cloud/pages/auth/login.html"
+              class="text-accent font-medium hover:underline"
+              >Se connecter</a
+            >
+          </div>
+
+          <p class="text-center text-textSecondary text-xs mt-8">
+            © 2026 MedSupply Cloud. Tous droits réservés.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="../../js/api.js"></script>
+    <script src="../../js/auth.js"></script>
+    <script src="../../js/router.js"></script>
+    <script src="../../js/components/toast.js"></script>
+    <script>
+      initAuthPage();
+      lucide.createIcons();
+
+      let currentStep = 1;
+
+      function goToStep(step) {
+        // Validate current step before moving
+        if (step > currentStep && !validateStep(currentStep)) {
+          return;
+        }
+
+        currentStep = step;
+
+        // Update step content
+        document.querySelectorAll(".step-content").forEach((content) => {
+          content.classList.remove("active");
+        });
+        document
+          .querySelector(`.step-content[data-step="${step}"]`)
+          .classList.add("active");
+
+        // Update progress indicators
+        document.querySelectorAll(".step-indicator").forEach((indicator) => {
+          const indicatorStep = parseInt(indicator.dataset.step);
+          if (indicatorStep <= step) {
+            indicator.classList.remove("bg-gray-200", "text-gray-500");
+            indicator.classList.add("bg-primary", "text-white");
+          } else {
+            indicator.classList.remove("bg-primary", "text-white");
+            indicator.classList.add("bg-gray-200", "text-gray-500");
+          }
+        });
+
+        // Update progress bars
+        const progressBars = document.querySelectorAll(".progress-bar");
+        if (step === 1) {
+          progressBars[0].style.width = "33%";
+          progressBars[1].style.width = "0%";
+        } else if (step === 2) {
+          progressBars[0].style.width = "100%";
+          progressBars[1].style.width = "50%";
+        } else if (step === 3) {
+          progressBars[0].style.width = "100%";
+          progressBars[1].style.width = "100%";
+        }
+      }
+
+      function validateStep(step) {
+        if (step === 1) {
+          const clientType = document.querySelector(
+            'input[name="clientType"]:checked',
+          );
+          if (!clientType) {
+            showToast("Veuillez sélectionner un type de compte", "warning");
+            return false;
+          }
+        } else if (step === 2) {
+          const orgName = document.getElementById("organizationName").value;
+          const contactName = document.getElementById("contactName").value;
+          const phone = document.getElementById("phone").value;
+          const address = document.getElementById("address").value;
+          const city = document.getElementById("city").value;
+
+          if (!orgName || !contactName || !phone || !address || !city) {
+            showToast(
+              "Veuillez remplir tous les champs obligatoires",
+              "warning",
+            );
+            return false;
+          }
+        }
+        return true;
+      }
+
+      // Client type card selection
+      document.querySelectorAll(".client-type-card").forEach((card) => {
+        card.addEventListener("click", function () {
+          document
+            .querySelectorAll(".client-type-card")
+            .forEach((c) => c.classList.remove("selected"));
+          this.classList.add("selected");
+          this.querySelector("input").checked = true;
+        });
+      });
+
+      // Password toggle
+      document
+        .getElementById("toggle-password")
+        .addEventListener("click", function () {
+          const passwordInput = document.getElementById("password");
+          const icon = this.querySelector("i");
+
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.setAttribute("data-lucide", "eye-off");
+          } else {
+            passwordInput.type = "password";
+            icon.setAttribute("data-lucide", "eye");
+          }
+          lucide.createIcons();
+        });
+
+      function checkPasswordStrength() {
+        const password = document.getElementById("password").value;
+        const strengthBars = document.querySelectorAll(".strength-bar");
+        const strengthText = document.getElementById("strength-text");
+
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+        if (password.match(/\d/)) strength++;
+        if (password.match(/[^a-zA-Z\d]/)) strength++;
+
+        const colors = [
+          "bg-gray-200",
+          "bg-red-500",
+          "bg-yellow-500",
+          "bg-blue-500",
+          "bg-green-500",
+        ];
+        const texts = [
+          "Minimum 8 caractères",
+          "Faible",
+          "Moyen",
+          "Fort",
+          "Très fort",
+        ];
+
+        strengthBars.forEach((bar, index) => {
+          bar.className = `strength-bar h-1 flex-1 rounded ${index < strength ? colors[strength] : "bg-gray-200"}`;
+        });
+
+        strengthText.textContent = texts[strength];
+      }
+
+      document
+        .getElementById("register-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+
+          if (password !== confirmPassword) {
+            showToast("Les mots de passe ne correspondent pas", "error");
+            return;
+          }
+
+          const clientType = document.querySelector(
+            'input[name="clientType"]:checked',
+          );
+          if (!clientType) {
+            showToast("Veuillez sélectionner un type de compte", "warning");
+            return;
+          }
+
+          // Backend expects: {email, password, role, profile}
+          // Profile structure depends on role
+          const profile = {
+            name: document.getElementById("organizationName").value,
+            type: clientType.value,
+            address:
+              document.getElementById("address").value +
+              ", " +
+              document.getElementById("city").value,
+            phone: document.getElementById("phone").value,
+            email: document.getElementById("email").value,
+          };
+
+          const ice = document.getElementById("ice").value;
+          if (ice) {
+            profile.taxId = ice;
+          }
+
+          const userData = {
+            email: document.getElementById("email").value,
+            password: password,
+            role: "CLIENT",
+            profile: profile,
+          };
+
+          const submitBtn = document.querySelector('button[type="submit"]');
+          const originalText = submitBtn.innerHTML;
+          submitBtn.innerHTML =
+            '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Inscription...</span>';
+          submitBtn.disabled = true;
+          lucide.createIcons();
+
+          try {
+            const result = await apiFetch("/auth/register", {
+              method: "POST",
+              body: JSON.stringify(userData),
+            });
+
+            if (result && result.data && result.data.success) {
+              showToast(
+                "Inscription réussie ! Veuillez vérifier votre email.",
+                "success",
+              );
+              setTimeout(() => {
+                window.location.href =
+                  "/medsupply-cloud/pages/auth/pending.html";
+              }, 1500);
+            } else {
+              const message =
+                result?.data?.message ||
+                "Une erreur est survenue lors de l'inscription";
+              showToast(message, "error");
+            }
+          } catch (error) {
+            showToast("Erreur de connexion au serveur", "error");
+          } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            lucide.createIcons();
+          }
+        });
+    </script>
+  </body>
+</html>

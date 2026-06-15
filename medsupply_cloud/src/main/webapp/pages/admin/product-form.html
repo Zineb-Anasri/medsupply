@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajouter un produit - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col ml-72">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Page Header -->
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-textPrimary" id="page-title">Ajouter un produit</h1>
+            <p class="text-textSecondary">Remplissez les informations du produit</p>
+          </div>
+          <button onclick="window.location.href='products.html'" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+            Annuler
+          </button>
+        </div>
+
+        <!-- Form -->
+        <form id="product-form" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Left Column -->
+          <div class="space-y-6">
+            <!-- Image Upload -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label class="block text-sm font-medium text-textPrimary mb-4">Image du produit</label>
+              <div id="image-dropzone" class="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-accent transition-colors">
+                <div id="image-preview" class="hidden">
+                  <img id="preview-img" src="" alt="Preview" class="w-full h-48 object-cover rounded-lg mb-4">
+                  <button type="button" onclick="removeImage()" class="text-red-600 hover:text-red-700 text-sm">
+                    Supprimer l'image
+                  </button>
+                </div>
+                <div id="upload-placeholder">
+                  <i data-lucide="upload-cloud" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                  <p class="text-textSecondary mb-2">Glissez-déposez une image ici</p>
+                  <p class="text-sm text-textSecondary">ou cliquez pour sélectionner</p>
+                  <p class="text-xs text-textSecondary mt-2">PNG, JPG jusqu'à 5MB</p>
+                </div>
+                <input type="file" id="image-input" accept="image/*" class="hidden">
+              </div>
+            </div>
+
+            <!-- Reference -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label for="reference" class="block text-sm font-medium text-textPrimary mb-2">Référence</label>
+              <div class="relative">
+                <input type="text" id="reference" name="reference" required
+                  class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all font-mono"
+                  placeholder="PROD-XXXX">
+                <button type="button" onclick="generateReference()" class="absolute right-3 top-1/2 -translate-y-1/2 text-accent hover:text-secondary text-sm">
+                  Générer
+                </button>
+              </div>
+            </div>
+
+            <!-- Name -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label for="name" class="block text-sm font-medium text-textPrimary mb-2">Nom du produit *</label>
+              <input type="text" id="name" name="name" required
+                class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                placeholder="Ex: Échographie portable">
+            </div>
+
+            <!-- Description -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label for="description" class="block text-sm font-medium text-textPrimary mb-2">Description</label>
+              <textarea id="description" name="description" rows="4"
+                class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all resize-none"
+                placeholder="Décrivez le produit..."></textarea>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div class="space-y-6">
+            <!-- Category -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label for="category" class="block text-sm font-medium text-textPrimary mb-2">Catégorie *</label>
+              <select id="category" name="category" required
+                class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+                <option value="">Sélectionnez une catégorie</option>
+                <option value="Imagerie médicale">Imagerie médicale</option>
+                <option value="Équipement chirurgical">Équipement chirurgical</option>
+                <option value="Laboratoire">Laboratoire</option>
+                <option value="Diagnostic">Diagnostic</option>
+                <option value="Mobiliers médicaux">Mobiliers médicaux</option>
+                <option value="Consommables">Consommables</option>
+                <option value="Autres">Autres</option>
+              </select>
+            </div>
+
+            <!-- Brand -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label for="brand" class="block text-sm font-medium text-textPrimary mb-2">Marque *</label>
+              <div class="relative">
+                <select id="brand" name="brand" required
+                  class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+                  <option value="">Sélectionnez une marque</option>
+                </select>
+                <button type="button" onclick="showAddBrandModal()" class="absolute right-3 top-1/2 -translate-y-1/2 text-accent hover:text-secondary text-sm">
+                  + Ajouter
+                </button>
+              </div>
+            </div>
+
+            <!-- Supplier -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label for="supplier" class="block text-sm font-medium text-textPrimary mb-2">Fournisseur *</label>
+              <select id="supplier" name="supplier" required
+                class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all">
+                <option value="">Sélectionnez un fournisseur</option>
+              </select>
+            </div>
+
+            <!-- Unit Price -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label for="unitPrice" class="block text-sm font-medium text-textPrimary mb-2">Prix unitaire (MAD) *</label>
+              <div class="relative">
+                <input type="number" id="unitPrice" name="unitPrice" required min="0" step="0.01"
+                  class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                  placeholder="0.00">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-textSecondary text-sm">MAD</span>
+              </div>
+            </div>
+
+            <!-- Warranty -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <label for="warrantyMonths" class="block text-sm font-medium text-textPrimary mb-2">Garantie (mois)</label>
+              <div class="relative">
+                <input type="number" id="warrantyMonths" name="warrantyMonths" min="0"
+                  class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                  placeholder="12">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-textSecondary text-sm">mois</span>
+              </div>
+            </div>
+
+            <!-- Stock Info -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="quantity" class="block text-sm font-medium text-textPrimary mb-2">Quantité en stock</label>
+                  <input type="number" id="quantity" name="quantity" min="0"
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="0">
+                </div>
+                <div>
+                  <label for="minQuantity" class="block text-sm font-medium text-textPrimary mb-2">Stock minimum</label>
+                  <input type="number" id="minQuantity" name="minQuantity" min="0"
+                    class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all"
+                    placeholder="5">
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <!-- Submit Buttons -->
+        <div class="flex items-center justify-end gap-4 mt-6">
+          <button onclick="window.location.href='products.html'" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-6 py-3 rounded-lg transition-colors">
+            Annuler
+          </button>
+          <button onclick="saveProduct()" class="bg-primary hover:bg-secondary text-white font-medium px-6 py-3 rounded-lg transition-colors">
+            Enregistrer
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Brand Modal -->
+  <div id="add-brand-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-surface rounded-xl shadow-lg border border-border p-6 w-full max-w-md">
+      <h3 class="text-lg font-bold text-textPrimary mb-4">Ajouter une marque</h3>
+      <input type="text" id="new-brand-input" placeholder="Nom de la marque"
+        class="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent outline-none transition-all mb-4">
+      <div class="flex justify-end gap-2">
+        <button onclick="hideAddBrandModal()" class="bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium px-4 py-2 rounded-lg transition-colors">
+          Annuler
+        </button>
+        <button onclick="addBrand()" class="bg-primary hover:bg-secondary text-white font-medium px-4 py-2 rounded-lg transition-colors">
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>
+    requireAuth(["ADMIN"]);
+    const currentUser = getCurrentUser();
+  </script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script>
+    initPage("ADMIN");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+    let imageData = null;
+
+    // Load product data if editing
+    if (productId) {
+      loadProduct();
+      document.getElementById('page-title').textContent = 'Modifier le produit';
+    }
+
+    async function loadProduct() {
+      try {
+        const response = await apiFetch(`/admin/products/${productId}`);
+        const product = response.data;
+
+        document.getElementById('reference').value = product.reference;
+        document.getElementById('name').value = product.name;
+        document.getElementById('description').value = product.description || '';
+        document.getElementById('category').value = product.category;
+        document.getElementById('brand').value = product.brand;
+        document.getElementById('supplier').value = product.supplier;
+        document.getElementById('unitPrice').value = product.unitPrice;
+        document.getElementById('warrantyMonths').value = product.warrantyMonths || '';
+        document.getElementById('quantity').value = product.quantity || '';
+        document.getElementById('minQuantity').value = product.minQuantity || '';
+
+        if (product.imageUrl) {
+          showImagePreview(product.imageUrl);
+        }
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load product:", error);
+      }
+    }
+
+    // Load dropdown options
+    async function loadDropdownOptions() {
+      try {
+        const response = await apiFetch('/admin/products/options');
+        const options = response.data;
+
+        const brandSelect = document.getElementById('brand');
+        brandSelect.innerHTML = '<option value="">Sélectionnez une marque</option>' +
+          options.brands.map(brand => `<option value="${brand}">${brand}</option>`).join('');
+
+        const supplierSelect = document.getElementById('supplier');
+        supplierSelect.innerHTML = '<option value="">Sélectionnez un fournisseur</option>' +
+          options.suppliers.map(sup => `<option value="${sup}">${sup}</option>`).join('');
+
+      } catch (error) {
+        console.error("Failed to load dropdown options:", error);
+      }
+    }
+
+    // Image upload handling
+    const dropzone = document.getElementById('image-dropzone');
+    const imageInput = document.getElementById('image-input');
+
+    dropzone.addEventListener('click', () => imageInput.click());
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-accent');
+    });
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-accent');
+    });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-accent');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        handleImageUpload(file);
+      }
+    });
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        handleImageUpload(file);
+      }
+    });
+
+    function handleImageUpload(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imageData = e.target.result;
+        showImagePreview(imageData);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showImagePreview(src) {
+      document.getElementById('image-preview').classList.remove('hidden');
+      document.getElementById('upload-placeholder').classList.add('hidden');
+      document.getElementById('preview-img').src = src;
+    }
+
+    function removeImage() {
+      imageData = null;
+      document.getElementById('image-preview').classList.add('hidden');
+      document.getElementById('upload-placeholder').classList.remove('hidden');
+      document.getElementById('preview-img').src = '';
+      document.getElementById('image-input').value = '';
+    }
+
+    function generateReference() {
+      const prefix = 'PROD-';
+      const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+      document.getElementById('reference').value = prefix + random;
+    }
+
+    function showAddBrandModal() {
+      document.getElementById('add-brand-modal').classList.remove('hidden');
+    }
+
+    function hideAddBrandModal() {
+      document.getElementById('add-brand-modal').classList.add('hidden');
+      document.getElementById('new-brand-input').value = '';
+    }
+
+    async function addBrand() {
+      const brandName = document.getElementById('new-brand-input').value.trim();
+      if (brandName) {
+        const brandSelect = document.getElementById('brand');
+        const option = document.createElement('option');
+        option.value = brandName;
+        option.textContent = brandName;
+        brandSelect.appendChild(option);
+        brandSelect.value = brandName;
+        hideAddBrandModal();
+      }
+    }
+
+    async function saveProduct() {
+      const formData = {
+        reference: document.getElementById('reference').value,
+        name: document.getElementById('name').value,
+        description: document.getElementById('description').value,
+        category: document.getElementById('category').value,
+        brand: document.getElementById('brand').value,
+        supplier: document.getElementById('supplier').value,
+        unitPrice: parseFloat(document.getElementById('unitPrice').value),
+        warrantyMonths: parseInt(document.getElementById('warrantyMonths').value) || 0,
+        quantity: parseInt(document.getElementById('quantity').value) || 0,
+        minQuantity: parseInt(document.getElementById('minQuantity').value) || 0,
+        imageUrl: imageData
+      };
+
+      try {
+        if (productId) {
+          await apiFetch(`/admin/products/${productId}`, {
+            method: 'PUT',
+            body: JSON.stringify(formData)
+          });
+        } else {
+          await apiFetch('/admin/products', {
+            method: 'POST',
+            body: JSON.stringify(formData)
+          });
+        }
+        window.location.href = '/medsupply-cloud/pages/products.html';
+      } catch (error) {
+        console.error("Failed to save product:", error);
+        alert("Erreur lors de l'enregistrement du produit");
+      }
+    }
+
+    // Initialize
+    loadDropdownOptions();
+    lucide.createIcons();
+  </script>
+</body>
+</html>

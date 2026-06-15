@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paiement - MedSupply Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#0A2647",
+              secondary: "#144272",
+              accent: "#2C74B3",
+              success: "#16A34A",
+              warning: "#D97706",
+              danger: "#DC2626",
+              background: "#F8FAFC",
+              surface: "#FFFFFF",
+              border: "#E2E8F0",
+              textPrimary: "#0F172A",
+              textSecondary: "#64748B",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-textPrimary">
+    <!-- Navbar will be inserted here -->
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Progress Bar -->
+      <div class="mb-12">
+        <div class="flex justify-between items-center">
+          <div class="flex-1 flex items-center">
+            <div
+              class="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center font-bold"
+            >
+              1
+            </div>
+            <div class="flex-1 h-1 bg-accent mx-4"></div>
+          </div>
+          <div class="flex-1 flex items-center">
+            <div
+              class="w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center font-bold"
+            >
+              2
+            </div>
+            <div class="flex-1 h-1 bg-border mx-4"></div>
+          </div>
+          <div class="flex-1 flex items-center">
+            <div
+              class="w-10 h-10 rounded-full bg-border text-textSecondary flex items-center justify-center font-bold"
+            >
+              3
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-between mt-2 text-sm">
+          <span class="font-medium">Panier</span>
+          <span class="font-medium">Livraison</span>
+          <span class="text-textSecondary">Paiement</span>
+        </div>
+      </div>
+
+      <h1 class="text-4xl font-bold mb-12">Informations de Livraison</h1>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Shipping Form -->
+        <div class="md:col-span-2">
+          <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Adresse de Livraison</h2>
+            <form
+              id="shipping-form"
+              onsubmit="validateShipping(event)"
+              class="space-y-6"
+            >
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium mb-2">Prénom</label>
+                  <input
+                    type="text"
+                    required
+                    class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium mb-2">Nom</label>
+                  <input
+                    type="text"
+                    required
+                    class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium mb-2">Email</label>
+                <input
+                  type="email"
+                  required
+                  class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium mb-2">Téléphone</label>
+                <input
+                  type="tel"
+                  required
+                  class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium mb-2">Rue</label>
+                <input
+                  type="text"
+                  required
+                  class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none"
+                />
+              </div>
+
+              <div class="grid md:grid-cols-3 gap-6">
+                <div>
+                  <label class="block text-sm font-medium mb-2"
+                    >Code Postal</label
+                  >
+                  <input
+                    type="text"
+                    required
+                    class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none"
+                  />
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium mb-2">Ville</label>
+                  <input
+                    type="text"
+                    required
+                    class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium mb-2">Pays</label>
+                <select
+                  required
+                  class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none"
+                >
+                  <option value="">Sélectionner un pays</option>
+                  <option value="france">France</option>
+                  <option value="belgique">Belgique</option>
+                  <option value="suisse">Suisse</option>
+                  <option value="luxembourg">Luxembourg</option>
+                </select>
+              </div>
+            </form>
+          </div>
+
+          <!-- Delivery Options -->
+          <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Mode de Livraison</h2>
+            <div class="space-y-4">
+              <label
+                class="flex items-center p-4 border-2 border-accent rounded-lg cursor-pointer bg-background"
+              >
+                <input
+                  type="radio"
+                  name="delivery"
+                  value="standard"
+                  checked
+                  class="mr-4 w-5 h-5"
+                />
+                <div class="flex-1">
+                  <h3 class="font-bold">Livraison Standard</h3>
+                  <p class="text-sm text-textSecondary">48-72h - Gratuite</p>
+                </div>
+                <span class="text-lg font-bold text-success">Gratuit</span>
+              </label>
+
+              <label
+                class="flex items-center p-4 border-2 border-border rounded-lg cursor-pointer hover:border-accent"
+              >
+                <input
+                  type="radio"
+                  name="delivery"
+                  value="express"
+                  class="mr-4 w-5 h-5"
+                />
+                <div class="flex-1">
+                  <h3 class="font-bold">Livraison Express</h3>
+                  <p class="text-sm text-textSecondary">
+                    24h - Livraison avant 13h
+                  </p>
+                </div>
+                <span class="text-lg font-bold">+15€</span>
+              </label>
+
+              <label
+                class="flex items-center p-4 border-2 border-border rounded-lg cursor-pointer hover:border-accent"
+              >
+                <input
+                  type="radio"
+                  name="delivery"
+                  value="pickup"
+                  class="mr-4 w-5 h-5"
+                />
+                <div class="flex-1">
+                  <h3 class="font-bold">Retrait sur place</h3>
+                  <p class="text-sm text-textSecondary">
+                    Gratuit - À notre entrepôt
+                  </p>
+                </div>
+                <span class="text-lg font-bold text-success">Gratuit</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold mb-6">Mode de Paiement</h2>
+            <div class="space-y-4">
+              <label
+                class="flex items-center p-4 border-2 border-accent rounded-lg cursor-pointer bg-background"
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value="card"
+                  checked
+                  class="mr-4 w-5 h-5"
+                />
+                <i
+                  data-lucide="credit-card"
+                  class="w-6 h-6 mr-4 text-accent"
+                ></i>
+                <div>
+                  <h3 class="font-bold">Carte Bancaire</h3>
+                  <p class="text-sm text-textSecondary">
+                    Visa, Mastercard, Amex
+                  </p>
+                </div>
+              </label>
+
+              <label
+                class="flex items-center p-4 border-2 border-border rounded-lg cursor-pointer hover:border-accent"
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value="transfer"
+                  class="mr-4 w-5 h-5"
+                />
+                <i data-lucide="bank" class="w-6 h-6 mr-4"></i>
+                <div>
+                  <h3 class="font-bold">Virement Bancaire</h3>
+                  <p class="text-sm text-textSecondary">Virement SEPA</p>
+                </div>
+              </label>
+
+              <label
+                class="flex items-center p-4 border-2 border-border rounded-lg cursor-pointer hover:border-accent"
+              >
+                <input
+                  type="radio"
+                  name="payment"
+                  value="invoice"
+                  class="mr-4 w-5 h-5"
+                />
+                <i data-lucide="file-text" class="w-6 h-6 mr-4"></i>
+                <div>
+                  <h3 class="font-bold">Facture</h3>
+                  <p class="text-sm text-textSecondary">Paiement à réception</p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="md:col-span-1">
+          <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+            <h3 class="text-xl font-bold mb-6">Résumé de la Commande</h3>
+
+            <div
+              id="order-items"
+              class="space-y-3 mb-6 pb-6 border-b border-border"
+            >
+              <!-- Items will be loaded here -->
+            </div>
+
+            <div class="space-y-3 mb-6 pb-6 border-b border-border">
+              <div class="flex justify-between">
+                <span class="text-textSecondary">Sous-total</span>
+                <span id="order-subtotal">0€</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-textSecondary">Livraison</span>
+                <span id="order-shipping">Gratuit</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-textSecondary">TVA (20%)</span>
+                <span id="order-tax">0€</span>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+              <span class="text-lg font-bold">Total</span>
+              <span id="order-total" class="text-3xl font-bold text-primary"
+                >0€</span
+              >
+            </div>
+
+            <button
+              onclick="processPayment()"
+              class="w-full bg-accent hover:bg-secondary text-white py-3 rounded-lg font-bold mb-4 transition-colors"
+            >
+              Finaliser la Commande
+            </button>
+
+            <a
+              href="/medsupply-cloud/pages/cart.html"
+              class="block text-center text-accent hover:text-secondary font-medium"
+            >
+              Retourner au Panier
+            </a>
+
+            <!-- Trust Badges -->
+            <div
+              class="mt-8 pt-8 border-t border-border space-y-3 text-sm text-textSecondary"
+            >
+              <div class="flex items-center gap-2">
+                <i data-lucide="shield-check" class="w-5 h-5 text-success"></i>
+                <span>100% Paiement Sécurisé</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="lock" class="w-5 h-5 text-success"></i>
+                <span>Données Chiffrées SSL</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-5 h-5 text-success"></i>
+                <span>Garantie Satisfait 30j</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div
+      id="success-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-2xl p-12 max-w-md text-center">
+        <div class="mb-6 flex justify-center">
+          <div
+            class="w-20 h-20 rounded-full bg-success bg-opacity-20 flex items-center justify-center"
+          >
+            <i data-lucide="check-circle" class="w-12 h-12 text-success"></i>
+          </div>
+        </div>
+        <h2 class="text-3xl font-bold mb-4">Commande Réussie!</h2>
+        <p class="text-textSecondary mb-2">Votre commande a été confirmée.</p>
+        <p class="text-textSecondary mb-8">
+          Numéro de commande:
+          <span id="order-number" class="font-bold text-primary"></span>
+        </p>
+        <p class="text-sm text-textSecondary mb-8">
+          Vous recevrez un email de confirmation avec les détails de votre
+          commande et le suivi de livraison.
+        </p>
+        <a
+          href="/medsupply-cloud/pages/profile.html#orders"
+          class="block w-full bg-accent text-white py-3 rounded-lg font-bold mb-3 hover:bg-secondary transition"
+        >
+          Voir Ma Commande
+        </a>
+        <a
+          href="/medsupply-cloud/"
+          class="block text-accent hover:text-secondary font-medium"
+        >
+          Continuer vos Achats
+        </a>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/mock-data.js"></script>
+    <script src="../js/components/toast.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script>
+      function loadOrderSummary() {
+        const cart = getCart();
+        const itemsContainer = document.getElementById("order-items");
+
+        let subtotal = 0;
+        let totalDiscount = 0;
+
+        itemsContainer.innerHTML = cart
+          .map((item) => {
+            const finalPrice = item.price * (1 - (item.discount || 0) / 100);
+            const itemTotal = finalPrice * item.quantity;
+            subtotal += item.price * item.quantity;
+            totalDiscount += (item.price - finalPrice) * item.quantity;
+
+            return `
+          <div class="flex justify-between text-sm">
+            <span>${item.name} x${item.quantity}</span>
+            <span>${itemTotal.toFixed(2)}€</span>
+          </div>
+        `;
+          })
+          .join("");
+
+        const tax = subtotal * 0.2;
+        const total = subtotal - totalDiscount + tax;
+
+        document.getElementById("order-subtotal").textContent =
+          `${subtotal.toFixed(2)}€`;
+        document.getElementById("order-tax").textContent = `${tax.toFixed(2)}€`;
+        document.getElementById("order-total").textContent =
+          `${total.toFixed(2)}€`;
+
+        lucide.createIcons();
+      }
+
+      function validateShipping(event) {
+        event.preventDefault();
+        showToast("Veuillez cliquer sur 'Finaliser la Commande'", "info");
+      }
+
+      function processPayment() {
+        const form = document.getElementById("shipping-form");
+
+        // Validate form
+        const inputs = form.querySelectorAll(
+          "input[type='text'], input[type='email'], input[type='tel'], select",
+        );
+        let isValid = true;
+
+        inputs.forEach((input) => {
+          if (!input.value.trim()) {
+            isValid = false;
+            input.classList.add("border-danger");
+          } else {
+            input.classList.remove("border-danger");
+          }
+        });
+
+        if (!isValid) {
+          showToast("Veuillez remplir tous les champs", "warning");
+          return;
+        }
+
+        // Simulate payment processing
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.innerHTML =
+          '<i data-lucide="loader" class="w-5 h-5 animate-spin inline mr-2"></i>Traitement du paiement...';
+
+        setTimeout(() => {
+          // Clear cart and show success
+          const orderNumber =
+            "CMD-" + String(Math.random()).slice(2, 8).toUpperCase();
+          document.getElementById("order-number").textContent = orderNumber;
+          document.getElementById("success-modal").classList.remove("hidden");
+
+          // Clear cart
+          clearCart();
+
+          lucide.createIcons();
+        }, 2000);
+      }
+
+      document.addEventListener("DOMContentLoaded", loadOrderSummary);
+    </script>
+  </body>
+</html>

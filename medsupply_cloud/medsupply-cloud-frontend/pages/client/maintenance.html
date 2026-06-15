@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Contrats Maintenance - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Page Header -->
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-textPrimary">Mes Contrats Maintenance</h1>
+          <p class="text-textSecondary">Gérez vos contrats de maintenance</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-textSecondary text-sm">Contrats actifs</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-active">0</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="shield-check" class="w-6 h-6 text-green-600"></i>
+              </div>
+            </div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-textSecondary text-sm">Expirant dans 30 jours</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-expiring">0</p>
+              </div>
+              <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="clock" class="w-6 h-6 text-amber-600"></i>
+              </div>
+            </div>
+          </div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-textSecondary text-sm">Total interventions</p>
+                <p class="text-2xl font-bold text-textPrimary" id="stat-interventions">0</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i data-lucide="wrench" class="w-6 h-6 text-blue-600"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contract Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="contracts-grid">
+          <div class="col-span-full text-center py-12 text-textSecondary">Chargement...</div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Interventions History Modal -->
+  <div id="interventions-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-surface rounded-xl shadow-lg border border-border p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-textPrimary">Historique des interventions</h3>
+        <button onclick="hideInterventionsModal()" class="p-2 hover:bg-gray-100 rounded">
+          <i data-lucide="x" class="w-5 h-5 text-gray-600"></i>
+        </button>
+      </div>
+      <div class="space-y-4" id="interventions-timeline">
+        <!-- Interventions will be loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    requireAuth(["CLIENT"]);
+  </script>
+  <script src="/js/router.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/header.js"></script>
+  <script src="/js/components/badge.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/utils/format.js"></script>
+  <script>
+    initPage("CLIENT");
+    const role = getCurrentRole();
+    if (role) {
+      renderSidebar(role.toLowerCase());
+    }
+    renderHeader();
+
+    async function loadContracts() {
+      try {
+        const response = await apiFetch('/maintenance/contracts');
+        const data = response?.data || {};
+
+        // Update stats
+        document.getElementById("stat-active").textContent = data.stats?.active || 0;
+        document.getElementById("stat-expiring").textContent = data.stats?.expiring || 0;
+        document.getElementById("stat-interventions").textContent = data.stats?.interventions || 0;
+
+        // Update contract cards grid
+        const grid = document.getElementById('contracts-grid');
+        const contracts = data.contracts || [];
+        if (contracts.length === 0) {
+          grid.innerHTML = `<div class="col-span-full text-center py-12 text-textSecondary">Aucun contrat de maintenance</div>`;
+        } else {
+          grid.innerHTML = contracts.map(contract => {
+            const daysRemaining = contract.daysRemaining || 0;
+            const totalDays = contract.totalDays || 365;
+            const progressPercent = Math.max(0, Math.min(100, (daysRemaining / totalDays) * 100));
+            const progressColor = daysRemaining < 30 ? 'bg-red-500' : daysRemaining < 90 ? 'bg-amber-500' : 'bg-green-500';
+
+            return `
+              <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+                <div class="aspect-[4/3] bg-gray-100 relative">
+                  ${contract.productImageUrl 
+                    ? `<img src="${contract.productImageUrl}" alt="${contract.productName}" class="w-full h-full object-cover">`
+                    : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
+                        <i data-lucide="package" class="w-12 h-12 text-primary"></i>
+                      </div>`
+                  }
+                  <span class="absolute top-3 right-3 ${getStatusColor(contract.status)} px-3 py-1 rounded-full text-xs font-medium text-white">
+                    ${getStatusLabel(contract.status)}
+                  </span>
+                </div>
+                <div class="p-4">
+                  <h3 class="font-semibold text-textPrimary mb-1">${contract.productName}</h3>
+                  <p class="text-sm text-textSecondary font-mono mb-2">${contract.productReference}</p>
+                  <p class="text-sm text-textSecondary mb-3">
+                    Du ${formatDate(contract.startDate)} au ${formatDate(contract.endDate)}
+                  </p>
+                  <div class="mb-3">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="text-textSecondary">${daysRemaining} jours restants</span>
+                      <span class="text-textSecondary">${progressPercent.toFixed(0)}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="${progressColor} h-2 rounded-full" style="width: ${progressPercent}%"></div>
+                    </div>
+                  </div>
+                  <button onclick="showInterventionsModal('${contract.contractId}')" class="w-full bg-gray-200 hover:bg-gray-300 text-textPrimary font-medium py-2 rounded-lg transition-colors">
+                    Historique interventions
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load contracts:", error);
+      }
+    }
+
+    async function showInterventionsModal(contractId) {
+      try {
+        const response = await apiFetch(`/client/maintenance/${contractId}/interventions`);
+        const interventions = response.data || [];
+
+        const container = document.getElementById('interventions-timeline');
+        
+        if (interventions.length === 0) {
+          container.innerHTML = `<p class="text-textSecondary text-sm text-center py-8">Aucune intervention enregistrée</p>`;
+        } else {
+          container.innerHTML = interventions.slice().reverse().map((intervention, index) => `
+            <div class="flex gap-3">
+              <div class="flex flex-col items-center">
+                <div class="w-3 h-3 rounded-full ${index === 0 ? 'bg-accent' : 'bg-gray-300'}"></div>
+                ${index < interventions.length - 1 ? '<div class="w-0.5 h-8 bg-gray-200"></div>' : ''}
+              </div>
+              <div class="flex-1 pb-4">
+                <p class="text-sm font-medium text-textPrimary">${formatDate(intervention.date)}</p>
+                <p class="text-xs text-textSecondary">Technicien: ${intervention.technician}</p>
+                <p class="text-sm text-textPrimary mt-1">${intervention.description}</p>
+                ${intervention.result ? `<p class="text-sm text-textSecondary mt-1">Résultat: ${intervention.result}</p>` : ''}
+              </div>
+            </div>
+          `).join('');
+        }
+
+        document.getElementById('interventions-modal').classList.remove('hidden');
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load interventions:", error);
+      }
+    }
+
+    function hideInterventionsModal() {
+      document.getElementById('interventions-modal').classList.add('hidden');
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        ACTIVE: "Actif",
+        EXPIRED: "Expiré",
+        SUSPENDED: "Suspendu"
+      };
+      return labels[status] || status;
+    }
+
+    function getStatusColor(status) {
+      const colors = {
+        ACTIVE: "bg-green-600",
+        EXPIRED: "bg-red-600",
+        SUSPENDED: "bg-orange-600"
+      };
+      return colors[status] || 'bg-gray-600';
+    }
+
+    // Load contracts on page load
+    loadContracts();
+  </script>
+</body>
+</html>

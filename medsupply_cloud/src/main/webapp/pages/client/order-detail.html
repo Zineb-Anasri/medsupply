@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détail Commande - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0A2647",
+            secondary: "#144272",
+            accent: "#2C74B3",
+            success: "#16A34A",
+            warning: "#D97706",
+            danger: "#DC2626",
+            background: "#F8FAFC",
+            surface: "#FFFFFF",
+            border: "#E2E8F0",
+            textPrimary: "#0F172A",
+            textSecondary: "#64748B",
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    #map { height: 400px; width: 100%; border-radius: 0.5rem; }
+    .pulse-marker {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col ">
+      <!-- Header -->
+      <header id="header"></header>
+      
+      <!-- Content -->
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm mb-6">
+          <a href="orders.html" class="text-textSecondary hover:text-accent">Commandes</a>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+          <span class="text-textPrimary font-medium" id="breadcrumb-ref">Chargement...</span>
+        </nav>
+
+        <!-- Order Summary Card -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 class="text-2xl font-bold text-textPrimary" id="order-ref">CMD-2024-0001</h1>
+              <p class="text-textSecondary text-sm" id="order-date">Créée le 01/01/2024</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="order-status" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium">--</span>
+              <span id="payment-status" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Status with Progress Bar -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6">
+          <h3 class="font-semibold text-textPrimary mb-4">Statut Paiement</h3>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-textSecondary" id="payment-text">Vous avez payé 0 MAD sur 0 MAD (0%)</p>
+            <span class="text-accent font-bold" id="payment-remaining">Reste: 0 MAD</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-4">
+            <div id="payment-progress" class="bg-success h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between mt-2 text-sm text-textSecondary">
+            <span id="payment-due-date">Échéance: --</span>
+            <span id="payment-status-text">Non payé</span>
+          </div>
+        </div>
+
+        <!-- Horizontal Status Stepper -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6">
+          <h3 class="font-semibold text-textPrimary mb-4">Suivi de la commande</h3>
+          <div class="flex items-center justify-between" id="status-stepper">
+            <!-- Status steps will be loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- Order Items Table -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-6 mb-6">
+          <h3 class="font-semibold text-textPrimary mb-4">Articles de la commande</h3>
+          <div class="overflow-x-auto mb-6">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-border">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Produit</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Quantité</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Prix unitaire</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Total</th>
+                </tr>
+              </thead>
+              <tbody id="order-items-body" class="divide-y divide-border">
+                <tr><td colspan="4" class="px-4 py-8 text-center text-textSecondary">Chargement...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Total -->
+          <div class="flex justify-end">
+            <div class="w-64">
+              <div class="flex justify-between py-2 border-b border-border">
+                <span class="text-textSecondary">Sous-total</span>
+                <span class="text-textPrimary font-medium" id="subtotal">--</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-border">
+                <span class="text-textSecondary">TVA (20%)</span>
+                <span class="text-textPrimary font-medium" id="tax">--</span>
+              </div>
+              <div class="flex justify-between py-3">
+                <span class="font-semibold text-textPrimary">Total</span>
+                <span class="font-bold text-xl text-accent" id="total">--</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live GPS Delivery Map -->
+        <div class="bg-surface rounded-xl shadow-sm border border-border p-6" id="map-container">
+          <h3 class="font-semibold text-textPrimary mb-4">Suivi GPS en temps réel</h3>
+          <div id="map" class="hidden"></div>
+          <div id="map-placeholder" class="text-center py-12 text-textSecondary">
+            <i data-lucide="map" class="w-12 h-12 mx-auto mb-4 text-gray-400"></i>
+            <p>Le suivi GPS sera disponible lorsque la commande sera en transit</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>
+    requireAuth(["CLIENT"]);
+    const currentUser = getCurrentUser();
+  </script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
+  <script src="../../js/utils/format.js"></script>
+  <script>
+    initPage("CLIENT");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('id');
+    let map = null;
+    let truckMarker = null;
+    let clientMarker = null;
+    let routeLine = null;
+
+    const statusSteps = [
+      { key: 'CONFIRMED', label: 'Commande confirmée', icon: 'check-circle' },
+      { key: 'PREPARING', label: 'En préparation', icon: 'package' },
+      { key: 'SHIPPED', label: 'Expédiée', icon: 'truck' },
+      { key: 'IN_TRANSIT', label: 'En transit', icon: 'map-pin' },
+      { key: 'DELIVERED', label: 'Livrée', icon: 'check-circle-2' }
+    ];
+
+    async function loadOrder() {
+      try {
+        const response = await apiFetch(`/client/orders/${orderId}`);
+        const order = response.data;
+
+        // Update breadcrumb
+        document.getElementById('breadcrumb-ref').textContent = order.orderRef;
+
+        // Update order summary
+        document.getElementById('order-ref').textContent = order.orderRef;
+        document.getElementById('order-date').textContent = `Créée le ${formatDate(order.createdAt)}`;
+        document.getElementById('order-status').textContent = getOrderStatusLabel(order.status);
+        document.getElementById('order-status').className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getOrderStatusColor(order.status)}`;
+        document.getElementById('payment-status').textContent = getPaymentStatusLabel(order.paymentStatus);
+        document.getElementById('payment-status').className = `inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPaymentStatusColor(order.paymentStatus)}`;
+
+        // Update payment status
+        const paidAmount = order.paidAmount || 0;
+        const totalAmount = order.totalAmount;
+        const remaining = totalAmount - paidAmount;
+        const percentage = totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 0;
+
+        document.getElementById('payment-text').textContent = `Vous avez payé ${formatCurrency(paidAmount)} sur ${formatCurrency(totalAmount)} (${percentage}%)`;
+        document.getElementById('payment-remaining').textContent = `Reste: ${formatCurrency(remaining)}`;
+        document.getElementById('payment-progress').style.width = `${percentage}%`;
+        document.getElementById('payment-due-date').textContent = order.dueDate ? `Échéance: ${formatDate(order.dueDate)}` : 'Échéance: --';
+        document.getElementById('payment-status-text').textContent = getPaymentStatusLabel(order.paymentStatus);
+
+        // Update status stepper
+        updateStatusStepper(order.status);
+
+        // Update order items
+        const tbody = document.getElementById('order-items-body');
+        tbody.innerHTML = order.items.map(item => `
+          <tr>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                  ${item.productImageUrl 
+                    ? `<img src="${item.productImageUrl}" alt="${item.productName}" class="w-full h-full object-cover">`
+                    : `<div class="w-full h-full flex items-center justify-center bg-primary bg-opacity-10">
+                        <i data-lucide="package" class="w-5 h-5 text-primary"></i>
+                      </div>`
+                  }
+                </div>
+                <div>
+                  <p class="font-medium text-textPrimary">${item.productName}</p>
+                  <p class="text-sm text-textSecondary font-mono">${item.productReference}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-textPrimary">${item.quantity}</td>
+            <td class="px-4 py-3 text-textPrimary">${formatCurrency(item.unitPrice)}</td>
+            <td class="px-4 py-3 text-textPrimary font-medium">${formatCurrency(item.quantity * item.unitPrice)}</td>
+          </tr>
+        `).join("");
+
+        // Update totals
+        document.getElementById('subtotal').textContent = formatCurrency(order.subtotal);
+        document.getElementById('tax').textContent = formatCurrency(order.tax);
+        document.getElementById('total').textContent = formatCurrency(order.totalAmount);
+
+        // Update map if in transit
+        if (order.status === 'IN_TRANSIT' && order.delivery && order.delivery.truckLocation) {
+          initMap(order.delivery);
+        }
+
+        lucide.createIcons();
+      } catch (error) {
+        console.error("Failed to load order:", error);
+      }
+    }
+
+    function updateStatusStepper(currentStatus) {
+      const container = document.getElementById('status-stepper');
+      const currentIndex = statusSteps.findIndex(step => step.key === currentStatus);
+
+      container.innerHTML = statusSteps.map((step, index) => {
+        const isCompleted = index < currentIndex;
+        const isCurrent = index === currentIndex;
+        const isPending = index > currentIndex;
+
+        return `
+          <div class="flex flex-col items-center flex-1">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center ${isCompleted ? 'bg-success text-white' : isCurrent ? 'bg-accent text-white pulse-marker' : 'bg-gray-200 text-gray-500'}">
+              <i data-lucide="${step.icon}" class="w-6 h-6"></i>
+            </div>
+            <p class="text-xs text-center mt-2 ${isCompleted || isCurrent ? 'text-textPrimary font-medium' : 'text-textSecondary'}">${step.label}</p>
+          </div>
+          ${index < statusSteps.length - 1 ? `<div class="flex-1 h-1 ${isCompleted ? 'bg-success' : 'bg-gray-200'} mx-2"></div>` : ''}
+        `;
+      }).join('');
+    }
+
+    function initMap(delivery) {
+      const mapContainer = document.getElementById('map');
+      const mapPlaceholder = document.getElementById('map-placeholder');
+
+      mapContainer.classList.remove('hidden');
+      mapPlaceholder.classList.add('hidden');
+
+      if (!map) {
+        map = L.map('map').setView([delivery.truckLocation.lat, delivery.truckLocation.lng], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+      }
+
+      // Clear existing markers
+      if (truckMarker) map.removeLayer(truckMarker);
+      if (clientMarker) map.removeLayer(clientMarker);
+      if (routeLine) map.removeLayer(routeLine);
+
+      // Truck marker with custom icon
+      const truckIcon = L.divIcon({
+        html: `<div class="bg-accent text-white w-8 h-8 rounded-full flex items-center justify-center pulse-marker"><i data-lucide="truck" class="w-4 h-4"></i></div>`,
+        className: 'custom-marker',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      truckMarker = L.marker([delivery.truckLocation.lat, delivery.truckLocation.lng], { icon: truckIcon })
+        .addTo(map)
+        .bindPopup('Camion de livraison');
+
+      // Client location marker
+      if (delivery.clientLocation) {
+        const clientIcon = L.divIcon({
+          html: `<div class="bg-success text-white w-8 h-8 rounded-full flex items-center justify-center"><i data-lucide="map-pin" class="w-4 h-4"></i></div>`,
+          className: 'custom-marker',
+          iconSize: [32, 32],
+          iconAnchor: [16, 16]
+        });
+
+        clientMarker = L.marker([delivery.clientLocation.lat, delivery.clientLocation.lng], { icon: clientIcon })
+          .addTo(map)
+          .bindPopup('Destination');
+
+        // Route line
+        routeLine = L.polyline([
+          [delivery.truckLocation.lat, delivery.truckLocation.lng],
+          [delivery.clientLocation.lat, delivery.clientLocation.lng]
+        ], {
+          color: '#2C74B3',
+          weight: 4,
+          opacity: 0.7,
+          dashArray: '10, 10'
+        }).addTo(map);
+
+        // Fit bounds to show both markers
+        const bounds = L.latLngBounds([
+          [delivery.truckLocation.lat, delivery.truckLocation.lng],
+          [delivery.clientLocation.lat, delivery.clientLocation.lng]
+        ]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+
+      lucide.createIcons();
+    }
+
+    function getOrderStatusLabel(status) {
+      const labels = {
+        PENDING: "En attente",
+        CONFIRMED: "Confirmée",
+        PREPARING: "En préparation",
+        SHIPPED: "Expédiée",
+        IN_TRANSIT: "En transit",
+        DELIVERED: "Livrée",
+        CANCELLED: "Annulée"
+      };
+      return labels[status] || status;
+    }
+
+    function getOrderStatusColor(status) {
+      const colors = {
+        PENDING: "bg-gray-100 text-gray-800",
+        CONFIRMED: "bg-blue-100 text-blue-800",
+        PREPARING: "bg-yellow-100 text-yellow-800",
+        SHIPPED: "bg-purple-100 text-purple-800",
+        IN_TRANSIT: "bg-indigo-100 text-indigo-800",
+        DELIVERED: "bg-green-100 text-green-800",
+        CANCELLED: "bg-red-100 text-red-800"
+      };
+      return colors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    function getPaymentStatusLabel(status) {
+      const labels = {
+        UNPAID: "Non payé",
+        PARTIAL: "Partiel",
+        PAID: "Payé",
+        OVERDUE: "En retard"
+      };
+      return labels[status] || status;
+    }
+
+    function getPaymentStatusColor(status) {
+      const colors = {
+        UNPAID: "bg-red-100 text-red-800",
+        PARTIAL: "bg-orange-100 text-orange-800",
+        PAID: "bg-green-100 text-green-800",
+        OVERDUE: "bg-red-900 text-red-50"
+      };
+      return colors[status] || 'bg-gray-100 text-gray-800';
+    }
+
+    // Load order on page load
+    if (orderId) {
+      loadOrder();
+    } else {
+      window.location.href = '/medsupply-cloud/pages/orders.html';
+    }
+  </script>
+</body>
+</html>
