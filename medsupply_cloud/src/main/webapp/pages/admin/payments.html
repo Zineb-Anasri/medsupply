@@ -92,16 +92,25 @@
       return c ? `<p class="font-medium text-textPrimary">${c.name || "Client"}</p>` : `<span class="text-textSecondary text-sm">—</span>`;
     }
 
+    // Overdue is partly derived: an explicit OVERDUE status OR a PENDING/PARTIAL
+    // payment whose due date is in the past (the backend may not have run its sweep).
+    function isOverdue(p) {
+      if (p.status === "OVERDUE") return true;
+      return ["PENDING", "PARTIAL"].includes(p.status) && p.dueDate && new Date(p.dueDate) < new Date();
+    }
+
     function stats() {
       document.getElementById("stat-received").textContent = formatCurrency(payments.reduce((s,p)=>s+(Number(p.paidAmount)||0),0));
       document.getElementById("stat-outstanding").textContent = formatCurrency(payments.filter(p=>["PENDING","PARTIAL","OVERDUE"].includes(p.status)).reduce((s,p)=>s+((Number(p.amount)||0)-(Number(p.paidAmount)||0)),0));
-      document.getElementById("stat-overdue").textContent = payments.filter(p=>p.status==="OVERDUE").length;
+      document.getElementById("stat-overdue").textContent = payments.filter(isOverdue).length;
       document.getElementById("stat-total").textContent = payments.length;
     }
 
     function render() {
       const f = document.getElementById("status-filter").value;
-      const rows = payments.filter(p=>!f||p.status===f).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+      const rows = payments
+        .filter(p => !f || (f === "OVERDUE" ? isOverdue(p) : p.status === f))
+        .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
       const tbody = document.getElementById("pay-body");
       if (rows.length===0) { tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-textSecondary">Aucun paiement</td></tr>`; return; }
       tbody.innerHTML = rows.map(p=>{
