@@ -1,204 +1,143 @@
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mes Paiements - MedSupply Cloud</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: "#0A2647",
-              secondary: "#144272",
-              accent: "#2C74B3",
-              success: "#16A34A",
-              warning: "#D97706",
-              danger: "#DC2626",
-              background: "#F8FAFC",
-              surface: "#FFFFFF",
-              border: "#E2E8F0",
-              textPrimary: "#0F172A",
-              textSecondary: "#64748B",
-            },
-          },
-        },
-      };
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-      body {
-        font-family: "Inter", sans-serif;
-      }
-    </style>
-  </head>
-  <body class="bg-background">
-    <div class="flex h-screen">
-      <aside
-        id="sidebar"
-        class="bg-white border-r border-gray-200 flex-shrink-0"
-      ></aside>
-      <div class="flex-1 flex flex-col ">
-        <header id="header"></header>
-        <main id="main-content" class="flex-1 p-6 overflow-y-auto">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h1 class="text-2xl font-bold text-textPrimary">Mes Paiements</h1>
-              <p class="text-textSecondary">Historique de vos paiements</p>
-            </div>
-          </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mes Paiements - MedSupply Cloud</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      primary: "#0A2647", secondary: "#144272", accent: "#2C74B3",
+      success: "#16A34A", warning: "#D97706", danger: "#DC2626",
+      background: "#F8FAFC", surface: "#FFFFFF", border: "#E2E8F0",
+      textPrimary: "#0F172A", textSecondary: "#64748B" } } } };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style> body { font-family: 'Inter', sans-serif; } .font-mono { font-family: 'JetBrains Mono', monospace; } </style>
+</head>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    <div class="flex-1 flex flex-col">
+      <header id="header"></header>
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <div class="mb-6"><h1 class="text-2xl font-bold text-textPrimary">Mes Paiements</h1><p class="text-textSecondary">Réglez vos factures en ligne</p></div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div
-              class="bg-surface rounded-xl shadow-sm border border-border p-6"
-            >
-              <p class="text-textSecondary text-sm">Total payé</p>
-              <p class="text-2xl font-bold text-primary" id="stat-total-paid">
-                0,00 MAD
-              </p>
-            </div>
-            <div
-              class="bg-surface rounded-xl shadow-sm border border-border p-6"
-            >
-              <p class="text-textSecondary text-sm">En attente</p>
-              <p class="text-2xl font-bold text-warning" id="stat-pending">
-                0,00 MAD
-              </p>
-            </div>
-            <div
-              class="bg-surface rounded-xl shadow-sm border border-border p-6"
-            >
-              <p class="text-textSecondary text-sm">Transactions</p>
-              <p class="text-2xl font-bold text-accent" id="stat-count">0</p>
-            </div>
-          </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-5"><p class="text-textSecondary text-sm">À régler</p><p class="text-2xl font-bold text-warning" id="stat-due">—</p></div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-5"><p class="text-textSecondary text-sm">En retard</p><p class="text-2xl font-bold text-danger" id="stat-overdue">0</p></div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-5"><p class="text-textSecondary text-sm">Payés</p><p class="text-2xl font-bold text-success" id="stat-paid">0</p></div>
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-5"><p class="text-textSecondary text-sm">Total</p><p class="text-2xl font-bold text-textPrimary" id="stat-total">0</p></div>
+        </div>
 
-          <div
-            class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden"
-          >
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead class="bg-gray-50 border-b border-border">
-                  <tr>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                    >
-                      N° Paiement
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                    >
-                      Commande
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                    >
-                      Montant
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                    >
-                      Méthode
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                    >
-                      Statut
-                    </th>
-                    <th
-                      class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase"
-                    >
-                      Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody id="payments-body" class="divide-y divide-border">
-                  <tr>
-                    <td
-                      colspan="6"
-                      class="px-6 py-12 text-center text-textSecondary"
-                    >
-                      Chargement...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        <div class="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-border"><tr>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Commande</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Montant</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Payé</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Échéance</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-textSecondary uppercase">Statut</th>
+                <th class="px-6 py-3 text-right text-xs font-semibold text-textSecondary uppercase">Actions</th>
+              </tr></thead>
+              <tbody id="pay-body" class="divide-y divide-border"><tr><td colspan="6" class="px-6 py-12 text-center text-textSecondary">Chargement...</td></tr></tbody>
+            </table>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
+  </div>
 
-    <script src="../../js/api.js"></script>
-    <script src="../../js/auth.js"></script>
-    <script>
-      requireAuth(["CLIENT"]);
-    </script>
-    <script src="../../js/router.js"></script>
-    <script src="../../js/components/sidebar.js"></script>
-    <script src="../../js/components/header.js"></script>
-    <script src="../../js/components/badge.js"></script>
-    <script src="../../js/components/toast.js"></script>
-    <script src="../../js/utils/format.js"></script>
-    <script>
-      initPage("CLIENT");
-      const role = getCurrentRole();
-      if (role) {
-        renderSidebar(role.toLowerCase());
-      }
-      renderHeader();
+  <!-- Payment modal -->
+  <div id="pay-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+      <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-semibold text-textPrimary">Régler le paiement</h3><button data-modal-close onclick="closeModal('pay-modal')" class="p-1 rounded hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <p class="text-sm text-textSecondary mb-4">Reste à payer : <span id="modal-remaining" class="font-semibold text-textPrimary"></span></p>
+      <label class="block text-sm font-medium text-textPrimary mb-1">Montant</label>
+      <input id="pay-amount" type="number" min="0" step="0.01" class="w-full mb-3 px-3 py-2 border border-border rounded-lg" />
+      <label class="block text-sm font-medium text-textPrimary mb-1">Méthode</label>
+      <select id="pay-method" class="w-full mb-3 px-3 py-2 border border-border rounded-lg">
+        <option value="CARD">Carte bancaire</option><option value="TRANSFER">Virement</option><option value="CHECK">Chèque</option><option value="CASH">Espèces</option>
+      </select>
+      <label class="block text-sm font-medium text-textPrimary mb-1">Référence (optionnel)</label>
+      <input id="pay-ref" type="text" class="w-full mb-4 px-3 py-2 border border-border rounded-lg" />
+      <button onclick="submitPayment()" class="w-full bg-accent hover:bg-secondary text-white font-medium py-2.5 rounded-lg">Confirmer le paiement</button>
+    </div>
+  </div>
 
-      async function loadPayments() {
-        try {
-          const response = await apiFetch("/payments");
-          const payments = response?.data?.payments || MOCK_PAYMENTS;
+  <script src="../../js/api.js"></script>
+  <script src="../../js/auth.js"></script>
+  <script>requireAuth(["CLIENT"]);</script>
+  <script src="../../js/router.js"></script>
+  <script src="../../js/components/sidebar.js"></script>
+  <script src="../../js/components/header.js"></script>
+  <script src="../../js/components/badge.js"></script>
+  <script src="../../js/components/toast.js"></script>
+  <script src="../../js/components/modal.js"></script>
+  <script src="../../js/utils/format.js"></script>
+  <script>
+    initPage("CLIENT");
+    renderSidebar(getCurrentRole().toLowerCase());
+    renderHeader();
 
-          const totalPaid = payments
-            .filter((p) => p.status === "Terminé")
-            .reduce((s, p) => s + p.amount, 0);
-          const totalPending = payments
-            .filter((p) => p.status === "En attente" || p.status === "En cours")
-            .reduce((s, p) => s + p.amount, 0);
+    let payments = [];
+    let activePayment = null;
 
-          document.getElementById("stat-total-paid").textContent =
-            formatCurrency(totalPaid);
-          document.getElementById("stat-pending").textContent =
-            formatCurrency(totalPending);
-          document.getElementById("stat-count").textContent = payments.length;
+    async function load() {
+      const r = await apiFetch("/payments");
+      if (!r || !r.ok) { document.getElementById("pay-body").innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-danger">${r?.data?.message || "Erreur"}</td></tr>`; return; }
+      payments = r.data.payments || [];
+      stats(); render();
+    }
 
-          const tbody = document.getElementById("payments-body");
-          if (payments.length === 0) {
-            tbody.innerHTML =
-              '<tr><td colspan="6" class="px-6 py-12 text-center text-textSecondary">Aucun paiement trouvé</td></tr>';
-          } else {
-            tbody.innerHTML = payments
-              .map(
-                (p) => `
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 font-mono text-sm font-medium">${p.paymentId}</td>
-                <td class="px-6 py-4 text-sm">${p.orderId}</td>
-                <td class="px-6 py-4 text-sm font-medium">${formatCurrency(p.amount)}</td>
-                <td class="px-6 py-4 text-sm">${p.method}</td>
-                <td class="px-6 py-4">${renderBadge(p.status === "Terminé" ? "PAID" : p.status === "En attente" ? "UNPAID" : "PENDING")}</td>
-                <td class="px-6 py-4 text-sm text-textSecondary">${formatDate(p.date)}</td>
-              </tr>
-            `,
-              )
-              .join("");
-          }
-          lucide.createIcons();
-        } catch (error) {
-          console.error("Failed to load payments:", error);
-        }
-      }
-      loadPayments();
-    </script>
-  </body>
+    function stats() {
+      const due = payments.filter(p=>["PENDING","PARTIAL","OVERDUE"].includes(p.status)).reduce((s,p)=>s+((Number(p.amount)||0)-(Number(p.paidAmount)||0)),0);
+      document.getElementById("stat-due").textContent = formatCurrency(due);
+      document.getElementById("stat-overdue").textContent = payments.filter(p=>p.status==="OVERDUE").length;
+      document.getElementById("stat-paid").textContent = payments.filter(p=>p.status==="PAID").length;
+      document.getElementById("stat-total").textContent = payments.length;
+    }
+
+    function render() {
+      const tbody = document.getElementById("pay-body");
+      if (payments.length===0) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-textSecondary">Aucun paiement</td></tr>`; return; }
+      tbody.innerHTML = payments.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).map(p=>{
+        const payable = ["PENDING","PARTIAL","OVERDUE"].includes(p.status);
+        return `<tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 font-mono text-textPrimary">#${(p.orderId||"").slice(0,8)}</td>
+          <td class="px-6 py-4 font-medium text-textPrimary">${formatCurrency(p.amount||0)}</td>
+          <td class="px-6 py-4 text-textSecondary">${formatCurrency(p.paidAmount||0)}</td>
+          <td class="px-6 py-4 text-textSecondary">${p.dueDate ? formatDate(p.dueDate) : "—"}</td>
+          <td class="px-6 py-4">${renderBadge(p.status)}</td>
+          <td class="px-6 py-4 text-right">${payable ? `<button onclick="openPay('${p.paymentId}')" class="bg-accent hover:bg-secondary text-white text-sm font-medium px-3 py-1.5 rounded-lg inline-flex items-center gap-1"><i data-lucide="credit-card" class="w-4 h-4"></i> Payer</button>` : '<span class="text-textSecondary text-sm">—</span>'}</td>
+        </tr>`;
+      }).join("");
+      lucide.createIcons();
+    }
+
+    function openPay(id) {
+      activePayment = payments.find(p=>p.paymentId===id);
+      if (!activePayment) return;
+      const remaining = (Number(activePayment.amount)||0)-(Number(activePayment.paidAmount)||0);
+      document.getElementById("modal-remaining").textContent = formatCurrency(remaining);
+      document.getElementById("pay-amount").value = remaining.toFixed(2);
+      document.getElementById("pay-ref").value = "";
+      openModal("pay-modal");
+    }
+
+    async function submitPayment() {
+      if (!activePayment) return;
+      const amount = parseFloat(document.getElementById("pay-amount").value);
+      if (isNaN(amount) || amount <= 0) { showToast("Montant invalide", "warning"); return; }
+      const body = { amount, paymentMethod: document.getElementById("pay-method").value, transactionReference: document.getElementById("pay-ref").value || null };
+      const r = await apiFetch(`/payments/${activePayment.paymentId}/process`, { method: "POST", body: JSON.stringify(body) });
+      if (r && r.ok && r.data.success) { showToast("Paiement effectué", "success"); closeModal("pay-modal"); load(); }
+      else showToast(r?.data?.message || "Échec du paiement", "error");
+    }
+
+    load();
+  </script>
+</body>
 </html>
