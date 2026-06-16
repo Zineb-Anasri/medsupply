@@ -133,13 +133,13 @@ public class ProductServlet extends HttpServlet {
             Product product = new Product();
             product.setName(requestJson.get("name").getAsString());
             product.setReference(requestJson.get("reference").getAsString());
-            product.setDescription(requestJson.has("description") ? requestJson.get("description").getAsString() : null);
+            product.setDescription(requestJson.has("description") && !requestJson.get("description").isJsonNull() ? requestJson.get("description").getAsString() : null);
             product.setUnitPrice(new BigDecimal(requestJson.get("unitPrice").getAsString()));
-            product.setWarrantyMonths(requestJson.has("warrantyMonths") ? requestJson.get("warrantyMonths").getAsInt() : 0);
-            product.setImageUrl(requestJson.has("imageUrl") ? requestJson.get("imageUrl").getAsString() : null);
-            product.setCategoryId(requestJson.has("categoryId") ? requestJson.get("categoryId").getAsString() : null);
-            product.setBrandId(requestJson.has("brandId") ? requestJson.get("brandId").getAsString() : null);
-            product.setSupplierId(requestJson.has("supplierId") ? requestJson.get("supplierId").getAsString() : null);
+            product.setWarrantyMonths(requestJson.has("warrantyMonths") && !requestJson.get("warrantyMonths").isJsonNull() ? requestJson.get("warrantyMonths").getAsInt() : 0);
+            product.setImageUrl(requestJson.has("imageUrl") && !requestJson.get("imageUrl").isJsonNull() ? requestJson.get("imageUrl").getAsString() : null);
+            product.setCategoryId(requestJson.has("categoryId") && !requestJson.get("categoryId").isJsonNull() ? requestJson.get("categoryId").getAsString() : null);
+            product.setBrandId(requestJson.has("brandId") && !requestJson.get("brandId").isJsonNull() ? requestJson.get("brandId").getAsString() : null);
+            product.setSupplierId(requestJson.has("supplierId") && !requestJson.get("supplierId").isJsonNull() ? requestJson.get("supplierId").getAsString() : null);
 
             // Create product
             Product createdProduct = productService.createProduct(product);
@@ -202,13 +202,13 @@ public class ProductServlet extends HttpServlet {
             product.setId(productId);
             product.setName(requestJson.get("name").getAsString());
             product.setReference(requestJson.get("reference").getAsString());
-            product.setDescription(requestJson.has("description") ? requestJson.get("description").getAsString() : null);
+            product.setDescription(requestJson.has("description") && !requestJson.get("description").isJsonNull() ? requestJson.get("description").getAsString() : null);
             product.setUnitPrice(new BigDecimal(requestJson.get("unitPrice").getAsString()));
-            product.setWarrantyMonths(requestJson.has("warrantyMonths") ? requestJson.get("warrantyMonths").getAsInt() : 0);
-            product.setImageUrl(requestJson.has("imageUrl") ? requestJson.get("imageUrl").getAsString() : null);
-            product.setCategoryId(requestJson.has("categoryId") ? requestJson.get("categoryId").getAsString() : null);
-            product.setBrandId(requestJson.has("brandId") ? requestJson.get("brandId").getAsString() : null);
-            product.setSupplierId(requestJson.has("supplierId") ? requestJson.get("supplierId").getAsString() : null);
+            product.setWarrantyMonths(requestJson.has("warrantyMonths") && !requestJson.get("warrantyMonths").isJsonNull() ? requestJson.get("warrantyMonths").getAsInt() : 0);
+            product.setImageUrl(requestJson.has("imageUrl") && !requestJson.get("imageUrl").isJsonNull() ? requestJson.get("imageUrl").getAsString() : null);
+            product.setCategoryId(requestJson.has("categoryId") && !requestJson.get("categoryId").isJsonNull() ? requestJson.get("categoryId").getAsString() : null);
+            product.setBrandId(requestJson.has("brandId") && !requestJson.get("brandId").isJsonNull() ? requestJson.get("brandId").getAsString() : null);
+            product.setSupplierId(requestJson.has("supplierId") && !requestJson.get("supplierId").isJsonNull() ? requestJson.get("supplierId").getAsString() : null);
 
             // Update product
             boolean updated = productService.updateProduct(product);

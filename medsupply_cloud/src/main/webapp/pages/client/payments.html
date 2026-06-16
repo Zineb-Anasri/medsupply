@@ -131,7 +131,9 @@
       if (!activePayment) return;
       const amount = parseFloat(document.getElementById("pay-amount").value);
       if (isNaN(amount) || amount <= 0) { showToast("Montant invalide", "warning"); return; }
-      const body = { amount, paymentMethod: document.getElementById("pay-method").value, transactionReference: document.getElementById("pay-ref").value || null };
+      const body = { amount, paymentMethod: document.getElementById("pay-method").value };
+      const ref = document.getElementById("pay-ref").value.trim();
+      if (ref) body.transactionReference = ref; // omit when empty (don't send null)
       const r = await apiFetch(`/payments/${activePayment.paymentId}/process`, { method: "POST", body: JSON.stringify(body) });
       if (r && r.ok && r.data.success) { showToast("Paiement effectué", "success"); closeModal("pay-modal"); load(); }
       else showToast(r?.data?.message || "Échec du paiement", "error");

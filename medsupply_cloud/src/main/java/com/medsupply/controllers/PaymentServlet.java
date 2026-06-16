@@ -227,7 +227,7 @@ public class PaymentServlet extends HttpServlet {
                 JsonObject requestJson = JsonParser.parseString(requestBody.toString()).getAsJsonObject();
                 BigDecimal amount = requestJson.get("amount").getAsBigDecimal();
                 String paymentMethod = requestJson.get("paymentMethod").getAsString();
-                String transactionReference = requestJson.has("transactionReference") ? 
+                String transactionReference = requestJson.has("transactionReference") && !requestJson.get("transactionReference").isJsonNull() ? 
                     requestJson.get("transactionReference").getAsString() : null;
 
                 Payment payment = paymentService.processPayment(paymentId, amount, paymentMethod, transactionReference);

@@ -200,11 +200,11 @@ public class DeliveryServlet extends HttpServlet {
                 }
 
                 JsonObject requestJson = JsonParser.parseString(requestBody.toString()).getAsJsonObject();
-                String deliveryAddress = requestJson.has("deliveryAddress") ? 
+                String deliveryAddress = requestJson.has("deliveryAddress") && !requestJson.get("deliveryAddress").isJsonNull() ? 
                     requestJson.get("deliveryAddress").getAsString() : null;
-                String contactPhone = requestJson.has("contactPhone") ? 
+                String contactPhone = requestJson.has("contactPhone") && !requestJson.get("contactPhone").isJsonNull() ? 
                     requestJson.get("contactPhone").getAsString() : null;
-                String contactPerson = requestJson.has("contactPerson") ? 
+                String contactPerson = requestJson.has("contactPerson") && !requestJson.get("contactPerson").isJsonNull() ? 
                     requestJson.get("contactPerson").getAsString() : null;
 
                 Delivery delivery = deliveryService.createDeliveryForOrder(orderId, deliveryAddress, 
@@ -388,13 +388,13 @@ public class DeliveryServlet extends HttpServlet {
                 }
 
                 JsonObject requestJson = JsonParser.parseString(requestBody.toString()).getAsJsonObject();
-                String deliveryAddress = requestJson.has("deliveryAddress") ? 
+                String deliveryAddress = requestJson.has("deliveryAddress") && !requestJson.get("deliveryAddress").isJsonNull() ? 
                     requestJson.get("deliveryAddress").getAsString() : null;
-                String contactPhone = requestJson.has("contactPhone") ? 
+                String contactPhone = requestJson.has("contactPhone") && !requestJson.get("contactPhone").isJsonNull() ? 
                     requestJson.get("contactPhone").getAsString() : null;
-                String contactPerson = requestJson.has("contactPerson") ? 
+                String contactPerson = requestJson.has("contactPerson") && !requestJson.get("contactPerson").isJsonNull() ? 
                     requestJson.get("contactPerson").getAsString() : null;
-                LocalDateTime estimatedDeliveryDate = requestJson.has("estimatedDeliveryDate") ? 
+                LocalDateTime estimatedDeliveryDate = requestJson.has("estimatedDeliveryDate") && !requestJson.get("estimatedDeliveryDate").isJsonNull() ? 
                     LocalDateTime.parse(requestJson.get("estimatedDeliveryDate").getAsString()) : null;
 
                 boolean updated = deliveryService.updateDeliveryDetails(deliveryId, deliveryAddress, 
@@ -419,7 +419,7 @@ public class DeliveryServlet extends HttpServlet {
                 }
 
                 JsonObject requestJson = JsonParser.parseString(requestBody.toString()).getAsJsonObject();
-                String deliveryNotes = requestJson.has("deliveryNotes") ? 
+                String deliveryNotes = requestJson.has("deliveryNotes") && !requestJson.get("deliveryNotes").isJsonNull() ? 
                     requestJson.get("deliveryNotes").getAsString() : null;
 
                 boolean delivered = deliveryService.markDeliveryAsDelivered(deliveryId, deliveryNotes);
