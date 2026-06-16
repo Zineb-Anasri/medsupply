@@ -63,10 +63,14 @@ public class TenderService {
         Tender tender = new Tender(clientId, title, description, budgetMax, deadline);
         Tender createdTender = tenderDAO.create(tender);
 
-        // Create tender items
+        // Create tender items. Items arrive deserialized from client JSON (Gson uses the
+        // no-arg constructor), so generate the primary key if it was not provided.
         if (items != null && !items.isEmpty()) {
             for (TenderItem item : items) {
                 item.setTenderId(createdTender.getTenderId());
+                if (item.getTenderItemId() == null) {
+                    item.setTenderItemId(java.util.UUID.randomUUID().toString());
+                }
             }
             tenderItemDAO.createBatch(items);
         }
