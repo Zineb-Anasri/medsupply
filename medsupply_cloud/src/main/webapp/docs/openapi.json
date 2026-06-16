@@ -6979,6 +6979,104 @@
           }
         }
       }
+    },
+    "/api/profile": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Get the signed-in user's account + profile.",
+        "description": "Requires an authenticated session (any role).",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": true,
+                  "account": {
+                    "userId": "...",
+                    "email": "anzineb3@medsupply.dz",
+                    "role": "CLIENT"
+                  },
+                  "profile": {
+                    "clientId": "...",
+                    "name": "Hôpital Cheikh Khalifa",
+                    "type": "HOSPITAL",
+                    "email": "...",
+                    "phone": "...",
+                    "address": "...",
+                    "taxId": "..."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Update the signed-in user's profile.",
+        "description": "Requires an authenticated session. CLIENT updates {name,email,phone,address,taxId}; SUPPLIER updates {companyName,contactPerson,email,phone,address}.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Hôpital Cheikh Khalifa",
+                "email": "contact@hck.ma",
+                "phone": "0522...",
+                "address": "Casablanca",
+                "taxId": "ICE..."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "400": {
+            "description": "No editable profile / no change"
+          },
+          "404": {
+            "description": "Profile not found"
+          }
+        }
+      }
+    },
+    "/api/profile/password": {
+      "put": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Change the signed-in user's password.",
+        "description": "Requires an authenticated session.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "oldPassword": "Demo@1234",
+                "newPassword": "NewPass@123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password updated"
+          },
+          "400": {
+            "description": "Wrong current password / invalid new password"
+          }
+        }
+      }
     }
   },
   "components": {

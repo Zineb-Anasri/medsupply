@@ -44,7 +44,7 @@ public class SupplierDAO {
      * @return Supplier object if found, null otherwise
      */
     public Supplier findById(String supplierId) throws Exception {
-        String filters = "supplier_id=eq." + SupabaseClient.enc(supplierId);
+        String filters = "id=eq." + SupabaseClient.enc(supplierId);
         String response = SupabaseClient.get("suppliers", filters);
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -77,19 +77,13 @@ public class SupplierDAO {
         JsonObject body = new JsonObject();
         body.addProperty("user_id", supplier.getUserId());
         body.addProperty("company_name", supplier.getCompanyName());
-        body.addProperty("contact_person", supplier.getContactPerson());
-        body.addProperty("address", supplier.getAddress());
-        body.addProperty("phone", supplier.getPhone());
+        body.addProperty("contact_name", supplier.getContactPerson());
         body.addProperty("email", supplier.getEmail());
-        body.addProperty("tax_id", supplier.getTaxId());
-        body.addProperty("license_number", supplier.getLicenseNumber());
-        body.addProperty("is_verified", supplier.getIsVerified());
-        body.addProperty("rating", supplier.getRating());
-        
-        LocalDateTime now = LocalDateTime.now();
-        body.addProperty("created_at", now.toString());
-        body.addProperty("updated_at", now.toString());
-        
+        body.addProperty("phone", supplier.getPhone());
+        body.addProperty("address", supplier.getAddress());
+        body.addProperty("is_active", true);
+        body.addProperty("created_at", LocalDateTime.now().toString());
+
         String response = SupabaseClient.post("suppliers", body.toString());
         
         JsonArray jsonArray = SupabaseClient.parseJsonArray(response);
@@ -107,16 +101,11 @@ public class SupplierDAO {
     public boolean update(Supplier supplier) throws Exception {
         JsonObject body = new JsonObject();
         body.addProperty("company_name", supplier.getCompanyName());
-        body.addProperty("contact_person", supplier.getContactPerson());
-        body.addProperty("address", supplier.getAddress());
-        body.addProperty("phone", supplier.getPhone());
+        body.addProperty("contact_name", supplier.getContactPerson());
         body.addProperty("email", supplier.getEmail());
-        body.addProperty("tax_id", supplier.getTaxId());
-        body.addProperty("license_number", supplier.getLicenseNumber());
-        body.addProperty("is_verified", supplier.getIsVerified());
-        body.addProperty("rating", supplier.getRating());
-        body.addProperty("updated_at", LocalDateTime.now().toString());
-        
+        body.addProperty("phone", supplier.getPhone());
+        body.addProperty("address", supplier.getAddress());
+
         String response = SupabaseClient.patch("suppliers", supplier.getSupplierId().toString(), body.toString());
         return SupabaseClient.affectedRows(response) > 0;
     }
@@ -165,14 +154,14 @@ public class SupplierDAO {
      */
     private Supplier mapJsonToSupplier(JsonObject json) {
         Supplier supplier = new Supplier();
-        if (json.has("supplier_id") && !json.get("supplier_id").isJsonNull())
-            supplier.setSupplierId(json.get("supplier_id").getAsString());
+        if (json.has("id") && !json.get("id").isJsonNull())
+            supplier.setSupplierId(json.get("id").getAsString());
         if (json.has("user_id") && !json.get("user_id").isJsonNull())
             supplier.setUserId(json.get("user_id").getAsString());
         if (json.has("company_name") && !json.get("company_name").isJsonNull())
             supplier.setCompanyName(json.get("company_name").getAsString());
-        if (json.has("contact_person") && !json.get("contact_person").isJsonNull())
-            supplier.setContactPerson(json.get("contact_person").getAsString());
+        if (json.has("contact_name") && !json.get("contact_name").isJsonNull())
+            supplier.setContactPerson(json.get("contact_name").getAsString());
         if (json.has("address") && !json.get("address").isJsonNull())
             supplier.setAddress(json.get("address").getAsString());
         if (json.has("phone") && !json.get("phone").isJsonNull())
@@ -183,8 +172,8 @@ public class SupplierDAO {
             supplier.setTaxId(json.get("tax_id").getAsString());
         if (json.has("license_number") && !json.get("license_number").isJsonNull())
             supplier.setLicenseNumber(json.get("license_number").getAsString());
-        if (json.has("is_verified") && !json.get("is_verified").isJsonNull())
-            supplier.setIsVerified(json.get("is_verified").getAsBoolean());
+        if (json.has("is_active") && !json.get("is_active").isJsonNull())
+            supplier.setIsVerified(json.get("is_active").getAsBoolean());
         if (json.has("rating") && !json.get("rating").isJsonNull())
             supplier.setRating(json.get("rating").getAsDouble());
         if (json.has("created_at") && !json.get("created_at").isJsonNull()) {

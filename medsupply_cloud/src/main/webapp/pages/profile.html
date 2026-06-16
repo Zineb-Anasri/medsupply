@@ -1,378 +1,177 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mon Profil - MedSupply Cloud</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#0A2647",
-            secondary: "#144272",
-            accent: "#2C74B3",
-            success: "#16A34A",
-            warning: "#D97706",
-            danger: "#DC2626",
-            background: "#F8FAFC",
-            surface: "#FFFFFF",
-            border: "#E2E8F0",
-            textPrimary: "#0F172A",
-            textSecondary: "#64748B",
-          }
-        }
-      }
-    }
+    tailwind.config = { theme: { extend: { colors: {
+      primary: "#0A2647", secondary: "#144272", accent: "#2C74B3",
+      success: "#16A34A", warning: "#D97706", danger: "#DC2626",
+      background: "#F8FAFC", surface: "#FFFFFF", border: "#E2E8F0",
+      textPrimary: "#0F172A", textSecondary: "#64748B" } } } };
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body class="bg-background text-textPrimary">
-  <!-- Navbar will be inserted here -->
-
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h1 class="text-4xl font-bold mb-12">Mon Profil</h1>
-
-    <div class="grid md:grid-cols-4 gap-8">
-      <!-- Sidebar Navigation -->
-      <div class="md:col-span-1">
-        <div class="bg-white rounded-lg shadow-md overflow-hidden sticky top-24">
-          <div class="bg-gradient-to-r from-primary to-secondary p-6 text-center text-white">
-            <img id="user-avatar" src="" alt="Avatar" class="w-16 h-16 rounded-full mx-auto mb-4 border-4 border-white">
-            <h2 id="user-name" class="text-xl font-bold mb-1">User</h2>
-            <p id="user-role" class="text-sm text-white text-opacity-80">Membre</p>
-          </div>
-          <nav class="p-4 space-y-2">
-            <a href="#profile" onclick="showSection('profile')" class="profile-nav-btn block px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium active transition">
-              <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
-              Mon Profil
-            </a>
-            <a href="#orders" onclick="showSection('orders')" class="profile-nav-btn block px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium transition">
-              <i data-lucide="shopping-bag" class="w-5 h-5 inline mr-2"></i>
-              Mes Commandes
-            </a>
-            <a href="#addresses" onclick="showSection('addresses')" class="profile-nav-btn block px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium transition">
-              <i data-lucide="map-pin" class="w-5 h-5 inline mr-2"></i>
-              Adresses
-            </a>
-            <a href="#settings" onclick="showSection('settings')" class="profile-nav-btn block px-4 py-3 rounded-lg text-textPrimary hover:bg-background font-medium transition">
-              <i data-lucide="settings" class="w-5 h-5 inline mr-2"></i>
-              Paramètres
-            </a>
-          </nav>
+<body class="bg-background">
+  <div class="flex h-screen">
+    <aside id="sidebar" class="bg-white border-r border-gray-200 flex-shrink-0"></aside>
+    <div class="flex-1 flex flex-col">
+      <header id="header"></header>
+      <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-textPrimary">Mon Profil</h1>
+          <p class="text-textSecondary">Gérez vos informations et votre mot de passe</p>
         </div>
-      </div>
 
-      <!-- Content Area -->
-      <div class="md:col-span-3">
-        <!-- Profile Section -->
-        <div id="profile" class="profile-section">
-          <div class="bg-white rounded-lg shadow-md p-8 mb-8">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-              <i data-lucide="user" class="w-6 h-6"></i>
-              Informations Personnelles
-            </h2>
-            
-            <form class="space-y-6">
-              <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium mb-2">Prénom</label>
-                  <input type="text" id="profile-firstName" class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-2">Nom</label>
-                  <input type="text" id="profile-lastName" class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none">
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-2">Email</label>
-                <input type="email" id="profile-email" class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none">
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-2">Téléphone</label>
-                <input type="tel" id="profile-phone" class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none">
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-2">Entreprise</label>
-                <input type="text" id="profile-company" class="w-full border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-accent outline-none">
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium mb-2">Rôle</label>
-                <input type="text" id="profile-role" class="w-full border border-border rounded-lg px-4 py-2 bg-background text-textSecondary" disabled>
-              </div>
-
-              <button type="button" class="bg-accent hover:bg-secondary text-white px-6 py-3 rounded-lg font-medium transition">
-                Enregistrer les Modifications
-              </button>
-            </form>
-          </div>
-
-          <!-- Address Section -->
-          <div class="bg-white rounded-lg shadow-md p-8">
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-              <i data-lucide="map-pin" class="w-6 h-6"></i>
-              Adresse Principale
-            </h2>
-            
-            <div class="bg-background p-6 rounded-lg mb-6">
-              <p id="display-address" class="text-textSecondary mb-4"></p>
-              <button type="button" class="text-accent hover:text-secondary font-medium flex items-center gap-2">
-                <i data-lucide="edit" class="w-4 h-4"></i>
-                Modifier l'Adresse
-              </button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl">
+          <!-- Account summary -->
+          <div class="bg-surface rounded-xl shadow-sm border border-border p-6 h-fit">
+            <div class="w-16 h-16 rounded-full bg-[#2C74B3]/10 flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="user" class="w-8 h-8 text-accent"></i>
             </div>
+            <p class="text-center font-semibold text-textPrimary" id="acct-name">—</p>
+            <p class="text-center text-sm text-textSecondary mb-3" id="acct-email">—</p>
+            <div class="text-center" id="acct-role"></div>
           </div>
-        </div>
 
-        <!-- Orders Section -->
-        <div id="orders" class="profile-section hidden">
-          <div class="bg-white rounded-lg shadow-md p-8">
-            <h2 class="text-2xl font-bold mb-8 flex items-center gap-2">
-              <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-              Mes Commandes
-            </h2>
-
-            <div id="orders-container" class="space-y-6">
-              <!-- Orders will be loaded here -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Addresses Section -->
-        <div id="addresses" class="profile-section hidden">
-          <div class="bg-white rounded-lg shadow-md p-8">
-            <div class="flex justify-between items-center mb-8">
-              <h2 class="text-2xl font-bold flex items-center gap-2">
-                <i data-lucide="map-pin" class="w-6 h-6"></i>
-                Mes Adresses
+          <!-- Forms -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- Profile info -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <h2 class="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
+                <i data-lucide="id-card" class="w-5 h-5"></i> Informations
               </h2>
-              <button type="button" class="bg-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-secondary transition flex items-center gap-2">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                Ajouter une Adresse
-              </button>
-            </div>
-
-            <div class="space-y-4">
-              <div class="border-2 border-accent rounded-lg p-6 bg-background">
-                <h3 class="font-bold mb-3">Adresse Principale</h3>
-                <p id="address-full" class="text-textSecondary text-sm mb-4"></p>
-                <div class="flex gap-4">
-                  <button type="button" class="text-accent hover:text-secondary font-medium flex items-center gap-2 text-sm">
-                    <i data-lucide="edit" class="w-4 h-4"></i>
-                    Modifier
-                  </button>
-                  <button type="button" class="text-textSecondary hover:text-danger font-medium flex items-center gap-2 text-sm">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    Supprimer
+              <form id="profile-form" class="space-y-4" onsubmit="saveProfile(event)">
+                <div id="profile-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <p class="text-textSecondary">Chargement...</p>
+                </div>
+                <div id="profile-actions" class="hidden">
+                  <button type="submit" class="bg-accent hover:bg-secondary text-white font-medium px-5 py-2.5 rounded-lg flex items-center gap-2">
+                    <i data-lucide="save" class="w-5 h-5"></i> Enregistrer les modifications
                   </button>
                 </div>
-              </div>
+              </form>
+            </div>
+
+            <!-- Password -->
+            <div class="bg-surface rounded-xl shadow-sm border border-border p-6">
+              <h2 class="text-lg font-semibold text-textPrimary mb-4 flex items-center gap-2">
+                <i data-lucide="lock" class="w-5 h-5"></i> Sécurité
+              </h2>
+              <form class="space-y-4 max-w-md" onsubmit="changePassword(event)">
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-1">Mot de passe actuel</label>
+                  <input id="pwd-old" type="password" required class="w-full px-3 py-2 border border-border rounded-lg outline-none focus:ring-2 focus:ring-accent" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-1">Nouveau mot de passe</label>
+                  <input id="pwd-new" type="password" required minlength="6" class="w-full px-3 py-2 border border-border rounded-lg outline-none focus:ring-2 focus:ring-accent" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-textPrimary mb-1">Confirmer le nouveau mot de passe</label>
+                  <input id="pwd-confirm" type="password" required minlength="6" class="w-full px-3 py-2 border border-border rounded-lg outline-none focus:ring-2 focus:ring-accent" />
+                </div>
+                <button type="submit" class="bg-white border border-border hover:border-accent text-textPrimary font-medium px-5 py-2.5 rounded-lg">
+                  Changer le mot de passe
+                </button>
+              </form>
             </div>
           </div>
         </div>
-
-        <!-- Settings Section -->
-        <div id="settings" class="profile-section hidden">
-          <div class="bg-white rounded-lg shadow-md p-8">
-            <h2 class="text-2xl font-bold mb-8 flex items-center gap-2">
-              <i data-lucide="settings" class="w-6 h-6"></i>
-              Paramètres
-            </h2>
-
-            <div class="space-y-6">
-              <!-- Email Notifications -->
-              <div class="border-b border-border pb-6">
-                <div class="flex justify-between items-center">
-                  <div>
-                    <h3 class="font-bold mb-1">Notifications par Email</h3>
-                    <p class="text-sm text-textSecondary">Recevez des mises à jour sur vos commandes</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked class="sr-only peer">
-                    <div class="w-11 h-6 bg-border peer-focus:outline-none rounded-full peer bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Newsletter -->
-              <div class="border-b border-border pb-6">
-                <div class="flex justify-between items-center">
-                  <div>
-                    <h3 class="font-bold mb-1">Newsletter</h3>
-                    <p class="text-sm text-textSecondary">Recevez nos offres spéciales et nouveautés</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked class="sr-only peer">
-                    <div class="w-11 h-6 bg-border peer-focus:outline-none rounded-full peer bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Security -->
-              <div class="pb-6">
-                <h3 class="font-bold mb-4">Sécurité</h3>
-                <button type="button" class="border border-border text-textPrimary hover:border-accent px-6 py-3 rounded-lg font-medium transition">
-                  Changer le Mot de Passe
-                </button>
-              </div>
-
-              <!-- Danger Zone -->
-              <div class="border-2 border-danger border-opacity-30 rounded-lg p-6 bg-danger bg-opacity-5">
-                <h3 class="font-bold mb-4 text-danger">Zone Dangereuse</h3>
-                <button type="button" onclick="logout()" class="bg-danger hover:bg-opacity-80 text-white px-6 py-3 rounded-lg font-medium transition">
-                  <i data-lucide="log-out" class="w-5 h-5 inline mr-2"></i>
-                  Déconnexion
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </main>
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="../js/mock-data.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>requireAuth();</script>
+  <script src="../js/router.js"></script>
+  <script src="../js/components/sidebar.js"></script>
+  <script src="../js/components/header.js"></script>
+  <script src="../js/components/badge.js"></script>
   <script src="../js/components/toast.js"></script>
-  <script src="../js/components/navbar.js"></script>
+  <script src="../js/utils/format.js"></script>
   <script>
-    function loadProfileData() {
-      const user = getCurrentUser();
-      
-      // Update sidebar
-      document.getElementById("user-avatar").src = user.avatar;
-      document.getElementById("user-name").textContent = `${user.firstName} ${user.lastName}`;
-      document.getElementById("user-role").textContent = user.role;
+    initPage(getCurrentRole());
+    renderSidebar(getCurrentRole().toLowerCase());
+    renderHeader();
 
-      // Update profile form
-      document.getElementById("profile-firstName").value = user.firstName;
-      document.getElementById("profile-lastName").value = user.lastName;
-      document.getElementById("profile-email").value = user.email;
-      document.getElementById("profile-phone").value = user.phone;
-      document.getElementById("profile-company").value = user.company;
-      document.getElementById("profile-role").value = user.role;
+    let role = getCurrentRole();
 
-      // Display address
-      const address = user.address;
-      document.getElementById("display-address").textContent = `${address.street}, ${address.zipCode} ${address.city}, ${address.country}`;
-      document.getElementById("address-full").textContent = `${address.street}, ${address.zipCode} ${address.city}, ${address.country}`;
+    // field definitions per role: [id, label, profileKey, type]
+    const FIELDS = {
+      CLIENT: [
+        ["f-name", "Organisation", "name", "text"],
+        ["f-email", "Email", "email", "email"],
+        ["f-phone", "Téléphone", "phone", "tel"],
+        ["f-address", "Adresse", "address", "text"],
+        ["f-taxId", "ICE", "taxId", "text"],
+      ],
+      SUPPLIER: [
+        ["f-company", "Société", "companyName", "text"],
+        ["f-contact", "Personne de contact", "contactPerson", "text"],
+        ["f-email", "Email", "email", "email"],
+        ["f-phone", "Téléphone", "phone", "tel"],
+        ["f-address", "Adresse", "address", "text"],
+      ],
+    };
 
-      loadOrders();
-      lucide.createIcons();
-    }
+    async function load() {
+      const r = await apiFetch("/profile");
+      if (!r || !r.ok) { showToast(r?.data?.message || "Erreur de chargement", "error"); return; }
+      const acct = r.data.account || {};
+      const profile = r.data.profile || {};
 
-    function loadOrders() {
-      const container = document.getElementById("orders-container");
-      
-      const orders = MOCK_ORDERS;
-      if (orders.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12">
-            <i data-lucide="inbox" class="w-16 h-16 text-textSecondary mx-auto mb-4"></i>
-            <h3 class="text-lg font-bold mb-2">Aucune commande</h3>
-            <p class="text-textSecondary mb-6">Vous n'avez pas encore passé de commande</p>
-            <a href="/medsupply-cloud/pages/products.html" class="inline-block bg-accent text-white px-6 py-3 rounded-lg font-medium hover:bg-secondary transition">
-              Découvrir les Produits
-            </a>
-          </div>
-        `;
+      document.getElementById("acct-email").textContent = acct.email || "—";
+      document.getElementById("acct-role").innerHTML = renderBadge(acct.role);
+      document.getElementById("acct-name").textContent =
+        profile.name || profile.companyName || (acct.email ? acct.email.split("@")[0] : "Utilisateur");
+
+      const defs = FIELDS[role];
+      const container = document.getElementById("profile-fields");
+      if (!defs) {
+        container.innerHTML = `<p class="text-textSecondary sm:col-span-2">Les administrateurs n'ont pas de profil d'organisation à modifier.</p>`;
         return;
       }
-
-      container.innerHTML = orders.map(order => {
-        const statusColors = {
-          "Livré": "success",
-          "En cours": "warning",
-          "En attente": "border"
-        };
-
-        const statusIcons = {
-          "Livré": "check-circle",
-          "En cours": "truck",
-          "En attente": "clock"
-        };
-
-        const status = order.status;
-        const statusColor = statusColors[status];
-        const statusIcon = statusIcons[status];
-
-        return `
-          <div class="border border-border rounded-lg p-6">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <h3 class="text-lg font-bold mb-2">${order.id}</h3>
-                <p class="text-sm text-textSecondary">${new Date(order.date).toLocaleDateString("fr-FR", {year: "numeric", month: "long", day: "numeric"})}</p>
-              </div>
-              <div class="text-right">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${statusColor === "success" ? "bg-success bg-opacity-10 text-success" : statusColor === "warning" ? "bg-warning bg-opacity-10 text-warning" : "bg-background text-textSecondary"}">
-                  <i data-lucide="${statusIcon}" class="w-4 h-4"></i>
-                  ${status}
-                </div>
-              </div>
-            </div>
-
-            <div class="mb-4 pb-4 border-b border-border">
-              ${order.items.map(item => `
-                <div class="flex justify-between text-sm mb-2">
-                  <span>${item.name}</span>
-                  <span>${(item.price * item.quantity).toFixed(2)}€</span>
-                </div>
-              `).join("")}
-            </div>
-
-            <div class="flex justify-between items-center mb-4">
-              <span class="font-medium">Livraison estimée: ${new Date(order.estimatedDelivery).toLocaleDateString("fr-FR")}</span>
-              <span class="text-lg font-bold text-primary">${order.total.toFixed(2)}€</span>
-            </div>
-
-            <a href="#" class="text-accent hover:text-secondary font-medium flex items-center gap-2 text-sm">
-              <i data-lucide="eye" class="w-4 h-4"></i>
-              Voir les Détails
-            </a>
-          </div>
-        `;
-      }).join("");
-
+      container.innerHTML = defs.map(([id, label, key, type]) => `
+        <div${key === "address" ? ' class="sm:col-span-2"' : ""}>
+          <label class="block text-sm font-medium text-textPrimary mb-1">${label}</label>
+          <input id="${id}" data-key="${key}" type="${type}" value="${(profile[key] ?? "").toString().replace(/"/g, "&quot;")}"
+                 class="w-full px-3 py-2 border border-border rounded-lg outline-none focus:ring-2 focus:ring-accent" />
+        </div>`).join("");
+      document.getElementById("profile-actions").classList.remove("hidden");
       lucide.createIcons();
     }
 
-    function showSection(sectionId) {
-      // Hide all sections
-      document.querySelectorAll(".profile-section").forEach(section => {
-        section.classList.add("hidden");
+    async function saveProfile(e) {
+      e.preventDefault();
+      const body = {};
+      document.querySelectorAll("#profile-fields input[data-key]").forEach((inp) => {
+        body[inp.getAttribute("data-key")] = inp.value.trim();
       });
-
-      // Remove active state from all buttons
-      document.querySelectorAll(".profile-nav-btn").forEach(btn => {
-        btn.classList.remove("active", "bg-accent", "text-white");
-      });
-
-      // Show selected section
-      document.getElementById(sectionId).classList.remove("hidden");
-
-      // Add active state to clicked button
-      event.target.closest(".profile-nav-btn").classList.add("active", "bg-accent", "text-white");
+      const r = await apiFetch("/profile", { method: "PUT", body: JSON.stringify(body) });
+      if (r && r.ok && r.data.success) { showToast("Profil mis à jour", "success"); load(); }
+      else showToast(r?.data?.message || "Échec de la mise à jour", "error");
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      loadProfileData();
-      
-      // Check if need to show orders section
-      if (window.location.hash === "#orders") {
-        showSection("orders");
-      }
-    });
+    async function changePassword(e) {
+      e.preventDefault();
+      const oldPassword = document.getElementById("pwd-old").value;
+      const newPassword = document.getElementById("pwd-new").value;
+      const confirm = document.getElementById("pwd-confirm").value;
+      if (newPassword !== confirm) { showToast("Les mots de passe ne correspondent pas", "warning"); return; }
+      const r = await apiFetch("/profile/password", { method: "PUT", body: JSON.stringify({ oldPassword, newPassword }) });
+      if (r && r.ok && r.data.success) {
+        showToast("Mot de passe mis à jour", "success");
+        e.target.reset();
+      } else showToast(r?.data?.message || "Échec", "error");
+    }
+
+    load();
   </script>
 </body>
 </html>
